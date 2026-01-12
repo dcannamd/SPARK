@@ -1,6 +1,6 @@
 (*SPARK) ⚡️
 
-**Bridge Buddy** is an AI-powered technical knowledge assistant designed to support our Creative Labs and Engineering teams.
+**SPARK** is an AI-powered technical knowledge assistant designed to support our Creative Labs and Engineering teams.
 
 The heart of this initiative is to create a **living support system** for our team. Unlike "black box" AI tools where knowledge is locked away, Bridge Buddy is built on an open **Notion database**. This empowers our Creative Technologists to actively share their expertise and keep content fresh. The result is that our client-facing colleagues can feel confident they are always supported by the most accurate, expert-verified resources available.
 
