@@ -42,19 +42,3 @@ This is the recommended way for most team members to use the app. It uses the pr
     * (Or tag `@BridgeBuddy` in Slack if Socket Mode is configured).
 
 ---
-
-## ⚙️ Configuration (.env)
-
-The application relies on a `.env` file in the root directory to store secure keys.
-
-**Required Variables:**
-```ini
-# --- AI & Database Keys ---
-GOOGLE_API_KEY=AIzaSy...             # Google Gemini API Key
-NOTION_TOKEN=ntn_...                 # Internal Integration Token
-NOTION_DATABASE_ID=2b24...           # The ID of the Knowledge Base
-
-# --- Slack Keys (Optional: Only if using Slack Mode) ---
-SLACK_BOT_TOKEN=xoxb-...
-SLACK_APP_TOKEN=xapp-...# SPARK
-Shared, Prototyping, Answers &amp; Resource, Knowledge-base chatbot application
