@@ -1,4 +1,4 @@
-# Bridge Buddy (*SPARK) ⚡️
+(*SPARK) ⚡️
 
 **Bridge Buddy** is an AI-powered technical knowledge assistant designed to support our Creative Labs and Engineering teams.
 
