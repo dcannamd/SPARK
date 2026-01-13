@@ -1,4 +1,4 @@
-(*SPARK) ⚡️
+(*SPARK)
 
 **SPARK** is an AI-powered technical knowledge assistant designed to support our Creative Labs and Engineering teams.
 
@@ -6,7 +6,7 @@ The heart of this initiative is to create a **living support system** for our te
 
 ---
 
-## 🚀 Key Features
+Key Features
 
 * **Deep Technical RAG:** Recursively indexes our internal Notion documentation, reading through toggles, nested columns, and code blocks.
 * **Visual Intelligence:** Displays wiring diagrams (images) and video tutorials directly in the chat.
