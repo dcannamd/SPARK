@@ -1,2 +1,4 @@
 node_modules/
 .env
+knowledge_base.json
+vector_store/

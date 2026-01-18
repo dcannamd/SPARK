@@ -1,6 +1,11 @@
 {
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@langchain/classic": "^1.0.9",
+    "@langchain/community": "^1.1.4",
+    "@langchain/core": "^1.1.15",
     "@langchain/google-genai": "^2.1.10",
+    "@langchain/textsplitters": "^1.0.1",
     "@notionhq/client": "^5.7.0",
     "axios": "^1.13.2",
     "dotenv": "^17.2.3",
