@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@langchain/google-genai": "^2.1.10",
+    "@notionhq/client": "^5.7.0",
+    "axios": "^1.13.2",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "langchain": "^1.2.10",
+    "youtube-transcript": "^1.2.1"
+  }
+}
