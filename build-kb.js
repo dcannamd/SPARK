@@ -1,100 +1,122 @@
-// build-kb.js - Mapped to your specific Notion Headers
-const path = require('path');
-const fs = require('fs');
-require('dotenv').config();
-
+const { Client } = require("@notionhq/client");
 const { GoogleGenerativeAIEmbeddings } = require("@langchain/google-genai");
 const { RecursiveCharacterTextSplitter } = require("@langchain/textsplitters");
-const axios = require('axios');
-const NotionSDK = require("@notionhq/client");
+const fs = require("fs");
+const path = require("path");
+require("dotenv").config();
 
-const API_KEY = process.env.GOOGLE_API_KEY; 
-const NOTION_TOKEN = process.env.NOTION_TOKEN; 
-const NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID;
+// 1. Initialize Clients
+const notion = new Client({ auth: process.env.NOTION_TOKEN });
+const embeddings = new GoogleGenerativeAIEmbeddings({
+    apiKey: process.env.GOOGLE_API_KEY,
+});
+
+const DATABASE_ID = process.env.NOTION_DATABASE_ID;
 const STORE_PATH = path.join(__dirname, 'vector_store', 'memory_store.json');
 
-const notion = new NotionSDK.Client({ auth: NOTION_TOKEN });
-
-async function getNotionPageContent(pageId) {
-    let content = [];
-    async function scan(blockId) {
-        try {
-            const { results } = await notion.blocks.children.list({ block_id: blockId });
-            for (const block of results) {
-                const type = block.type;
-                if (block[type]?.rich_text) {
-                    content.push(block[type].rich_text.map(t => t.plain_text).join(''));
-                } 
-                if (block.has_children) await scan(block.id);
+/**
+ * DEEP SCAN: Recursively gets all text blocks from a Notion page, 
+ * including toggles, nested lists, and callouts.
+ */
+async function getFullPageContent(blockId) {
+    let text = "";
+    try {
+        const { results } = await notion.blocks.children.list({ block_id: blockId });
+        for (const block of results) {
+            const type = block.type;
+            const richText = block[type]?.rich_text;
+            
+            if (richText) {
+                const content = richText.map(t => t.plain_text).join("");
+                if (content) text += content + "\n";
             }
-        } catch (e) { /* ignore errors */ }
+            
+            // If the block has children (nested content), scan it recursively
+            if (block.has_children) {
+                text += await getFullPageContent(block.id);
+            }
+        }
+    } catch (e) {
+        console.error(`⚠️ Error scanning block ${blockId}:`, e.message);
     }
-    await scan(pageId);
-    return content.join('\n');
+    return text;
 }
 
-async function main() {
-    console.log('🚀 Mapping Notion Data to SPARK Digital Twin...');
+/**
+ * MAIN BUILD FUNCTION
+ */
+async function runBuild() {
+    console.log("🚀 Starting Dana's Digital Twin Brain Build...");
 
     try {
-        const response = await axios.post(
-            `https://api.notion.com/v1/databases/${NOTION_DATABASE_ID}/query`,
-            {},
-            {
-                headers: {
-                    'Authorization': `Bearer ${NOTION_TOKEN}`,
-                    'Notion-Version': '2022-06-28',
-                    'Content-Type': 'application/json'
-                }
-            }
-        );
-
-        const pages = response.data.results;
-        const embeddings = new GoogleGenerativeAIEmbeddings({ apiKey: API_KEY });
-        const splitter = new RecursiveCharacterTextSplitter({ chunkSize: 1000, chunkOverlap: 100 });
+        // Fetch all projects from the Notion Database
+        const response = await notion.databases.query({ database_id: DATABASE_ID });
         const finalVectors = [];
+        
+        // Prepare the Text Splitter (Breaks long pages into searchable chunks)
+        const splitter = new RecursiveCharacterTextSplitter({
+            chunkSize: 1000,
+            chunkOverlap: 200,
+        });
 
-        for (const page of pages) {
-            const p = page.properties;
+        for (const page of response.results) {
+            const props = page.properties;
             
-            // --- MAPPING YOUR COLUMNS ---
-            const title = p["Project Name"]?.title?.[0]?.plain_text || "Untitled";
-            const github = p["GitHub Link"]?.url || "";
-            const video = p["Video/Demo Link"]?.url || "";
-            const tech = p["Tech Stack"]?.multi_select?.map(s => s.name).join(', ') || "";
-            
-            // Logic: Use GitHub as primary source, otherwise Video, otherwise internal
-            const source = github || video || "Notion Internal";
-            
-            // Logic: Mapping your "Status" to Classification (e.g., if Status is 'Private', label Internal)
-            const statusValue = p["Status"]?.status?.name || p["Status"]?.select?.name || "Public";
-            const classification = (statusValue === "Private" || statusValue === "Internal") ? "Internal" : "Public";
-            
-            // Determine if this is a Repo (for your Source Attribution rule)
-            const type = github ? "Code Repository" : "Learning Architecture Document";
+            // 2. Map Notion Headers to Dana's Persona
+            const title = props["Project Name"]?.title[0]?.plain_text || "Untitled Project";
+            const role = props["Role"]?.select?.name || "Learning Strategist";
+            const impact = props["Business Impact"]?.rich_text?.map(t => t.plain_text).join("") || "N/A";
+            const status = props["Status"]?.status?.name || props["Status"]?.select?.name || "Public";
+            const github = props["GitHub Link"]?.url || "Notion Internal";
+            const tech = props["Tech Stack"]?.multi_select?.map(s => s.name).join(", ") || "N/A";
 
-            console.log(`📖 Processing: ${title} [${classification}]`);
+            console.log(`📖 Deep scanning: ${title}...`);
+            const deepContent = await getFullPageContent(page.id);
 
-            const pageBody = await getNotionPageContent(page.id);
-            const fullText = `[RESOURCE TITLE]: ${title}\n[SOURCE]: ${source}\n[CLASSIFICATION]: ${classification}\n[TYPE]: ${type}\n[TECH]: ${tech}\n[CONTENT]: ${pageBody}`;
+            // 3. Construct a "context-rich" string for the AI
+            const combinedText = `
+                DANA'S PROJECT: ${title}
+                ROLE: ${role}
+                BUSINESS IMPACT: ${impact}
+                TECH STACK: ${tech}
+                STATUS: ${status}
+                SOURCE: ${github}
+                FULL DETAILS: ${deepContent}
+            `;
 
-            const chunks = await splitter.splitText(fullText);
+            // 4. Split and Embed
+            const chunks = await splitter.splitText(combinedText);
+            
             for (const chunk of chunks) {
+                console.log(` ✨ Generating embedding for chunk of: ${title}`);
                 const vector = await embeddings.embedQuery(chunk);
+                
                 finalVectors.push({
                     content: chunk,
                     embedding: vector,
-                    metadata: { title, source, classification, type }
+                    metadata: { 
+                        title, 
+                        status, 
+                        source: github, 
+                        role,
+                        isDana: true 
+                    }
                 });
             }
         }
 
+        // 5. Save the "Brain"
+        if (!fs.existsSync(path.dirname(STORE_PATH))) {
+            fs.mkdirSync(path.dirname(STORE_PATH), { recursive: true });
+        }
+        
         fs.writeFileSync(STORE_PATH, JSON.stringify(finalVectors));
-        console.log(`🎉 Success! Brain updated with ${finalVectors.length} chunks.`);
+        console.log(`\n✅ SUCCESS: Brain built with ${finalVectors.length} searchable units.`);
+        console.log(`📍 Location: ${STORE_PATH}`);
 
-    } catch (e) {
-        console.error("FATAL ERROR:", e.message);
+    } catch (error) {
+        console.error("❌ FATAL ERROR DURING BUILD:", error);
     }
 }
 
-main();
+runBuild();
