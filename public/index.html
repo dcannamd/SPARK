@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProtoPie *SPARK</title>
+    <title>Dana | Learning Strategy Twin</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
@@ -13,17 +13,19 @@
     <div class="chat-container">
         <header>
             <h1>AI *SPARK by Dana Cannam 🤖</h1>
-            <p>An AI (Shared Portfolio And Resource Knowledge-base)</p>
-            <button class="new-chat-btn" onclick="startNewChat()">+ New Chat</button>
+            <p>AI Shared Portfolio And Resource Knowledge-base</p>
         </header>
         
         <div id="chat-history" class="chat-history">
+            <button class="new-chat-btn" onclick="startNewChat()">+ New Chat</button>
+
             <div class="message bot-message">
-                Hi! Welcome to *SPARK—my Shared Portfolio And Resource Knowledge-base. As a digital twin, I’m here to provide instant insights into my work in Learning Solutions Architecture and LXD. Ask me about my projects, design philosophy, or professional background. How can I help you today?            </div>
+                Hi! Welcome to **SPARK**—my Shared Portfolio And Resource Knowledge-base. As a digital twin, I’m here to provide instant insights into my work in Learning Solutions Architecture and LXD. Ask me about my projects, design philosophy, or professional background. How can I help you today?
+            </div>
         </div>
 
         <div class="input-area">
-            <textarea id="user-input" placeholder="Ask about code, plugins, or G29..." rows="1"></textarea>
+            <textarea id="user-input" placeholder="Ask about Qmod, LXD strategy, or professional experience..." rows="1"></textarea>
             <button onclick="sendMessage()" id="send-btn">Send</button>
         </div>
     </div>
@@ -31,28 +33,24 @@
     <script>
         const chatHistory = document.getElementById('chat-history');
         const userInput = document.getElementById('user-input');
-        const sendBtn = document.getElementById('send-btn');
 
-        // Configure Markdown styling
         marked.setOptions({
             highlight: function(code, lang) {
-                const language = highlight.getLanguage(lang) ? lang : 'plaintext';
-                return highlight.highlight(code, { language }).value;
+                const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+                return hljs.highlight(code, { language }).value;
             },
             langPrefix: 'hljs language-'
         });
 
-        // Function to Clear Chat (Visual + Server Memory)
         async function startNewChat() {
             chatHistory.innerHTML = `
+                <button class="new-chat-btn" onclick="startNewChat()">+ New Chat</button>
                 <div class="message bot-message">
-                    Let's start a new chat. How can I help?
+                    Let's start a new chat. How can I help you explore my portfolio?
                 </div>
             `;
-
             try {
                 await fetch('/reset-chat', { method: 'POST' });
-                console.log("Server memory cleared.");
             } catch (e) {
                 console.error("Could not reset server memory");
             }
@@ -62,27 +60,19 @@
             const prompt = userInput.value.trim();
             if (!prompt) return;
 
-            // 1. Add User Message
             addMessage(prompt, 'user-message');
             userInput.value = '';
-            
-            // 2. Show Loading
             const loadingId = addMessage("Thinking...", 'bot-message loading');
 
             try {
-                // 3. Call Server
                 const response = await fetch('/ask-buddy', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ prompt })
                 });
-                
                 const data = await response.json();
-                
-                // 4. Remove Loading & Show Markdown Response
                 removeMessage(loadingId);
                 addMessage(data.response, 'bot-message', true); 
-
             } catch (error) {
                 removeMessage(loadingId);
                 addMessage("Error: Could not reach the server.", 'bot-message error');
@@ -92,19 +82,14 @@
         function addMessage(text, className, isMarkdown = false) {
             const div = document.createElement('div');
             div.className = `message ${className}`;
-            
-            // ✅ THE FIX: Ensure truly unique IDs to prevent accidental deletion
             div.id = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
             
             if (isMarkdown) {
-                // Render Markdown normally
                 div.innerHTML = marked.parse(text);
-                
-                // Robust Link Fix: Force open in new tab
                 div.querySelectorAll('a').forEach(link => {
                     link.setAttribute('target', '_blank');
+                    link.setAttribute('rel', 'noopener noreferrer');
                 });
-                
             } else {
                 div.textContent = text;
             }
@@ -119,7 +104,6 @@
             if (el) el.remove();
         }
 
-        // Allow "Enter" to send
         userInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
