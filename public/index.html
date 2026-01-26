@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dana | Learning Strategy Twin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dana | Learning Architect Twin</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
@@ -12,20 +12,20 @@
 <body>
     <div class="chat-container">
         <header>
-            <h1>AI *SPARK by Dana Cannam 🤖</h1>
-            <p>AI Shared Portfolio And Resource Knowledge-base</p>
+            <h1>Learning Architect</h1>
+            <p>Designing high-impact systems where learning science meets technical infrastructure.</p>
         </header>
         
         <div id="chat-history" class="chat-history">
             <button class="new-chat-btn" onclick="startNewChat()">+ New Chat</button>
 
             <div class="message bot-message">
-                Hi! Welcome to **SPARK**—my Shared Portfolio And Resource Knowledge-base. As a digital twin, I’m here to provide instant insights into my work in Learning Solutions Architecture and LXD. Ask me about my projects, design philosophy, or professional background. How can I help you today?
+                Hi! I'm Dana's Digital Twin. I’m here to provide insights into my work in Learning Solutions Architecture and LXD. How can I help you today?
             </div>
         </div>
 
         <div class="input-area">
-            <textarea id="user-input" placeholder="Ask about Qmod, LXD strategy, or professional experience..." rows="1"></textarea>
+            <textarea id="user-input" placeholder="Ask a question..." rows="1"></textarea>
             <button onclick="sendMessage()" id="send-btn">Send</button>
         </div>
     </div>
@@ -33,6 +33,15 @@
     <script>
         const chatHistory = document.getElementById('chat-history');
         const userInput = document.getElementById('user-input');
+
+        // URL Parameter Logic for Dynamic JDs
+        const jobContexts = {
+            "apple": "Role: Senior LXD. Focus: Prototyping and global scale.",
+            "google": "Role: Learning Architect. Focus: Data-driven systems.",
+            "general": "Role: Learning Solutions Architect."
+        };
+        const urlParams = new URLSearchParams(window.location.search);
+        const selectedJD = jobContexts[urlParams.get('job')] || jobContexts['general'];
 
         marked.setOptions({
             highlight: function(code, lang) {
@@ -51,9 +60,7 @@
             `;
             try {
                 await fetch('/reset-chat', { method: 'POST' });
-            } catch (e) {
-                console.error("Could not reset server memory");
-            }
+            } catch (e) { console.error("Reset failed"); }
         }
 
         async function sendMessage() {
@@ -68,32 +75,29 @@
                 const response = await fetch('/ask-buddy', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt })
+                    body: JSON.stringify({ 
+                        prompt: prompt,
+                        jdContext: selectedJD // Sending the JD context to the server
+                    })
                 });
                 const data = await response.json();
                 removeMessage(loadingId);
                 addMessage(data.response, 'bot-message', true); 
             } catch (error) {
                 removeMessage(loadingId);
-                addMessage("Error: Could not reach the server.", 'bot-message error');
+                addMessage("Error connecting to server.", 'bot-message error');
             }
         }
 
         function addMessage(text, className, isMarkdown = false) {
             const div = document.createElement('div');
             div.className = `message ${className}`;
-            div.id = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-            
+            div.id = 'msg-' + Date.now();
             if (isMarkdown) {
                 div.innerHTML = marked.parse(text);
-                div.querySelectorAll('a').forEach(link => {
-                    link.setAttribute('target', '_blank');
-                    link.setAttribute('rel', 'noopener noreferrer');
-                });
             } else {
                 div.textContent = text;
             }
-            
             chatHistory.appendChild(div);
             chatHistory.scrollTop = chatHistory.scrollHeight;
             return div.id;
