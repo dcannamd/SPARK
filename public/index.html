@@ -6,23 +6,24 @@
     <title>Dana | Learning Architect Twin</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 </head>
 <body>
     <div class="chat-container">
         <header>
-            <h1>SPARK A Conversation with Dana</h1>
+            <h1>SPARK A Conversation With Dana</h1>
             <p>A Digital Twin Experience Powered by SPARK (Shared Portfolio and Resource Knowledge-base)</p>
         </header>
         
         <div id="chat-history" class="chat-history">
-            <button class="new-chat-btn" onclick="startNewChat()">+ New Chat</button>
+            <button class="new-chat-btn" onclick="startNewChat()">+ Start Fresh</button>
 
             <div class="message bot-message">
-Hi! I’m Dana’s Digital Twin powered by SPARK. I’ve turned my 'About' section into a dynamic conversation. Feel free to ask me anything about my professional experience and journey as a Learning Architect—I’m happy to help!
+                Hi! I’m Dana’s Digital Twin powered by SPARK. I’ve turned my 'About' section into a dynamic conversation. Feel free to ask me anything about my professional experience and journey as a Learning Architect—I’m happy to help!
+            </div>
+        </div>
+
         <div class="input-area">
-            <textarea id="user-input" placeholder="Ask a question about Qmod, SPARK, or NEO" rows="1"></textarea>
+            <textarea id="user-input" placeholder="Ask about my design philosophy..." rows="1"></textarea>
             <button onclick="sendMessage()" id="send-btn">Send</button>
         </div>
     </div>
@@ -31,58 +32,30 @@ Hi! I’m Dana’s Digital Twin powered by SPARK. I’ve turned my 'About' secti
         const chatHistory = document.getElementById('chat-history');
         const userInput = document.getElementById('user-input');
 
-        // URL Parameter Logic for Dynamic JDs
-        const jobContexts = {
-            "apple": "Role: Senior LXD. Focus: Prototyping and global scale.",
-            "google": "Role: Learning Architect. Focus: Data-driven systems.",
-            "general": "Role: Learning Solutions Architect."
-        };
-        const urlParams = new URLSearchParams(window.location.search);
-        const selectedJD = jobContexts[urlParams.get('job')] || jobContexts['general'];
-
-        marked.setOptions({
-            highlight: function(code, lang) {
-                const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-                return hljs.highlight(code, { language }).value;
-            },
-            langPrefix: 'hljs language-'
-        });
-
-        async function startNewChat() {
-            chatHistory.innerHTML = `
-                <button class="new-chat-btn" onclick="startNewChat()">+ New Chat</button>
-                <div class="message bot-message">
-                    Let's start a new chat. How can I help you explore my portfolio?
-                </div>
-            `;
-            try {
-                await fetch('/reset-chat', { method: 'POST' });
-            } catch (e) { console.error("Reset failed"); }
-        }
-
         async function sendMessage() {
             const prompt = userInput.value.trim();
             if (!prompt) return;
 
             addMessage(prompt, 'user-message');
             userInput.value = '';
+            
+            // Auto-scroll to bottom after user sends message
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+
             const loadingId = addMessage("Thinking...", 'bot-message loading');
 
             try {
                 const response = await fetch('/ask-buddy', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        prompt: prompt,
-                        jdContext: selectedJD // Sending the JD context to the server
-                    })
+                    body: JSON.stringify({ prompt: prompt })
                 });
                 const data = await response.json();
                 removeMessage(loadingId);
                 addMessage(data.response, 'bot-message', true); 
             } catch (error) {
                 removeMessage(loadingId);
-                addMessage("Error connecting to server.", 'bot-message error');
+                addMessage("Error: Could not reach the server.", 'bot-message error');
             }
         }
 
@@ -90,12 +63,15 @@ Hi! I’m Dana’s Digital Twin powered by SPARK. I’ve turned my 'About' secti
             const div = document.createElement('div');
             div.className = `message ${className}`;
             div.id = 'msg-' + Date.now();
+            
             if (isMarkdown) {
                 div.innerHTML = marked.parse(text);
             } else {
                 div.textContent = text;
             }
+            
             chatHistory.appendChild(div);
+            // Always scroll the chat history area to the bottom
             chatHistory.scrollTop = chatHistory.scrollHeight;
             return div.id;
         }
@@ -103,6 +79,10 @@ Hi! I’m Dana’s Digital Twin powered by SPARK. I’ve turned my 'About' secti
         function removeMessage(id) {
             const el = document.getElementById(id);
             if (el) el.remove();
+        }
+
+        function startNewChat() {
+            location.reload(); 
         }
 
         userInput.addEventListener('keypress', (e) => {
