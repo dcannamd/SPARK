@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@langchain/core": "^1.1.22",
     "@langchain/google-genai": "^2.1.15",
     "@langchain/textsplitters": "^0.0.0",
     "@notionhq/client": "^2.2.14",
