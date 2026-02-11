@@ -1,195 +1,125 @@
-/* Basic Reset */
+/* Mobile-First Reset */
+* { box-sizing: border-box; }
+
 body { 
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-    background-color: #f4f4f9; 
-    color: #444; /* Softened text color */
-    display: flex; 
-    justify-content: center; 
-    height: 100vh; 
+    background-color: #ffffff; 
+    color: #333; 
     margin: 0; 
-}
-
-/* Layout */
-.chat-container { 
-    width: 90%; 
-    max-width: 900px; 
-    background: white; 
-    display: flex; 
-    flex-direction: column; 
-    height: 95vh; 
-    margin-top: 2.5vh; 
-    border-radius: 12px; 
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1); 
-    overflow: hidden; 
-}
-
-/* Header - Branding Colors */
-header { 
-    background: #8169FF; /* ✅ NEW PURPLE COLOR */
-    color: white; 
-    padding: 15px; 
-    text-align: center;
-    position: relative; /* Allows button positioning */
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    height: 100vh; /* Full viewport height */
+    overflow: hidden; /* Prevents the whole page from scrolling */
 }
 
-header h1 { 
-    margin: 0; 
-    font-size: 1.2rem; 
-    font-weight: 600;
+/* Layout: The container must be a flex column */
+.chat-container { 
+    display: flex; 
+    flex-direction: column; 
+    width: 100%; 
+    height: 100%; 
+    background: white;
 }
 
-header p { 
-    margin: 5px 0 0 0; 
-    font-size: 0.85rem; 
-    opacity: 0.9; 
+/* Desktop: Centered Window */
+@media (min-width: 768px) {
+    body {
+        justify-content: center;
+        align-items: center;
+        background-color: #fcfcfc;
+    }
+    .chat-container { 
+        width: 95%; 
+        max-width: 850px; 
+        height: 90vh; 
+        border: 1px solid #eaeaea;
+        border-radius: 16px; 
+        box-shadow: 0 10px 40px rgba(129, 105, 255, 0.1); 
+    }
 }
 
-/* New Chat Button Styling */
-.new-chat-btn {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    color: white;
-    padding: 8px 12px;
-    font-size: 0.8rem;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.2s;
+/* Header stays at the top */
+header { 
+    background: #000000; 
+    color: white; 
+    padding: 20px; 
+    text-align: center;
+    flex-shrink: 0; /* Prevents header from squishing */
 }
 
-.new-chat-btn:hover {
-    background: rgba(255, 255, 255, 0.4);
-}
+header h1 { font-size: 1.3rem; margin: 0; }
+header p { font-size: 0.85rem; margin: 5px 0 0; opacity: 0.9; }
 
-/* Chat Area */
+/* THIS IS THE FIX: The history area grows to fill the middle */
 .chat-history { 
     flex: 1; 
     padding: 20px; 
-    overflow-y: auto; 
-    background: #fff; 
+    overflow-y: auto; /* This allows messages to scroll while input stays put */
     display: flex; 
     flex-direction: column; 
-    gap: 15px; 
+    gap: 15px;
+    background: #ffffff;
 }
 
 /* Message Bubbles */
 .message { 
-    padding: 12px 18px; 
-    border-radius: 8px; 
+    padding: 12px 16px; 
+    border-radius: 14px; 
     max-width: 85%; 
-    line-height: 1.6; /* Improved readability */
-    font-size: 0.95rem; 
+    line-height: 1.5; 
 }
 
 .user-message { 
-    background-color: #8169FF; /* ✅ NEW PURPLE COLOR */
+    background-color: #000000; 
     color: white; 
     align-self: flex-end; 
     border-bottom-right-radius: 2px; 
 }
 
 .bot-message { 
-    background-color: #f4f4f4; 
-    color: #2c2c2c; /* Softer black */
+    background-color: #f2f0ff; 
+    color: #2c2c2c; 
     align-self: flex-start; 
     border-bottom-left-radius: 2px; 
 }
 
-/* --- CODE BLOCK STYLING --- */
-
-/* 1. Standard Inline Code (e.g., `console.log`) inside text */
-code { 
-    font-family: 'Consolas', 'Monaco', monospace; 
-    font-size: 0.9rem; 
-    background-color: rgba(0, 0, 0, 0.06); /* Subtle gray background */
-    color: #d63384; /* Pinkish-Red for visibility */
-    padding: 2px 5px;
-    border-radius: 4px;
-}
-
-/* 2. Block Code (e.g., the big black boxes) */
-pre { 
-    background: #282a36; /* Dracula Dark */
-    border-radius: 6px; 
-    padding: 15px; 
-    overflow-x: auto; 
-    margin: 10px 0; 
-    border: 1px solid #3e404e;
-}
-
-/* Force code INSIDE a block to be white and have no extra background */
-pre code { 
-    background-color: transparent;
-    color: #f8f8f2; /* Light text for dark blocks */
-    padding: 0;
-}
-
-/* Fix for Highlight.js */
-.hljs { 
-    background: transparent !important; 
-    padding: 0 !important; 
-}
-
-/* Input Area */
+/* The Prompt Box sits at the very bottom */
 .input-area { 
     padding: 20px; 
-    background: #f9f9f9; 
-    border-top: 1px solid #eee; 
+    border-top: 1px solid #f0f0f0; 
     display: flex; 
-    gap: 10px; 
+    gap: 12px;
+    background: #fff;
+    flex-shrink: 0; /* Prevents input from squishing */
 }
 
 textarea { 
     flex: 1; 
     padding: 12px; 
-    border: 1px solid #ccc; 
-    border-radius: 6px; 
+    border: 1px solid #ddd; 
+    border-radius: 10px; 
     resize: none; 
-    font-family: inherit;
-    font-size: 0.95rem;
+    font-size: 16px; 
 }
 
-textarea:focus {
-    outline: 2px solid #8169FF; /* Focus color */
-    border-color: transparent;
-}
-
-/* Send Button */
 button#send-btn { 
-    padding: 0 25px; 
-    background: #8169FF; /* ✅ NEW PURPLE COLOR */
+    padding: 0 20px; 
+    background: #000000; 
     color: white; 
     border: none; 
-    border-radius: 6px; 
+    border-radius: 10px; 
     cursor: pointer; 
     font-weight: bold; 
-    transition: background 0.2s;
 }
 
-button#send-btn:hover { 
-    background: #6a55d6; /* Slightly darker purple for hover */
-}
-
-/* --- LINK STYLING --- */
-
-/* Links inside Bot Messages */
-.bot-message a {
-    color: #8169FF;       /* Brand Purple */
-    font-weight: 700;     /* Bold text */
-    text-decoration: underline; 
+.new-chat-btn {
+    align-self: center;
+    background: none;
+    border: 1px solid #000000;
+    color: #000000;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.8rem;
     cursor: pointer;
-}
-
-.bot-message a:hover {
-    color: #6a55d6;       /* Darker purple on hover */
-    background-color: rgba(129, 105, 255, 0.1); /* Subtle highlight */
-    border-radius: 3px;
-    text-decoration: none; 
+    margin-bottom: 10px;
 }
