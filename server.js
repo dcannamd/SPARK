@@ -1,24 +1,26 @@
-// server.js - Manual Knowledge Base Mode
+// server.js
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const { GoogleGenerativeAIEmbeddings } = require("@langchain/google-genai");
-// FIX: Import the correct function names
-const { getDanaResponse, resetHistory } = require('./rag-tutor.js');
 require('dotenv').config();
 
-// --- CONFIG ---
-const API_KEY = process.env.GOOGLE_API_KEY;
+const { callBridgeBuddy, resetHistory } = require('./rag-tutor.js');
+
 const STORE_PATH = path.join(__dirname, 'vector_store', 'memory_store.json');
-// -------------
 
 const app = express();
-const port = process.env.PORT || 3000; // FIX: Use Render's port or 3000
+const port = process.env.PORT || 3000;
 
 let memoryStore = []; 
-const embeddings = new GoogleGenerativeAIEmbeddings({ apiKey: API_KEY });
 
-// 1. Load the manual brain file
+// ✅ FIX: Use the EXACT model your key supports
+const embeddings = new GoogleGenerativeAIEmbeddings({ 
+    apiKey: process.env.GOOGLE_API_KEY, 
+    model: "gemini-embedding-001",     // <--- The Critical Fix
+    modelName: "gemini-embedding-001"
+});
+
 async function initializeVectorStore() {
     try {
         console.log("⏳ Loading Manual Knowledge Base...");
@@ -27,14 +29,14 @@ async function initializeVectorStore() {
             memoryStore = JSON.parse(rawData);
             console.log(`✅ Knowledge Base READY (${memoryStore.length} chunks loaded).`);
         } else {
-            console.error('❌ ERROR: memory_store.json NOT FOUND. Run "node build-kb.js" first.');
+            console.error('❌ ERROR: memory_store.json NOT FOUND.');
+            console.error('   -> Run "node build-kb.js" to create it.');
         }
     } catch (error) {
         console.error('❌ FATAL: Failed to load brain file:', error.message);
     }
 }
 
-// 2. Manual Similarity Search
 function dotProduct(vecA, vecB) {
     return vecA.reduce((sum, val, i) => sum + val * vecB[i], 0);
 }
@@ -43,27 +45,32 @@ async function findRelevantContext(query, topK = 4) {
     if (memoryStore.length === 0) return "";
 
     console.log("🧠 Thinking... (Searching Brain)");
-    const queryVector = await embeddings.embedQuery(query);
-
-    const scored = memoryStore.map(item => ({
-        ...item,
-        score: dotProduct(queryVector, item.embedding)
-    }));
-
-    const topResults = scored.sort((a, b) => b.score - a.score).slice(0, topK);
-
-    console.log(`📚 Found ${topResults.length} relevant matches.`);
     
-    return topResults.map(res => `
-        PROJECT: ${res.metadata.title}
-        DETAILS: ${res.content}
-    `).join('\n\n---\n\n');
+    try {
+        const queryVector = await embeddings.embedQuery(query);
+
+        const scored = memoryStore.map(item => ({
+            ...item,
+            score: dotProduct(queryVector, item.embedding)
+        }));
+
+        const topResults = scored.sort((a, b) => b.score - a.score).slice(0, topK);
+
+        console.log(`📚 Found ${topResults.length} relevant matches.`);
+        
+        return topResults.map(res => `
+            PROJECT: ${res.metadata.title}
+            DETAILS: ${res.content || res.pageContent}
+        `).join('\n\n---\n\n');
+    } catch (error) {
+        console.error("❌ EMBEDDING ERROR:", error.message);
+        return "";
+    }
 }
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
-// 3. The Chat Endpoint
 app.post('/ask-buddy', async (req, res) => {
     try {
         const userPrompt = req.body.prompt;
@@ -72,8 +79,7 @@ app.post('/ask-buddy', async (req, res) => {
         const context = await findRelevantContext(userPrompt);
 
         console.log("🤖 Asking Dana...");
-        // FIX: Call the correct function
-        const danaResponse = await getDanaResponse(userPrompt, context);
+        const danaResponse = await callBridgeBuddy(userPrompt, context);
         
         console.log("✅ Response sent.");
         res.json({ response: danaResponse });

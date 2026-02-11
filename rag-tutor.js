@@ -1,20 +1,22 @@
+// rag-tutor.js
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 require("dotenv").config();
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
-// Use the exact model string that worked for you
+// ✅ FIX: Using a model explicitly listed in your allowed menu
 const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 let chatHistory = [];
 
-async function getDanaResponse(userQuery, context) {
+async function callBridgeBuddy(userQuery, context) {
     try {
         const chat = model.startChat({
             history: chatHistory,
         });
 
-        // Instead of systemInstruction, we embed the Persona directly into the prompt
+        // ... rest of your code ...
+
         const personaPrompt = `
             You are Dana, a Learning Strategist and Solutions Architect. 
             Rules:
@@ -33,21 +35,17 @@ async function getDanaResponse(userQuery, context) {
         const response = await result.response;
         const text = response.text();
 
-        // We save the clean version of the user query and response to history
         chatHistory.push({ role: "user", parts: [{ text: userQuery }] });
         chatHistory.push({ role: "model", parts: [{ text: text }] });
 
         return text;
     } catch (error) {
         console.error("❌ ERROR:", error.message);
-        
-        // If the 404 persists, it means the API is being very picky about the model name
         if (error.message.includes("404")) {
-            return "My memory core is having a naming conflict. Please try changing the model name in rag-tutor.js to 'gemini-pro'.";
+            return "My memory core is having a naming conflict. Please try changing the model name in rag-tutor.js to 'gemini-1.5-flash'.";
         }
-        
         return "I'm having a brief connection issue. Please try again.";
     }
 }
 
-module.exports = { getDanaResponse, resetHistory: () => { chatHistory = []; } };
+module.exports = { callBridgeBuddy, resetHistory: () => { chatHistory = []; } };
