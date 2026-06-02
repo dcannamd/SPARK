@@ -7,10 +7,9 @@ require("dotenv").config();
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
-// ✅ FIX: Use the EXACT model your key supports
 const embeddings = new GoogleGenerativeAIEmbeddings({ 
     apiKey: process.env.GOOGLE_API_KEY, 
-    model: "gemini-embedding-001",     // <--- The Critical Fix
+    model: "gemini-embedding-001",     
     modelName: "gemini-embedding-001"
 });
 
@@ -52,8 +51,11 @@ async function runBuild() {
 
         for (const page of response.results) {
             const props = page.properties;
+            
+            // EXTRACT DATA: Now handling multi-selects for Role and Category
             const title = props["Project Name"]?.title[0]?.plain_text || "Untitled Project";
-            const role = props["Role"]?.select?.name || "Learning Strategist";
+            const role = props["Role"]?.multi_select?.map(s => s.name).join(", ") || "General";
+            const category = props["Category"]?.multi_select?.map(s => s.name).join(", ") || "N/A";
             const impact = props["Business Impact"]?.rich_text?.map(t => t.plain_text).join("") || "N/A";
             const status = props["Status"]?.status?.name || props["Status"]?.select?.name || "Public";
             const github = props["GitHub Link"]?.url || "Notion Internal";
@@ -62,9 +64,11 @@ async function runBuild() {
             console.log(`📖 Deep scanning: ${title}...`);
             const deepContent = await getFullPageContent(page.id);
 
+            // INJECT CONTEXT: Feed the new Category attribute to the AI's raw text
             const combinedText = `
                 DANA'S PROJECT: ${title}
                 ROLE: ${role}
+                CATEGORY: ${category}
                 BUSINESS IMPACT: ${impact}
                 TECH STACK: ${tech}
                 STATUS: ${status}
@@ -78,10 +82,19 @@ async function runBuild() {
                 console.log(` ✨ Generating embedding for chunk of: ${title}`);
                 const vector = await embeddings.embedQuery(chunk);
                 
+                // INJECT METADATA: Save these specific tags so the server can filter them
                 finalVectors.push({
                     content: chunk,
                     embedding: vector,
-                    metadata: { title, status, source: github, role, isDana: true }
+                    metadata: { 
+                        title, 
+                        status, 
+                        source: github, 
+                        Role: props["Role"]?.multi_select?.map(s => s.name) || [], 
+                        Category: props["Category"]?.multi_select?.map(s => s.name) || [],
+                        Industry: props["Industry"]?.multi_select?.map(s => s.name) || [], // Placeholder if you use Industry later
+                        isDana: true 
+                    }
                 });
             }
         }
