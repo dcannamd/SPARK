@@ -18,7 +18,7 @@
             <button class="new-chat-btn" onclick="startNewChat()">+ Start Fresh</button>
 
             <div class="message bot-message">
-                Hi! I’m Dana’s Digital Twin powered by SPARK. I’ve turned my 'About' section into a dynamic conversation. Feel free to ask me anything about my professional experience and journey as a Learning Architect—I’m happy to help!
+                Hi! I'm Dana's Digital Twin powered by SPARK. I've turned my 'About' section into a dynamic conversation. Feel free to ask me anything about my professional experience and journey as a Learning Architect—I'm happy to help!
             </div>
         </div>
 
@@ -32,6 +32,21 @@
         const chatHistory = document.getElementById('chat-history');
         const userInput = document.getElementById('user-input');
 
+        // ── URL ROUTING: Read filter params once on load ──────────────────────
+        // These are populated by shared links e.g. ?role=lxd&industry=aerospace
+        // If no params are present, all values are null and the full store is used.
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeFilters = {
+            role:     urlParams.get("role")     || null,
+            industry: urlParams.get("industry") || null,
+            category: urlParams.get("category") || null
+        };
+
+        if (activeFilters.role || activeFilters.industry || activeFilters.category) {
+            console.log("🔗 SPARK routing active:", activeFilters);
+        }
+        // ─────────────────────────────────────────────────────────────────────
+
         async function sendMessage() {
             const prompt = userInput.value.trim();
             if (!prompt) return;
@@ -39,7 +54,6 @@
             addMessage(prompt, 'user-message');
             userInput.value = '';
             
-            // Auto-scroll to bottom after user sends message
             chatHistory.scrollTop = chatHistory.scrollHeight;
 
             const loadingId = addMessage("Thinking...", 'bot-message loading');
@@ -48,7 +62,13 @@
                 const response = await fetch('/ask-buddy', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: prompt })
+                    // ── Filters ride along on every request automatically ────
+                    body: JSON.stringify({
+                        prompt:   prompt,
+                        role:     activeFilters.role,
+                        industry: activeFilters.industry,
+                        category: activeFilters.category
+                    })
                 });
                 const data = await response.json();
                 removeMessage(loadingId);
@@ -71,7 +91,6 @@
             }
             
             chatHistory.appendChild(div);
-            // Always scroll the chat history area to the bottom
             chatHistory.scrollTop = chatHistory.scrollHeight;
             return div.id;
         }
