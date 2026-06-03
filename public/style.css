@@ -124,3 +124,33 @@ button#send-btn {
     cursor: pointer;
     margin-bottom: 10px;
 }
+
+/* ── SPARK MEDIA STYLES ───────────────────────────────────────────────────────
+   YouTube iframes and direct images, responsive on all screen sizes.
+─────────────────────────────────────────────────────────────────────────────── */
+
+.media-wrapper {
+    margin: 12px 0 4px 0;
+    border-radius: 10px;
+    overflow: hidden;
+    max-width: 100%;
+    background: #000;
+}
+
+/* YouTube embed — responsive 16:9 */
+.media-wrapper iframe {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border: none;
+}
+
+/* Direct image */
+.media-wrapper img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
