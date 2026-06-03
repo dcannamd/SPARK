@@ -19,66 +19,49 @@ const embeddings = new GoogleGenerativeAIEmbeddings({
     modelName: "gemini-embedding-001"
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PHASE 2: TRANSLATION DICTIONARY
-// Maps web-friendly URL slugs → exact Notion multi-select tag strings.
-// Add new entries here whenever a new Notion tag or URL pattern is introduced.
-// ─────────────────────────────────────────────────────────────────────────────
 const ROLE_MAP = {
-    "lxd":                  "Learning Experience Design",
-    "lsa":                  "Learning Solutions Architecture",
+    "lxd":                   "Learning Experience Design",
+    "lsa":                   "Learning Solutions Architecture",
     "creative-technologist": "Creative Technologist",
-    "instructional-design": "Instructional Design",
-    "ai-integration":       "AI Integration",
-    "general":              "General"
+    "instructional-design":  "Instructional Design",
+    "ai-integration":        "AI Integration",
+    "general":               "General"
 };
 
 const INDUSTRY_MAP = {
-    "aerospace":     "Aerospace",
-    "saas":          "SaaS",
-    "healthcare":    "Healthcare",
-    "finance":       "Finance",
-    "retail":        "Retail",
-    "government":    "Government",
-    "nonprofit":     "Nonprofit",
-    "tech":          "Technology",
-    "defense":       "Defense",
-    "education":     "Education"
+    "aerospace":  "Aerospace",
+    "saas":       "SaaS",
+    "healthcare": "Healthcare",
+    "finance":    "Finance",
+    "retail":     "Retail",
+    "government": "Government",
+    "nonprofit":  "Nonprofit",
+    "tech":       "Technology",
+    "defense":    "Defense",
+    "education":  "Education"
 };
 
 const CATEGORY_MAP = {
-    "portfolio":     "Portfolio",
-    "case-study":    "Case Study",
-    "process":       "Process",
-    "tool":          "Tool",
-    "leadership":    "Leadership",
-    "strategy":      "Strategy"
+    "portfolio":  "Portfolio",
+    "case-study": "Case Study",
+    "process":    "Process",
+    "tool":       "Tool",
+    "leadership": "Leadership",
+    "strategy":   "Strategy"
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PHASE 2: PRE-FILTER FUNCTION
-// Accepts the full store and the translated filter values.
-// Returns only chunks whose metadata contains ALL specified tags.
-// Falls back to the full store if no filters are active (prevents empty results).
-// ─────────────────────────────────────────────────────────────────────────────
 function preFilterStore(store, { roles = [], industries = [], categories = [] }) {
     const hasFilters = roles.length > 0 || industries.length > 0 || categories.length > 0;
     if (!hasFilters) return store;
 
     const filtered = store.filter(item => {
         const meta = item.metadata || {};
-        const itemRoles      = meta.Role      || [];
-        const itemIndustries = meta.Industry  || [];
-        const itemCategories = meta.Category  || [];
-
-        const roleMatch     = roles.length === 0      || roles.some(r => itemRoles.includes(r));
-        const industryMatch = industries.length === 0 || industries.some(i => itemIndustries.includes(i));
-        const categoryMatch = categories.length === 0 || categories.some(c => itemCategories.includes(c));
-
+        const roleMatch     = roles.length === 0      || roles.some(r => (meta.Role      || []).includes(r));
+        const industryMatch = industries.length === 0 || industries.some(i => (meta.Industry || []).includes(i));
+        const categoryMatch = categories.length === 0 || categories.some(c => (meta.Category || []).includes(c));
         return roleMatch && industryMatch && categoryMatch;
     });
 
-    // Safety fallback: if filters are too narrow and yield nothing, return full store
     if (filtered.length === 0) {
         console.warn("⚠️  Pre-filter returned 0 results. Falling back to full store.");
         return store;
@@ -88,17 +71,12 @@ function preFilterStore(store, { roles = [], industries = [], categories = [] })
     return filtered;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// UTILITY: Translate a raw URL param value using a dictionary.
-// Handles comma-separated multi-values (e.g., ?role=lxd,lsa).
-// Returns an array of resolved Notion tag strings.
-// ─────────────────────────────────────────────────────────────────────────────
 function translateParam(rawParam, dictionary) {
     if (!rawParam) return [];
     return rawParam
         .split(",")
         .map(slug => dictionary[slug.trim().toLowerCase()])
-        .filter(Boolean); // drop unrecognized slugs silently
+        .filter(Boolean);
 }
 
 async function initializeVectorStore() {
@@ -122,12 +100,14 @@ function dotProduct(vecA, vecB) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// UPDATED: findRelevantContext now accepts an optional pre-filtered store slice
-// instead of always searching the full memoryStore.
+// MEDIA: findRelevantContext now returns both the text context string AND
+// the mediaUrl from the single highest-scoring chunk.
+// The top chunk is the most semantically relevant to the query, so its
+// mediaUrl is the most appropriate asset to surface with the response.
 // ─────────────────────────────────────────────────────────────────────────────
 async function findRelevantContext(query, filteredStore, topK = 5) {
     const store = filteredStore || memoryStore;
-    if (store.length === 0) return "";
+    if (store.length === 0) return { context: "", mediaUrl: null };
 
     console.log("🧠 Thinking... (Searching Brain)");
     
@@ -142,29 +122,30 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
         const topResults = scored.sort((a, b) => b.score - a.score).slice(0, topK);
 
         console.log(`📚 Found ${topResults.length} relevant matches.`);
-        
-        return topResults.map(res => `
+
+        // Pull mediaUrl from the top-ranked result only
+        const mediaUrl = topResults[0]?.metadata?.mediaUrl || null;
+        if (mediaUrl) console.log(`🎬 Media attached: ${mediaUrl}`);
+
+        const context = topResults.map(res => `
             PROJECT: ${res.metadata.title}
             DETAILS: ${res.content || res.pageContent}
         `).join('\n\n---\n\n');
+
+        return { context, mediaUrl };
+
     } catch (error) {
         console.error("❌ EMBEDDING ERROR:", error.message);
-        return "";
+        return { context: "", mediaUrl: null };
     }
 }
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PHASE 2: /ask-buddy — now reads URL params, translates them, pre-filters,
-// then passes active filter context down to the RAG layer.
-// ─────────────────────────────────────────────────────────────────────────────
 app.post('/ask-buddy', async (req, res) => {
     try {
         const userPrompt  = req.body.prompt;
-
-        // Read filter params sent from the frontend (populated from URL query string)
         const rawRole     = req.body.role     || null;
         const rawIndustry = req.body.industry || null;
         const rawCategory = req.body.category || null;
@@ -172,32 +153,33 @@ app.post('/ask-buddy', async (req, res) => {
         console.log(`👤 User: "${userPrompt}"`);
         console.log(`🔗 Active filters — role: ${rawRole || "none"} | industry: ${rawIndustry || "none"} | category: ${rawCategory || "none"}`);
 
-        // Translate slugs → Notion tag strings
         const activeRoles      = translateParam(rawRole,     ROLE_MAP);
         const activeIndustries = translateParam(rawIndustry, INDUSTRY_MAP);
         const activeCategories = translateParam(rawCategory, CATEGORY_MAP);
 
-        // Pre-filter the store before semantic search
         const filteredStore = preFilterStore(memoryStore, {
             roles:      activeRoles,
             industries: activeIndustries,
             categories: activeCategories
         });
 
-        const context = await findRelevantContext(userPrompt, filteredStore);
+        // ── MEDIA: Destructure both context text and mediaUrl ────────────────
+        const { context, mediaUrl } = await findRelevantContext(userPrompt, filteredStore);
 
         console.log("🤖 Asking Dana...");
 
-        // Pass the active role label to rag-tutor for dynamic persona shaping
         const activeRoleLabel = activeRoles.length > 0 ? activeRoles[0] : null;
         const danaResponse = await callBridgeBuddy(userPrompt, context, activeRoleLabel);
         
         console.log("✅ Response sent.");
-        res.json({ response: danaResponse });
+
+        // ── MEDIA: Include mediaUrl in the JSON response to the frontend ─────
+        // Frontend checks this field and renders image or video accordingly.
+        res.json({ response: danaResponse, mediaUrl: mediaUrl || null });
 
     } catch (error) {
         console.error("❌ PROCESSING ERROR:", error);
-        res.status(500).json({ response: "I'm having trouble accessing my memory right now." });
+        res.status(500).json({ response: "I'm having trouble accessing my memory right now.", mediaUrl: null });
     }
 });
 
