@@ -32,9 +32,7 @@
         const chatHistory = document.getElementById('chat-history');
         const userInput = document.getElementById('user-input');
 
-        // ── URL ROUTING: Read filter params once on load ──────────────────────
-        // These are populated by shared links e.g. ?role=lxd&industry=aerospace
-        // If no params are present, all values are null and the full store is used.
+        // ── URL ROUTING ───────────────────────────────────────────────────────
         const urlParams = new URLSearchParams(window.location.search);
         const activeFilters = {
             role:     urlParams.get("role")     || null,
@@ -45,7 +43,48 @@
         if (activeFilters.role || activeFilters.industry || activeFilters.category) {
             console.log("🔗 SPARK routing active:", activeFilters);
         }
-        // ─────────────────────────────────────────────────────────────────────
+
+        // ── MEDIA: Detect whether a URL is YouTube or a direct image ─────────
+        function getMediaType(url) {
+            if (!url) return null;
+            if (url.includes("youtube.com") || url.includes("youtu.be")) return "youtube";
+            if (/\.(png|jpg|jpeg|gif|webp|svg)$/i.test(url)) return "image";
+            return null;
+        }
+
+        // ── MEDIA: Convert a YouTube watch URL to an embeddable src ──────────
+        function getYouTubeEmbedUrl(url) {
+            const match = url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+            return match ? `https://www.youtube.com/embed/${match[1]}` : null;
+        }
+
+        // ── MEDIA: Build and return a DOM element for the media asset ─────────
+        function buildMediaElement(mediaUrl) {
+            const type = getMediaType(mediaUrl);
+            if (!type) return null;
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'media-wrapper';
+
+            if (type === "youtube") {
+                const embedUrl = getYouTubeEmbedUrl(mediaUrl);
+                if (!embedUrl) return null;
+                const iframe = document.createElement('iframe');
+                iframe.src = embedUrl;
+                iframe.setAttribute('allowfullscreen', '');
+                iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+                iframe.setAttribute('loading', 'lazy');
+                wrapper.appendChild(iframe);
+            } else if (type === "image") {
+                const img = document.createElement('img');
+                img.src = mediaUrl;
+                img.alt = "Project media";
+                img.setAttribute('loading', 'lazy');
+                wrapper.appendChild(img);
+            }
+
+            return wrapper;
+        }
 
         async function sendMessage() {
             const prompt = userInput.value.trim();
@@ -53,7 +92,6 @@
 
             addMessage(prompt, 'user-message');
             userInput.value = '';
-            
             chatHistory.scrollTop = chatHistory.scrollHeight;
 
             const loadingId = addMessage("Thinking...", 'bot-message loading');
@@ -62,7 +100,6 @@
                 const response = await fetch('/ask-buddy', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    // ── Filters ride along on every request automatically ────
                     body: JSON.stringify({
                         prompt:   prompt,
                         role:     activeFilters.role,
@@ -70,9 +107,23 @@
                         category: activeFilters.category
                     })
                 });
+
                 const data = await response.json();
                 removeMessage(loadingId);
-                addMessage(data.response, 'bot-message', true); 
+
+                // Render the text response
+                addMessage(data.response, 'bot-message', true);
+
+                // ── MEDIA: If the server returned a mediaUrl, render it ───────
+                // Appended after the text so it reads naturally in the flow.
+                if (data.mediaUrl) {
+                    const mediaEl = buildMediaElement(data.mediaUrl);
+                    if (mediaEl) {
+                        chatHistory.appendChild(mediaEl);
+                        chatHistory.scrollTop = chatHistory.scrollHeight;
+                    }
+                }
+
             } catch (error) {
                 removeMessage(loadingId);
                 addMessage("Error: Could not reach the server.", 'bot-message error');
