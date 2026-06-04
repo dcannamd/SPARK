@@ -1,42 +1,24 @@
+//updated
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 require("dotenv").config();
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PHASE 3: DYNAMIC PERSONA DEFINITIONS
-// Each role key maps to a focused emphasis block injected into the system prompt
-// at runtime. Add new entries as new Notion Role tags are introduced.
-// ─────────────────────────────────────────────────────────────────────────────
 const ROLE_PERSONAS = {
-    "Learning Experience Design": {
+    "Learning Architecture & Design": {
         emphasis: "learning experience design, curriculum architecture, learner journey mapping, instructional scaffolding, and UX-driven content strategy",
         deprioritize: "infrastructure configuration, DevOps pipelines, or low-level technical implementation details"
     },
-    "Learning Solutions Architecture": {
-        emphasis: "end-to-end learning systems design, LMS architecture, enterprise learning ecosystem integration, performance consulting, and scalable delivery frameworks",
-        deprioritize: "purely visual or creative execution details unrelated to systems architecture"
-    },
-    "Creative Technologist": {
+    "Creative Technology & UX": {
         emphasis: "interactive prototyping, front-end learning tools, AI-assisted content generation, Node.js architectures, RAG systems, and creative technical delivery",
         deprioritize: "high-level instructional strategy or curriculum theory not grounded in technical execution"
     },
-    "Instructional Design": {
-        emphasis: "ADDIE, SAM, backward design, learning objective writing, assessment strategy, and evidence-based instructional methods",
-        deprioritize: "technical infrastructure or advanced engineering implementation details"
-    },
-    "AI Integration": {
-        emphasis: "AI workflow integration, LLM tooling, prompt engineering, retrieval-augmented generation, and AI-enhanced learning systems",
-        deprioritize: "non-AI traditional instructional methods or legacy content formats"
+    "Leadership": {
+        emphasis: "cross-functional team leadership, strategic program management, stakeholder alignment, and organizational impact",
+        deprioritize: "low-level technical implementation details unrelated to strategic delivery"
     }
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PHASE 3: SYSTEM PROMPT BUILDER
-// Constructs the full system instruction block. When a role is active, injects
-// a targeted emphasis + deprioritization directive into the base instructions.
-// All persona modes enforce strict objective, third-person tone.
-// ─────────────────────────────────────────────────────────────────────────────
 function buildSystemPrompt(activeRole = null) {
     const persona = activeRole ? ROLE_PERSONAS[activeRole] : null;
 
@@ -77,18 +59,10 @@ FORMATTING:
 
 let chatHistory = [];
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PHASE 3: callBridgeBuddy now accepts activeRole and rebuilds the model with
-// a dynamically constructed system prompt on each invocation.
-// This ensures the persona always reflects the current URL routing context,
-// even if the user switches links mid-session.
-// ─────────────────────────────────────────────────────────────────────────────
 async function callBridgeBuddy(userQuery, context, activeRole = null) {
     try {
         const systemPrompt = buildSystemPrompt(activeRole);
 
-        // Rebuild the model instance with the dynamic system instruction.
-        // This is intentional — it ensures role switches mid-session are honored.
         const model = genAI.getGenerativeModel({ 
             model: "gemini-2.5-flash",
             systemInstruction: systemPrompt
@@ -110,8 +84,6 @@ ${userQuery}
         const response = await result.response;
         const text = response.text();
 
-        // Log clean history: store only the user's plain query, not the full
-        // context payload, to avoid bloating the history window.
         chatHistory.push({ role: "user",  parts: [{ text: userQuery }] });
         chatHistory.push({ role: "model", parts: [{ text: text }] });
 
