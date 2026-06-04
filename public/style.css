@@ -142,6 +142,8 @@ button#send-btn {
     display: block;
     width: 100%;
     aspect-ratio: 16 / 9;
+    height: auto;
+    min-height: 200px;
     border: none;
 }
 
