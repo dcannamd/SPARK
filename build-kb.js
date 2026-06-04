@@ -1,3 +1,4 @@
+//updated
 const { Client } = require("@notionhq/client");
 const { GoogleGenerativeAIEmbeddings } = require("@langchain/google-genai");
 const { RecursiveCharacterTextSplitter } = require("@langchain/textsplitters");
