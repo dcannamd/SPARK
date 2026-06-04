@@ -1,175 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-   <title>Dana | Learning Architect Twin</title>
-   <link rel="stylesheet" href="style.css">
-   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dana | Learning Architect Twin</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-   <div class="chat-container">
-       <header>
-           <h1>SPARK A Conversation With Dana</h1>
-           <p>A Digital Twin Experience Powered by SPARK (Shared Portfolio and Resource Knowledge-base)</p>
-       </header>
-       
-       <div id="chat-history" class="chat-history">
-           <button class="new-chat-btn" onclick="startNewChat()">+ Start Fresh</button>
+    <div class="chat-container">
+        <header>
+            <h1>SPARK A Conversation With Dana</h1>
+            <p>A Digital Twin Experience Powered by SPARK (Shared Portfolio and Resource Knowledge-base)</p>
+        </header>
+        
+        <div id="chat-history" class="chat-history">
+            <button class="new-chat-btn" onclick="startNewChat()">+ Start Fresh</button>
 
-           <div class="message bot-message">
-               Hi! I'm Dana's Digital Twin powered by SPARK. I've turned my 'About' section into a dynamic conversation. Feel free to ask me anything about my professional experience and journey as a Learning Architect—I'm happy to help!
-           </div>
-       </div>
+            <div class="message bot-message">
+                Hi! I'm Dana's Digital Twin powered by SPARK. I've turned my 'About' section into a dynamic conversation. Feel free to ask me anything about my professional experience and journey as a Learning Architect—I'm happy to help!
+            </div>
+        </div>
 
-       <div class="input-area">
-           <textarea id="user-input" placeholder="Ask about Qmod, SPARK, NEO, or anything about Learning Architecture " rows="1"></textarea>
-           <button onclick="sendMessage()" id="send-btn">Send</button>
-       </div>
-   </div>
+        <div class="input-area">
+            <textarea id="user-input" placeholder="Ask about Qmod, SPARK, NEO, or anything about Learning Architecture " rows="1"></textarea>
+            <button onclick="sendMessage()" id="send-btn">Send</button>
+        </div>
+    </div>
 
-   <script>
-       const chatHistory = document.getElementById('chat-history');
-       const userInput = document.getElementById('user-input');
+    <script>
+        const chatHistory = document.getElementById('chat-history');
+        const userInput = document.getElementById('user-input');
 
-       const urlParams = new URLSearchParams(window.location.search);
-       const activeFilters = {
-           role:     urlParams.get("role")     || null,
-           industry: urlParams.get("industry") || null,
-           category: urlParams.get("category") || null
-       };
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeFilters = {
+            role:     urlParams.get("role")     || null,
+            industry: urlParams.get("industry") || null,
+            category: urlParams.get("category") || null
+        };
 
-       if (activeFilters.role || activeFilters.industry || activeFilters.category) {
-           console.log("🔗 SPARK routing active:", activeFilters);
-       }
+        if (activeFilters.role || activeFilters.industry || activeFilters.category) {
+            console.log("🔗 SPARK routing active:", activeFilters);
+        }
 
-       function getMediaType(url) {
-           if (!url) return null;
-           if (url.includes("youtube.com") || url.includes("youtu.be")) return "youtube";
-           if (/\.(png|jpg|jpeg|gif|webp|svg)$/i.test(url)) return "image";
-           return null;
-       }
+        function getMediaType(url) {
+            if (!url) return null;
+            if (url.includes("youtube.com") || url.includes("youtu.be")) return "youtube";
+            if (/\.(png|jpg|jpeg|gif|webp|svg)$/i.test(url)) return "image";
+            return null;
+        }
 
-       function buildMediaElement(mediaUrl) {
-           const type = getMediaType(mediaUrl);
-           if (!type) return null;
+        function buildMediaElement(mediaUrl) {
+            const type = getMediaType(mediaUrl);
+            if (!type) return null;
 
-           const wrapper = document.createElement('div');
-           wrapper.className = 'media-wrapper';
+            const wrapper = document.createElement('div');
+            wrapper.className = 'media-wrapper';
 
-           if (type === "youtube") {
-               const match = mediaUrl.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-               if (!match) return null;
-               const videoId = match[1];
+            if (type === "youtube") {
+                const match = mediaUrl.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+                if (!match) return null;
+                const videoId = match[1];
 
-               const link = document.createElement('a');
-               link.href = `https://www.youtube.com/watch?v=${videoId}`;
-               link.target = "_blank";
-               link.rel = "noopener noreferrer";
-               link.style.cssText = `
-                   display: flex;
-                   align-items: center;
-                   gap: 10px;
-                   padding: 12px 16px;
-                   background: #ff0000;
-                   color: white;
-                   border-radius: 10px;
-                   text-decoration: none;
-                   font-weight: bold;
-                   font-size: 0.95rem;
-                   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-               `;
+                const link = document.createElement('a');
+                link.href = `https://www.youtube.com/watch?v=${videoId}`;
+                link.target = "_blank";
+                link.rel = "noopener noreferrer";
+                link.style.cssText = "display:block; position:relative;";
 
-               const icon = document.createElement('span');
-               icon.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>`;
+                const thumb = document.createElement('img');
+                thumb.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                thumb.alt = "Watch video";
+                thumb.style.cssText = "width:100%; border-radius:10px; display:block;";
 
-               const label = document.createElement('span');
-               label.textContent = "Watch Project Video";
+                const playBtn = document.createElement('div');
+                playBtn.style.cssText = `
+                    position:absolute; top:50%; left:50%;
+                    transform:translate(-50%,-50%);
+                    width:60px; height:60px; border-radius:50%;
+                    background:rgba(255,0,0,0.85);
+                    display:flex; align-items:center; justify-content:center;
+                `;
+                playBtn.innerHTML = `<div style="width:0;height:0;border-top:12px solid transparent;border-bottom:12px solid transparent;border-left:20px solid white;margin-left:4px;"></div>`;
 
-               link.appendChild(icon);
-               link.appendChild(label);
-               wrapper.appendChild(link);
+                link.appendChild(thumb);
+                link.appendChild(playBtn);
+                wrapper.appendChild(link);
 
-           } else if (type === "image") {
-               const img = document.createElement('img');
-               img.src = mediaUrl;
-               img.alt = "Project media";
-               img.setAttribute('loading', 'lazy');
-               wrapper.appendChild(img);
-           }
+            } else if (type === "image") {
+                const img = document.createElement('img');
+                img.src = mediaUrl;
+                img.alt = "Project media";
+                img.setAttribute('loading', 'lazy');
+                wrapper.appendChild(img);
+            }
 
-           return wrapper;
-       }
+            return wrapper;
+        }
 
-       async function sendMessage() {
-           const prompt = userInput.value.trim();
-           if (!prompt) return;
+        async function sendMessage() {
+            const prompt = userInput.value.trim();
+            if (!prompt) return;
 
-           addMessage(prompt, 'user-message');
-           userInput.value = '';
-           chatHistory.scrollTop = chatHistory.scrollHeight;
+            addMessage(prompt, 'user-message');
+            userInput.value = '';
+            chatHistory.scrollTop = chatHistory.scrollHeight;
 
-           const loadingId = addMessage("Thinking...", 'bot-message loading');
+            const loadingId = addMessage("Thinking...", 'bot-message loading');
 
-           try {
-               const response = await fetch('/ask-buddy', {
-                   method: 'POST',
-                   headers: { 'Content-Type': 'application/json' },
-                   body: JSON.stringify({
-                       prompt:   prompt,
-                       role:     activeFilters.role,
-                       industry: activeFilters.industry,
-                       category: activeFilters.category
-                   })
-               });
+            try {
+                const response = await fetch('/ask-buddy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt:   prompt,
+                        role:     activeFilters.role,
+                        industry: activeFilters.industry,
+                        category: activeFilters.category
+                    })
+                });
 
-               const data = await response.json();
-               removeMessage(loadingId);
-               addMessage(data.response, 'bot-message', true);
+                const data = await response.json();
+                removeMessage(loadingId);
+                addMessage(data.response, 'bot-message', true);
 
-               if (data.mediaUrl) {
-                   const mediaEl = buildMediaElement(data.mediaUrl);
-                   if (mediaEl) {
-                       chatHistory.appendChild(mediaEl);
-                       chatHistory.scrollTop = chatHistory.scrollHeight;
-                   }
-               }
+                if (data.mediaUrl) {
+                    const mediaEl = buildMediaElement(data.mediaUrl);
+                    if (mediaEl) {
+                        chatHistory.appendChild(mediaEl);
+                        chatHistory.scrollTop = chatHistory.scrollHeight;
+                    }
+                }
 
-           } catch (error) {
-               removeMessage(loadingId);
-               addMessage("Error: Could not reach the server.", 'bot-message error');
-           }
-       }
+            } catch (error) {
+                removeMessage(loadingId);
+                addMessage("Error: Could not reach the server.", 'bot-message error');
+            }
+        }
 
-       function addMessage(text, className, isMarkdown = false) {
-           const div = document.createElement('div');
-           div.className = `message ${className}`;
-           div.id = 'msg-' + Date.now();
-           if (isMarkdown) {
-               div.innerHTML = marked.parse(text);
-           } else {
-               div.textContent = text;
-           }
-           chatHistory.appendChild(div);
-           chatHistory.scrollTop = chatHistory.scrollHeight;
-           return div.id;
-       }
+        function addMessage(text, className, isMarkdown = false) {
+            const div = document.createElement('div');
+            div.className = `message ${className}`;
+            div.id = 'msg-' + Date.now();
+            if (isMarkdown) {
+                div.innerHTML = marked.parse(text);
+            } else {
+                div.textContent = text;
+            }
+            chatHistory.appendChild(div);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+            return div.id;
+        }
 
-       function removeMessage(id) {
-           const el = document.getElementById(id);
-           if (el) el.remove();
-       }
+        function removeMessage(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
 
-       function startNewChat() {
-           location.reload(); 
-       }
+        function startNewChat() {
+            location.reload(); 
+        }
 
-       userInput.addEventListener('keypress', (e) => {
-           if (e.key === 'Enter' && !e.shiftKey) {
-               e.preventDefault();
-               sendMessage();
-           }
-       });
-   </script>
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
 </body>
 </html>
