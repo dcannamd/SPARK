@@ -110,7 +110,9 @@
                 });
 
                 const data = await response.json();
-                removeMessage(loadingId);
+alert("mediaUrl: " + data.mediaUrl);
+removeMessage(loadingId);
+
                 addMessage(data.response, 'bot-message', true);
 
                 if (data.mediaUrl) {
