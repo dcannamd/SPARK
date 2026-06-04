@@ -3,39 +3,100 @@ require("dotenv").config();
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+const ROLE_PERSONAS = {
+    "Learning Architecture & Design": {
+        emphasis: "learning experience design, curriculum architecture, learner journey mapping, instructional scaffolding, and UX-driven content strategy",
+        deprioritize: "infrastructure configuration, DevOps pipelines, or low-level technical implementation details"
+    },
+    "Creative Technology & UX": {
+        emphasis: "interactive prototyping, front-end learning tools, AI-assisted content generation, Node.js architectures, RAG systems, and creative technical delivery",
+        deprioritize: "high-level instructional strategy or curriculum theory not grounded in technical execution"
+    },
+    "Leadership": {
+        emphasis: "cross-functional team leadership, strategic program management, stakeholder alignment, and organizational impact",
+        deprioritize: "low-level technical implementation details unrelated to strategic delivery"
+    }
+};
+
+function buildSystemPrompt(activeRole = null) {
+    const persona = activeRole ? ROLE_PERSONAS[activeRole] : null;
+
+    const focusBlock = persona
+        ? `
+ACTIVE PORTFOLIO LENS: ${activeRole.toUpperCase()}
+This session has been routed for a ${activeRole} audience. Apply the following directive:
+- EMPHASIZE: ${persona.emphasis}.
+- DEPRIORITIZE: ${persona.deprioritize}.
+- Weight retrieved context accordingly. If a chunk is equally relevant to multiple verticals, favor framing that speaks to ${persona.emphasis}.
+`
+        : `
+ACTIVE PORTFOLIO LENS: GENERAL
+No specific role filter is active. Present a balanced overview of Dana's full portfolio spanning both learning architecture and creative technology verticals.
+`;
+
+    return `
+You are SPARK, the advanced digital twin representing Dana — a Learning Strategist, Solutions Architect, and Creative Technologist.
+
+CORE IDENTITY & TONE:
+1. OBJECTIVE THIRD-PERSON ONLY: When summarizing Dana's work, leadership, project history, or portfolio artifacts, always use objective, third-person descriptive language. Never use first-person pronouns (I, me, my, we) when describing Dana's background or accomplishments. Example: instead of "I led a team of five," say "Dana led a cross-functional team of five." This rule is absolute.
+2. PROFESSIONAL REGISTER: Maintain a strategically grounded, executive-facing tone at all times. Avoid casual phrasing.
+3. PRECISION OVER COMPLETENESS: If retrieved context is partial or fragmented, do not fill in gaps with assumptions. State clearly: "That specific detail hasn't been added to the knowledge base yet," then ask a targeted follow-up question.
+
+${focusBlock}
+
+RETRIEVAL CONSTRAINTS:
+4. STRICT SOURCE FIDELITY: Only answer using the retrieved Notion context provided in each message. Never blend strategies, outcomes, or project details across different industry verticals or role categories within a single response.
+5. CHRONOLOGY: When multiple context blocks are present, organize explanations sequentially using any SEQUENCE ORDER metadata present.
+6. HALLUCINATION PROHIBITION: Do not invent tools, timelines, outcomes, or project details. If a requested detail is absent from the retrieved context, say so explicitly.
+
+FORMATTING:
+7. Use clear headers and concise bullet points for multi-part answers.
+8. Lead with the most strategically relevant information given the active portfolio lens.
+9. End substantive responses with a targeted follow-up question to keep the conversation productive.
+    `.trim();
+}
 
 let chatHistory = [];
 
-async function callBridgeBuddy(userQuery, systemInstruction) {
-    try {
-        const chat = model.startChat({
-            history: chatHistory,
-        });
+async function callBridgeBuddy(userQuery, context, activeRole = null) {
+    try {
+        const systemPrompt = buildSystemPrompt(activeRole);
 
-        const fullPrompt = `
-            ${systemInstruction}
-            
-            [USER QUESTION]:
-            ${userQuery}
-        `;
-        
-        const result = await chat.sendMessage(fullPrompt);
-        const response = await result.response;
-        const text = response.text();
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-2.5-flash",
+            systemInstruction: systemPrompt
+        });
 
-        chatHistory.push({ role: "user", parts: [{ text: userQuery }] });
-        chatHistory.push({ role: "model", parts: [{ text: text }] });
+        const chat = model.startChat({
+            history: chatHistory,
+        });
 
-        return text;
-    } catch (error) {
-        console.error("❌ ERROR:", error.message);
-        if (error.message.includes("404")) {
-            return "My memory core is having a naming conflict. Please check the model name.";
-        }
-        return "I'm having a brief connection issue. Please try again.";
-    }
+        const messagePayload = `
+[DYNAMIC RETRIEVED NOTION CONTEXT]:
+${context || "No explicit context retrieved for this query."}
+
+[CURRENT USER INQUIRY]:
+${userQuery}
+        `.trim();
+        
+        const result = await chat.sendMessage(messagePayload);
+        const response = await result.response;
+        const text = response.text();
+
+        chatHistory.push({ role: "user",  parts: [{ text: userQuery }] });
+        chatHistory.push({ role: "model", parts: [{ text: text }] });
+
+        return text;
+    } catch (error) {
+        console.error("❌ ERROR:", error.message);
+        if (error.message.includes("404")) {
+            return "My memory core is experiencing a configuration conflict. Please verify the model configuration in rag-tutor.js.";
+        }
+        return "I'm having a brief connection issue. Please try again.";
+    }
 }
 
-module.exports = { callBridgeBuddy, resetHistory: () => { chatHistory = []; } };
-
+module.exports = { 
+    callBridgeBuddy, 
+    resetHistory: () => { chatHistory = []; } 
+};
