@@ -139,9 +139,17 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
         return { context: "", mediaUrl: null };
     }
 }
-
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
+
+app.use((req, res, next) => {
+    res.setHeader(
+        "Content-Security-Policy",
+        "default-src 'self'; img-src 'self' https://img.youtube.com data:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src 'self'; frame-src https://www.youtube.com;"
+    );
+    next();
+});
+
 
 app.post('/ask-buddy', async (req, res) => {
     try {
