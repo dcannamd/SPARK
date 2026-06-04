@@ -7,107 +7,129 @@ require("dotenv").config();
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
-const embeddings = new GoogleGenerativeAIEmbeddings({ 
-    apiKey: process.env.GOOGLE_API_KEY, 
-    model: "gemini-embedding-001",     
-    modelName: "gemini-embedding-001"
+const embeddings = new GoogleGenerativeAIEmbeddings({ 
+   apiKey: process.env.GOOGLE_API_KEY, 
+   model: "gemini-embedding-001",
+   modelName: "gemini-embedding-001"
 });
 
 const DATABASE_ID = process.env.NOTION_DATABASE_ID;
 const STORE_PATH = path.join(__dirname, 'vector_store', 'memory_store.json');
 
 async function getFullPageContent(blockId) {
-    let text = "";
-    try {
-        const { results } = await notion.blocks.children.list({ block_id: blockId });
-        for (const block of results) {
-            const type = block.type;
-            const richText = block[type]?.rich_text;
-            if (richText) {
-                const content = richText.map(t => t.plain_text).join("");
-                if (content) text += content + "\n";
-            }
-            if (block.has_children) {
-                text += await getFullPageContent(block.id);
-            }
-        }
-    } catch (e) {
-        console.error(`⚠️ Error scanning block ${blockId}:`, e.message);
-    }
-    return text;
+   let text = "";
+   try {
+       const { results } = await notion.blocks.children.list({ block_id: blockId });
+       for (const block of results) {
+           const type = block.type;
+           const richText = block[type]?.rich_text;
+           if (richText) {
+               const content = richText.map(t => t.plain_text).join("");
+               if (content) text += content + "\n";
+           }
+           if (block.has_children) {
+               text += await getFullPageContent(block.id);
+           }
+       }
+   } catch (e) {
+       console.error(`⚠️ Error scanning block ${blockId}:`, e.message);
+   }
+   return text;
 }
 
 async function runBuild() {
-    console.log("🚀 Starting the Digital Twin Brain Build...");
+   console.log("🚀 Starting SPARK Knowledge Base Build...");
 
-    try {
-        const response = await notion.databases.query({ database_id: DATABASE_ID });
-        const finalVectors = [];
-        
-        const splitter = new RecursiveCharacterTextSplitter({
-            chunkSize: 1000,
-            chunkOverlap: 200,
-        });
+   try {
+       const response = await notion.databases.query({ database_id: DATABASE_ID });
+       console.log(`📦 Found ${response.results.length} pages in Notion database.\n`);
 
-        for (const page of response.results) {
-            const props = page.properties;
-            
-            // Extracting exact columns based on the Notion database layout
-            const title = props["Project Name"]?.title[0]?.plain_text || "Untitled Project";
-            const role = props["Role"]?.multi_select?.map(s => s.name).join(", ") || "General";
-            const category = props["Category"]?.multi_select?.map(s => s.name).join(", ") || "N/A";
-            const impact = props["Business Impact"]?.rich_text?.map(t => t.plain_text).join("") || "N/A";
-            const status = props["Status"]?.status?.name || props["Status"]?.select?.name || "Public";
-            const mediaUrl = props["Media URL"]?.url || null; 
-            const tech = props["Tech Stack"]?.multi_select?.map(s => s.name).join(", ") || "N/A";
+       const finalVectors = [];
+       
+       const splitter = new RecursiveCharacterTextSplitter({
+           chunkSize: 1000,
+           chunkOverlap: 200,
+       });
 
-            console.log(`📖 Deep scanning: ${title}...`);
-            const deepContent = await getFullPageContent(page.id);
+       const tagInventory = { roles: new Set(), categories: new Set(), industries: new Set() };
 
-            const combinedText = `
-                PROJECT: ${title}
-                ROLE: ${role}
-                CATEGORY: ${category}
-                BUSINESS IMPACT: ${impact}
-                TECH STACK: ${tech}
-                STATUS: ${status}
-                MEDIA LINK: ${mediaUrl || "None"}
-                FULL DETAILS: ${deepContent}
-            `;
+       for (const page of response.results) {
+           const props = page.properties;
+           
+           const title       = props["Project Name"]?.title[0]?.plain_text || "Untitled Project";
+           const roleArr     = props["Role"]?.multi_select?.map(s => s.name)     || [];
+           const catArr      = props["Category"]?.multi_select?.map(s => s.name) || [];
+           const industryArr = props["Industry"]?.multi_select?.map(s => s.name) || [];
+           const impact      = props["Business Impact"]?.rich_text?.map(t => t.plain_text).join("") || "N/A";
+           const status      = props["Status"]?.status?.name || props["Status"]?.select?.name || "Public";
+           const github      = props["GitHub Link"]?.url || "Notion Internal";
+           const tech        = props["Tech Stack"]?.multi_select?.map(s => s.name).join(", ") || "N/A";
+           const mediaUrl    = props["Media URL"]?.url || null;
 
-            const chunks = await splitter.splitText(combinedText);
-            
-            for (const chunk of chunks) {
-                console.log(` ✨ Generating embedding for chunk of: ${title}`);
-                const vector = await embeddings.embedQuery(chunk);
-                
-                // Injecting arrays and URLs into metadata for precise server filtering
-                finalVectors.push({
-                    content: chunk,
-                    embedding: vector,
-                    metadata: { 
-                        title, 
-                        status, 
-                        mediaUrl, 
-                        Role: props["Role"]?.multi_select?.map(s => s.name) || [],
-                        Category: props["Category"]?.multi_select?.map(s => s.name) || [],
-                        isDana: true 
-                    }
-                });
-            }
-        }
+           roleArr.forEach(r => tagInventory.roles.add(r));
+           catArr.forEach(c => tagInventory.categories.add(c));
+           industryArr.forEach(i => tagInventory.industries.add(i));
 
-        if (!fs.existsSync(path.dirname(STORE_PATH))) {
-            fs.mkdirSync(path.dirname(STORE_PATH), { recursive: true });
-        }
-        
-        fs.writeFileSync(STORE_PATH, JSON.stringify(finalVectors));
-        console.log(`\n✅ SUCCESS: Brain built with ${finalVectors.length} searchable units.`);
-        console.log(`📍 Location: ${STORE_PATH}`);
+           console.log(`📖 Deep scanning: "${title}"`);
+           console.log(`   Roles: [${roleArr.join(", ") || "none"}] | Categories: [${catArr.join(", ") || "none"}] | Industries: [${industryArr.join(", ") || "none"}]`);
+           console.log(`   Media: ${mediaUrl || "none"}`);
 
-    } catch (error) {
-        console.error("❌ FATAL ERROR DURING BUILD:", error);
-    }
+           const deepContent = await getFullPageContent(page.id);
+
+           const combinedText = `
+DANA'S PROJECT: ${title}
+ROLE: ${roleArr.join(", ") || "General"}
+CATEGORY: ${catArr.join(", ") || "N/A"}
+INDUSTRY: ${industryArr.join(", ") || "N/A"}
+BUSINESS IMPACT: ${impact}
+TECH STACK: ${tech}
+STATUS: ${status}
+SOURCE: ${github}
+FULL DETAILS: ${deepContent}
+           `.trim();
+
+           const chunks = await splitter.splitText(combinedText);
+           
+           for (const chunk of chunks) {
+               const vector = await embeddings.embedQuery(chunk);
+               
+               finalVectors.push({
+                   content: chunk,
+                   embedding: vector,
+                   metadata: { 
+                       title, 
+                       status, 
+                       source:   github,
+                       mediaUrl: mediaUrl,
+                       Role:     roleArr,
+                       Category: catArr,
+                       Industry: industryArr,
+                       isDana:   true 
+                   }
+               });
+           }
+
+           console.log(`   ✅ ${chunks.length} chunks embedded.\n`);
+       }
+
+       if (!fs.existsSync(path.dirname(STORE_PATH))) {
+           fs.mkdirSync(path.dirname(STORE_PATH), { recursive: true });
+       }
+       
+       fs.writeFileSync(STORE_PATH, JSON.stringify(finalVectors));
+
+       console.log("─────────────────────────────────────────────");
+       console.log(`✅ BUILD COMPLETE: ${finalVectors.length} searchable chunks written.`);
+       console.log(`📍 Output: ${STORE_PATH}\n`);
+       console.log("🏷️  TAG INVENTORY (verify these match your URL dictionary in server.js):");
+       console.log(`   Roles:      ${[...tagInventory.roles].join(" | ") || "none found"}`);
+       console.log(`   Categories: ${[...tagInventory.categories].join(" | ") || "none found"}`);
+       console.log(`   Industries: ${[...tagInventory.industries].join(" | ") || "none found"}`);
+       console.log("─────────────────────────────────────────────");
+
+   } catch (error) {
+       console.error("❌ FATAL ERROR DURING BUILD:", error);
+   }
 }
 
 runBuild();
