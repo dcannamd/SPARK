@@ -110,7 +110,9 @@
                 });
 
                 const data = await response.json();
-                removeMessage(loadingId);
+console.log("🔍 Server response:", JSON.stringify(data));
+removeMessage(loadingId);
+
 
                 // Render the text response
                 addMessage(data.response, 'bot-message', true);
