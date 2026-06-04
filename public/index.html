@@ -1,163 +1,175 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dana | Learning Architect Twin</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+   <title>Dana | Learning Architect Twin</title>
+   <link rel="stylesheet" href="style.css">
+   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-    <div class="chat-container">
-        <header>
-            <h1>SPARK A Conversation With Dana</h1>
-            <p>A Digital Twin Experience Powered by SPARK (Shared Portfolio and Resource Knowledge-base)</p>
-        </header>
-        
-        <div id="chat-history" class="chat-history">
-            <button class="new-chat-btn" onclick="startNewChat()">+ Start Fresh</button>
+   <div class="chat-container">
+       <header>
+           <h1>SPARK A Conversation With Dana</h1>
+           <p>A Digital Twin Experience Powered by SPARK (Shared Portfolio and Resource Knowledge-base)</p>
+       </header>
+       
+       <div id="chat-history" class="chat-history">
+           <button class="new-chat-btn" onclick="startNewChat()">+ Start Fresh</button>
 
-            <div class="message bot-message">
-                Hi! I'm Dana's Digital Twin powered by SPARK. I've turned my 'About' section into a dynamic conversation. Feel free to ask me anything about my professional experience and journey as a Learning Architect—I'm happy to help!
-            </div>
-        </div>
+           <div class="message bot-message">
+               Hi! I'm Dana's Digital Twin powered by SPARK. I've turned my 'About' section into a dynamic conversation. Feel free to ask me anything about my professional experience and journey as a Learning Architect—I'm happy to help!
+           </div>
+       </div>
 
-        <div class="input-area">
-            <textarea id="user-input" placeholder="Ask about Qmod, SPARK, NEO, or anything about Learning Architecture " rows="1"></textarea>
-            <button onclick="sendMessage()" id="send-btn">Send</button>
-        </div>
-    </div>
+       <div class="input-area">
+           <textarea id="user-input" placeholder="Ask about Qmod, SPARK, NEO, or anything about Learning Architecture " rows="1"></textarea>
+           <button onclick="sendMessage()" id="send-btn">Send</button>
+       </div>
+   </div>
 
-    <script>
-        const chatHistory = document.getElementById('chat-history');
-        const userInput = document.getElementById('user-input');
+   <script>
+       const chatHistory = document.getElementById('chat-history');
+       const userInput = document.getElementById('user-input');
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const activeFilters = {
-            role:     urlParams.get("role")     || null,
-            industry: urlParams.get("industry") || null,
-            category: urlParams.get("category") || null
-        };
+       const urlParams = new URLSearchParams(window.location.search);
+       const activeFilters = {
+           role:     urlParams.get("role")     || null,
+           industry: urlParams.get("industry") || null,
+           category: urlParams.get("category") || null
+       };
 
-        if (activeFilters.role || activeFilters.industry || activeFilters.category) {
-            console.log("🔗 SPARK routing active:", activeFilters);
-        }
+       if (activeFilters.role || activeFilters.industry || activeFilters.category) {
+           console.log("🔗 SPARK routing active:", activeFilters);
+       }
 
-        function getMediaType(url) {
-            if (!url) return null;
-            if (url.includes("youtube.com") || url.includes("youtu.be")) return "youtube";
-            if (/\.(png|jpg|jpeg|gif|webp|svg)$/i.test(url)) return "image";
-            return null;
-        }
+       function getMediaType(url) {
+           if (!url) return null;
+           if (url.includes("youtube.com") || url.includes("youtu.be")) return "youtube";
+           if (/\.(png|jpg|jpeg|gif|webp|svg)$/i.test(url)) return "image";
+           return null;
+       }
 
-        function getYouTubeEmbedUrl(url) {
-            const match = url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-            if (!match) return null;
-            return `https://www.youtube.com/embed/${match[1]}?rel=0&playsinline=1`;
-        }
+       function buildMediaElement(mediaUrl) {
+           const type = getMediaType(mediaUrl);
+           if (!type) return null;
 
-        function buildMediaElement(mediaUrl) {
-            const type = getMediaType(mediaUrl);
-            if (!type) return null;
+           const wrapper = document.createElement('div');
+           wrapper.className = 'media-wrapper';
 
-            const wrapper = document.createElement('div');
-            wrapper.className = 'media-wrapper';
+           if (type === "youtube") {
+               const match = mediaUrl.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+               if (!match) return null;
+               const videoId = match[1];
 
-            if (type === "youtube") {
-                const embedUrl = getYouTubeEmbedUrl(mediaUrl);
-                if (!embedUrl) return null;
-                const iframe = document.createElement('iframe');
-                iframe.src = embedUrl;
-                iframe.width = "100%";
-                iframe.height = "200";
-                iframe.setAttribute('allowfullscreen', '');
-                iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
-                iframe.setAttribute('loading', 'lazy');
-                iframe.setAttribute('playsinline', '1');
-                iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
-                wrapper.appendChild(iframe);
-            } else if (type === "image") {
-                const img = document.createElement('img');
-                img.src = mediaUrl;
-                img.alt = "Project media";
-                img.setAttribute('loading', 'lazy');
-                wrapper.appendChild(img);
-            }
+               const link = document.createElement('a');
+               link.href = `https://www.youtube.com/watch?v=${videoId}`;
+               link.target = "_blank";
+               link.rel = "noopener noreferrer";
+               link.style.cssText = `
+                   display: flex;
+                   align-items: center;
+                   gap: 10px;
+                   padding: 12px 16px;
+                   background: #ff0000;
+                   color: white;
+                   border-radius: 10px;
+                   text-decoration: none;
+                   font-weight: bold;
+                   font-size: 0.95rem;
+                   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+               `;
 
-            return wrapper;
-        }
+               const icon = document.createElement('span');
+               icon.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>`;
 
-        async function sendMessage() {
-            const prompt = userInput.value.trim();
-            if (!prompt) return;
+               const label = document.createElement('span');
+               label.textContent = "Watch Project Video";
 
-            addMessage(prompt, 'user-message');
-            userInput.value = '';
-            chatHistory.scrollTop = chatHistory.scrollHeight;
+               link.appendChild(icon);
+               link.appendChild(label);
+               wrapper.appendChild(link);
 
-            const loadingId = addMessage("Thinking...", 'bot-message loading');
+           } else if (type === "image") {
+               const img = document.createElement('img');
+               img.src = mediaUrl;
+               img.alt = "Project media";
+               img.setAttribute('loading', 'lazy');
+               wrapper.appendChild(img);
+           }
 
-            try {
-                const response = await fetch('/ask-buddy', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        prompt:   prompt,
-                        role:     activeFilters.role,
-                        industry: activeFilters.industry,
-                        category: activeFilters.category
-                    })
-                });
+           return wrapper;
+       }
 
-                const data = await response.json();
-alert("mediaUrl: " + data.mediaUrl);
-removeMessage(loadingId);
+       async function sendMessage() {
+           const prompt = userInput.value.trim();
+           if (!prompt) return;
 
-                addMessage(data.response, 'bot-message', true);
+           addMessage(prompt, 'user-message');
+           userInput.value = '';
+           chatHistory.scrollTop = chatHistory.scrollHeight;
 
-                if (data.mediaUrl) {
-                    const mediaEl = buildMediaElement(data.mediaUrl);
-                    if (mediaEl) {
-                        chatHistory.appendChild(mediaEl);
-                        chatHistory.scrollTop = chatHistory.scrollHeight;
-                    }
-                }
+           const loadingId = addMessage("Thinking...", 'bot-message loading');
 
-            } catch (error) {
-                removeMessage(loadingId);
-                addMessage("Error: Could not reach the server.", 'bot-message error');
-            }
-        }
+           try {
+               const response = await fetch('/ask-buddy', {
+                   method: 'POST',
+                   headers: { 'Content-Type': 'application/json' },
+                   body: JSON.stringify({
+                       prompt:   prompt,
+                       role:     activeFilters.role,
+                       industry: activeFilters.industry,
+                       category: activeFilters.category
+                   })
+               });
 
-        function addMessage(text, className, isMarkdown = false) {
-            const div = document.createElement('div');
-            div.className = `message ${className}`;
-            div.id = 'msg-' + Date.now();
-            if (isMarkdown) {
-                div.innerHTML = marked.parse(text);
-            } else {
-                div.textContent = text;
-            }
-            chatHistory.appendChild(div);
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-            return div.id;
-        }
+               const data = await response.json();
+               removeMessage(loadingId);
+               addMessage(data.response, 'bot-message', true);
 
-        function removeMessage(id) {
-            const el = document.getElementById(id);
-            if (el) el.remove();
-        }
+               if (data.mediaUrl) {
+                   const mediaEl = buildMediaElement(data.mediaUrl);
+                   if (mediaEl) {
+                       chatHistory.appendChild(mediaEl);
+                       chatHistory.scrollTop = chatHistory.scrollHeight;
+                   }
+               }
 
-        function startNewChat() {
-            location.reload(); 
-        }
+           } catch (error) {
+               removeMessage(loadingId);
+               addMessage("Error: Could not reach the server.", 'bot-message error');
+           }
+       }
 
-        userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-    </script>
+       function addMessage(text, className, isMarkdown = false) {
+           const div = document.createElement('div');
+           div.className = `message ${className}`;
+           div.id = 'msg-' + Date.now();
+           if (isMarkdown) {
+               div.innerHTML = marked.parse(text);
+           } else {
+               div.textContent = text;
+           }
+           chatHistory.appendChild(div);
+           chatHistory.scrollTop = chatHistory.scrollHeight;
+           return div.id;
+       }
+
+       function removeMessage(id) {
+           const el = document.getElementById(id);
+           if (el) el.remove();
+       }
+
+       function startNewChat() {
+           location.reload(); 
+       }
+
+       userInput.addEventListener('keypress', (e) => {
+           if (e.key === 'Enter' && !e.shiftKey) {
+               e.preventDefault();
+               sendMessage();
+           }
+       });
+   </script>
 </body>
 </html>
