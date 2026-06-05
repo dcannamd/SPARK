@@ -12,13 +12,15 @@
         <header>
             <h1>SPARK A Conversation With Dana</h1>
             <p>A Digital Twin Experience Powered by SPARK (Shared Portfolio and Resource Knowledge-base)</p>
+            <!-- ── SHARE BUTTON ───────────────────────────────────────────── -->
+            <button class="share-btn" onclick="shareConversation()">⬆ Share</button>
         </header>
         
         <div id="chat-history" class="chat-history">
             <button class="new-chat-btn" onclick="startNewChat()">+ Start Fresh</button>
 
             <div class="message bot-message">
-                Hi! I'm Dana's Digital Twin powered by SPARK. I've turned my 'About' section into a dynamic conversation. Feel free to ask me anything about my professional experience and journey as a Learning Architect—I'm happy to help!
+                Hi! I'm Dana — or at least my digital twin, powered by SPARK. Ask me anything about my professional experience, projects, and journey as a Learning Architect. I'm happy to share!
             </div>
         </div>
 
@@ -26,12 +28,16 @@
             <textarea id="user-input" placeholder="Ask about Qmod, SPARK, NEO, or anything about Learning Architecture " rows="1"></textarea>
             <button onclick="sendMessage()" id="send-btn">Send</button>
         </div>
+
+        <!-- ── SHARE TOAST ────────────────────────────────────────────────── -->
+        <div id="share-toast" class="share-toast">🔗 Link copied to clipboard!</div>
     </div>
 
     <script>
         const chatHistory = document.getElementById('chat-history');
         const userInput = document.getElementById('user-input');
 
+        // ── URL ROUTING ───────────────────────────────────────────────────────
         const urlParams = new URLSearchParams(window.location.search);
         const activeFilters = {
             role:     urlParams.get("role")     || null,
@@ -41,6 +47,27 @@
 
         if (activeFilters.role || activeFilters.industry || activeFilters.category) {
             console.log("🔗 SPARK routing active:", activeFilters);
+        }
+
+        // ── SHARE: Copy current URL (with active filters) to clipboard ────────
+        function shareConversation() {
+            const url = window.location.href;
+            navigator.clipboard.writeText(url).then(() => {
+                const toast = document.getElementById('share-toast');
+                toast.classList.add('visible');
+                setTimeout(() => toast.classList.remove('visible'), 2500);
+            }).catch(() => {
+                // Fallback for browsers that block clipboard API
+                const input = document.createElement('input');
+                input.value = url;
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                document.body.removeChild(input);
+                const toast = document.getElementById('share-toast');
+                toast.classList.add('visible');
+                setTimeout(() => toast.classList.remove('visible'), 2500);
+            });
         }
 
         function getMediaType(url) {
@@ -55,9 +82,8 @@
             if (!type) return null;
 
             const wrapper = document.createElement('div');
-wrapper.className = 'media-wrapper';
-wrapper.style.cssText = "";
-
+            wrapper.className = 'media-wrapper';
+            wrapper.style.cssText = "";
 
             if (type === "youtube") {
                 const match = mediaUrl.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
@@ -100,6 +126,17 @@ wrapper.style.cssText = "";
             return wrapper;
         }
 
+        // ── TYPING INDICATOR ──────────────────────────────────────────────────
+        function addTypingIndicator() {
+            const div = document.createElement('div');
+            div.className = 'message bot-message typing-indicator';
+            div.id = 'typing-indicator';
+            div.innerHTML = '<span></span><span></span><span></span>';
+            chatHistory.appendChild(div);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+            return div.id;
+        }
+
         async function sendMessage() {
             const prompt = userInput.value.trim();
             if (!prompt) return;
@@ -108,7 +145,8 @@ wrapper.style.cssText = "";
             userInput.value = '';
             chatHistory.scrollTop = chatHistory.scrollHeight;
 
-            const loadingId = addMessage("Thinking...", 'bot-message loading');
+            // ── Show typing indicator instead of plain "Thinking..." ──────────
+            const typingId = addTypingIndicator();
 
             try {
                 const response = await fetch('/ask-buddy', {
@@ -123,7 +161,7 @@ wrapper.style.cssText = "";
                 });
 
                 const data = await response.json();
-                removeMessage(loadingId);
+                removeMessage(typingId);
                 addMessage(data.response, 'bot-message', true);
 
                 if (data.mediaUrl) {
@@ -135,7 +173,7 @@ wrapper.style.cssText = "";
                 }
 
             } catch (error) {
-                removeMessage(loadingId);
+                removeMessage(typingId);
                 addMessage("Error: Could not reach the server.", 'bot-message error');
             }
         }
