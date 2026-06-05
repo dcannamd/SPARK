@@ -43,10 +43,54 @@ header {
    padding: 20px; 
    text-align: center;
    flex-shrink: 0;
+   position: relative;
 }
 
 header h1 { font-size: 1.3rem; margin: 0; }
 header p { font-size: 0.85rem; margin: 5px 0 0; opacity: 0.9; }
+
+/* ── SHARE BUTTON ────────────────────────────────────────────────────────── */
+.share-btn {
+   position: absolute;
+   top: 50%;
+   right: 16px;
+   transform: translateY(-50%);
+   background: rgba(255,255,255,0.15);
+   color: white;
+   border: 1px solid rgba(255,255,255,0.4);
+   border-radius: 20px;
+   padding: 6px 14px;
+   font-size: 0.75rem;
+   cursor: pointer;
+   font-weight: 600;
+   transition: background 0.2s;
+}
+
+.share-btn:hover {
+   background: rgba(255,255,255,0.25);
+}
+
+/* ── SHARE TOAST ─────────────────────────────────────────────────────────── */
+.share-toast {
+   position: fixed;
+   bottom: 90px;
+   left: 50%;
+   transform: translateX(-50%);
+   background: #000;
+   color: #fff;
+   padding: 10px 20px;
+   border-radius: 20px;
+   font-size: 0.85rem;
+   opacity: 0;
+   pointer-events: none;
+   transition: opacity 0.3s ease;
+   z-index: 9999;
+   white-space: nowrap;
+}
+
+.share-toast.visible {
+   opacity: 1;
+}
 
 .chat-history { 
    flex: 1; 
@@ -77,6 +121,33 @@ header p { font-size: 0.85rem; margin: 5px 0 0; opacity: 0.9; }
    color: #2c2c2c; 
    align-self: flex-start; 
    border-bottom-left-radius: 2px; 
+}
+
+/* ── TYPING INDICATOR ────────────────────────────────────────────────────── */
+.typing-indicator {
+   display: flex;
+   align-items: center;
+   gap: 5px;
+   padding: 14px 18px;
+   width: fit-content;
+}
+
+.typing-indicator span {
+   display: inline-block;
+   width: 8px;
+   height: 8px;
+   background: #9b8fd4;
+   border-radius: 50%;
+   animation: bounce 1.2s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(1) { animation-delay: 0s; }
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes bounce {
+   0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+   30%            { transform: translateY(-6px); opacity: 1; }
 }
 
 .input-area { 
