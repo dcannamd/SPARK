@@ -1,193 +1,215 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-   <title>Dana | Learning Architect Twin</title>
-   <link rel="stylesheet" href="style.css">
-   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dana | Learning Architect Twin</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-   <div class="chat-container">
-       <header>
-           <h1>SPARK A Conversation With Dana</h1>
-           <p>A Digital Twin Experience Powered by SPARK (Shared Portfolio and Resource Knowledge-base)</p>
-       </header>
-       
-       <div id="chat-history" class="chat-history">
-           <button class="new-chat-btn" onclick="startNewChat()">+ Start Fresh</button>
+    <div class="chat-container">
+        <header>
+            <h1>SPARK A Conversation With Dana</h1>
+            <p>A Digital Twin Experience Powered by SPARK (Shared Portfolio and Resource Knowledge-base)</p>
+        </header>
+        
+        <div id="chat-history" class="chat-history">
+            <button class="new-chat-btn" onclick="startNewChat()">+ Start Fresh</button>
 
-           <div class="message bot-message">
-               <p>Hi! I'm Dana — or at least my digital twin, powered by SPARK. Ask me anything about my professional experience, projects, and journey as a Learning Architect.</p>
-               <div class="suggestion-chips">
-                   <a class="chip" onclick="askSuggestion(this)">What's your strongest project and what was the impact?</a>
-                   <a class="chip" onclick="askSuggestion(this)">What does your design and development process look like?</a>
-                   <a class="chip" onclick="askSuggestion(this)">What tools and technologies do you work with?</a>
-               </div>
-           </div>
-       </div>
+            <div class="message bot-message">
+                <p>Hi! I'm Dana — or at least my digital twin, powered by SPARK. Ask me anything about my professional experience, projects, and journey as a Learning Architect.</p>
+                <div class="suggestion-chips">
+                    <a class="chip" onclick="askSuggestion(this)">What's your strongest project and what was the impact?</a>
+                    <a class="chip" onclick="askSuggestion(this)">What does your design and development process look like?</a>
+                    <a class="chip" onclick="askSuggestion(this)">What tools and technologies do you work with?</a>
+                </div>
+            </div>
+        </div>
 
-       <div class="input-area">
-           <textarea id="user-input" placeholder="Ask about Qmod, SPARK, or NEO " rows="1"></textarea>
-           <button onclick="sendMessage()" id="send-btn">Send</button>
-       </div>
-   </div>
+        <div class="input-area">
+            <textarea id="user-input" placeholder="Ask about Qmod, SPARK, NEO, or anything about Learning Architecture " rows="1"></textarea>
+            <button onclick="sendMessage()" id="send-btn">Send</button>
+        </div>
+    </div>
 
-   <script>
-       const chatHistory = document.getElementById('chat-history');
-       const userInput = document.getElementById('user-input');
+    <script>
+        const chatHistory = document.getElementById('chat-history');
+        const userInput = document.getElementById('user-input');
 
-       const urlParams = new URLSearchParams(window.location.search);
-       const activeFilters = {
-           role:     urlParams.get("role")     || null,
-           industry: urlParams.get("industry") || null,
-           category: urlParams.get("category") || null
-       };
+        // ── URL ROUTING ───────────────────────────────────────────────────────
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeFilters = {
+            role:     urlParams.get("role")     || null,
+            industry: urlParams.get("industry") || null,
+            category: urlParams.get("category") || null,
+            company:  urlParams.get("company")  || null
+        };
 
-       if (activeFilters.role || activeFilters.industry || activeFilters.category) {
-           console.log("🔗 SPARK routing active:", activeFilters);
-       }
+        if (Object.values(activeFilters).some(v => v)) {
+            console.log("🔗 SPARK routing active:", activeFilters);
+        }
 
-       function askSuggestion(el) {
-           userInput.value = el.textContent;
-           sendMessage();
-       }
+        function askSuggestion(el) {
+            userInput.value = el.textContent;
+            sendMessage();
+        }
 
-       function getMediaType(url) {
-           if (!url) return null;
-           if (url.includes("youtube.com") || url.includes("youtu.be")) return "youtube";
-           if (/\.(png|jpg|jpeg|gif|webp|svg)$/i.test(url)) return "image";
-           return null;
-       }
+        function getMediaType(url) {
+            if (!url) return null;
+            if (url.includes("youtube.com") || url.includes("youtu.be")) return "youtube";
+            if (/\.(png|jpg|jpeg|gif|webp|svg)$/i.test(url)) return "image";
+            return null;
+        }
 
-       function buildMediaElement(mediaUrl) {
-           const type = getMediaType(mediaUrl);
-           if (!type) return null;
+        function buildMediaElement(mediaUrl) {
+            const type = getMediaType(mediaUrl);
+            if (!type) return null;
 
-           const wrapper = document.createElement('div');
-           wrapper.className = 'media-wrapper';
-           wrapper.style.cssText = "";
+            const wrapper = document.createElement('div');
+            wrapper.className = 'media-wrapper';
+            wrapper.style.cssText = "";
 
-           if (type === "youtube") {
-               const match = mediaUrl.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-               if (!match) return null;
-               const videoId = match[1];
+            if (type === "youtube") {
+                const match = mediaUrl.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+                if (!match) return null;
+                const videoId = match[1];
 
-               const link = document.createElement('a');
-               link.href = `https://www.youtube.com/watch?v=${videoId}`;
-               link.target = "_blank";
-               link.rel = "noopener noreferrer";
-               link.style.cssText = "display:block; position:relative;";
+                const link = document.createElement('a');
+                link.href = `https://www.youtube.com/watch?v=${videoId}`;
+                link.target = "_blank";
+                link.rel = "noopener noreferrer";
+                link.style.cssText = "display:block; position:relative;";
 
-               const thumb = document.createElement('img');
-               thumb.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-               thumb.alt = "Watch video";
-               thumb.style.cssText = "width:100%; border-radius:10px; display:block;";
+                const thumb = document.createElement('img');
+                thumb.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                thumb.alt = "Watch video";
+                thumb.style.cssText = "width:100%; border-radius:10px; display:block;";
 
-               const playBtn = document.createElement('div');
-               playBtn.style.cssText = `
-                   position:absolute; top:50%; left:50%;
-                   transform:translate(-50%,-50%);
-                   width:60px; height:60px; border-radius:50%;
-                   background:rgba(255,0,0,0.85);
-                   display:flex; align-items:center; justify-content:center;
-               `;
-               playBtn.innerHTML = `<div style="width:0;height:0;border-top:12px solid transparent;border-bottom:12px solid transparent;border-left:20px solid white;margin-left:4px;"></div>`;
+                const playBtn = document.createElement('div');
+                playBtn.style.cssText = `
+                    position:absolute; top:50%; left:50%;
+                    transform:translate(-50%,-50%);
+                    width:60px; height:60px; border-radius:50%;
+                    background:rgba(255,0,0,0.85);
+                    display:flex; align-items:center; justify-content:center;
+                `;
+                playBtn.innerHTML = `<div style="width:0;height:0;border-top:12px solid transparent;border-bottom:12px solid transparent;border-left:20px solid white;margin-left:4px;"></div>`;
 
-               link.appendChild(thumb);
-               link.appendChild(playBtn);
-               wrapper.appendChild(link);
+                link.appendChild(thumb);
+                link.appendChild(playBtn);
+                wrapper.appendChild(link);
 
-           } else if (type === "image") {
-               const img = document.createElement('img');
-               img.src = mediaUrl;
-               img.alt = "Project media";
-               img.setAttribute('loading', 'lazy');
-               wrapper.appendChild(img);
-           }
+            } else if (type === "image") {
+                const img = document.createElement('img');
+                img.src = mediaUrl;
+                img.alt = "Project media";
+                img.setAttribute('loading', 'lazy');
+                wrapper.appendChild(img);
+            }
 
-           return wrapper;
-       }
+            return wrapper;
+        }
 
-       function addTypingIndicator() {
-           const div = document.createElement('div');
-           div.className = 'message bot-message typing-indicator';
-           div.id = 'typing-indicator';
-           div.innerHTML = '<span></span><span></span><span></span>';
-           chatHistory.appendChild(div);
-           chatHistory.scrollTop = chatHistory.scrollHeight;
-           return div.id;
-       }
+        // ── SOURCE BADGE: Shows which Notion project the answer came from ─────
+        function buildSourceBadge(sourceTitle) {
+            if (!sourceTitle) return null;
+            const badge = document.createElement('div');
+            badge.className = 'source-badge';
+            badge.textContent = `📎 Source: ${sourceTitle}`;
+            return badge;
+        }
 
-       async function sendMessage() {
-           const prompt = userInput.value.trim();
-           if (!prompt) return;
+        function addTypingIndicator() {
+            const div = document.createElement('div');
+            div.className = 'message bot-message typing-indicator';
+            div.id = 'typing-indicator';
+            div.innerHTML = '<span></span><span></span><span></span>';
+            chatHistory.appendChild(div);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+            return div.id;
+        }
 
-           addMessage(prompt, 'user-message');
-           userInput.value = '';
-           chatHistory.scrollTop = chatHistory.scrollHeight;
+        async function sendMessage() {
+            const prompt = userInput.value.trim();
+            if (!prompt) return;
 
-           const typingId = addTypingIndicator();
+            addMessage(prompt, 'user-message');
+            userInput.value = '';
+            chatHistory.scrollTop = chatHistory.scrollHeight;
 
-           try {
-               const response = await fetch('/ask-buddy', {
-                   method: 'POST',
-                   headers: { 'Content-Type': 'application/json' },
-                   body: JSON.stringify({
-                       prompt:   prompt,
-                       role:     activeFilters.role,
-                       industry: activeFilters.industry,
-                       category: activeFilters.category
-                   })
-               });
+            const typingId = addTypingIndicator();
 
-               const data = await response.json();
-               removeMessage(typingId);
-               addMessage(data.response, 'bot-message', true);
+            try {
+                const response = await fetch('/ask-buddy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt:   prompt,
+                        role:     activeFilters.role,
+                        industry: activeFilters.industry,
+                        category: activeFilters.category,
+                        company:  activeFilters.company
+                    })
+                });
 
-               if (data.mediaUrl) {
-                   const mediaEl = buildMediaElement(data.mediaUrl);
-                   if (mediaEl) {
-                       chatHistory.appendChild(mediaEl);
-                       chatHistory.scrollTop = chatHistory.scrollHeight;
-                   }
-               }
+                const data = await response.json();
+                removeMessage(typingId);
+                addMessage(data.response, 'bot-message', true);
 
-           } catch (error) {
-               removeMessage(typingId);
-               addMessage("Error: Could not reach the server.", 'bot-message error');
-           }
-       }
+                // ── SOURCE: Render source badge below response ────────────────
+                if (data.sourceTitle) {
+                    const badge = buildSourceBadge(data.sourceTitle);
+                    if (badge) {
+                        chatHistory.appendChild(badge);
+                    }
+                }
 
-       function addMessage(text, className, isMarkdown = false) {
-           const div = document.createElement('div');
-           div.className = `message ${className}`;
-           div.id = 'msg-' + Date.now();
-           if (isMarkdown) {
-               div.innerHTML = marked.parse(text);
-           } else {
-               div.textContent = text;
-           }
-           chatHistory.appendChild(div);
-           chatHistory.scrollTop = chatHistory.scrollHeight;
-           return div.id;
-       }
+                // ── MEDIA: Render thumbnail below source badge ────────────────
+                if (data.mediaUrl) {
+                    const mediaEl = buildMediaElement(data.mediaUrl);
+                    if (mediaEl) {
+                        chatHistory.appendChild(mediaEl);
+                    }
+                }
 
-       function removeMessage(id) {
-           const el = document.getElementById(id);
-           if (el) el.remove();
-       }
+                chatHistory.scrollTop = chatHistory.scrollHeight;
 
-       function startNewChat() {
-           location.reload(); 
-       }
+            } catch (error) {
+                removeMessage(typingId);
+                addMessage("Error: Could not reach the server.", 'bot-message error');
+            }
+        }
 
-       userInput.addEventListener('keypress', (e) => {
-           if (e.key === 'Enter' && !e.shiftKey) {
-               e.preventDefault();
-               sendMessage();
-           }
-       });
-   </script>
+        function addMessage(text, className, isMarkdown = false) {
+            const div = document.createElement('div');
+            div.className = `message ${className}`;
+            div.id = 'msg-' + Date.now();
+            if (isMarkdown) {
+                div.innerHTML = marked.parse(text);
+            } else {
+                div.textContent = text;
+            }
+            chatHistory.appendChild(div);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+            return div.id;
+        }
+
+        function removeMessage(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+        function startNewChat() {
+            location.reload(); 
+        }
+
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
 </body>
 </html>
