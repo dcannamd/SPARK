@@ -28,7 +28,7 @@
         </div>
 
         <div class="input-area">
-            <textarea id="user-input" placeholder="Ask about Qmod, SPARK,or NEO " rows="1"></textarea>
+            <textarea id="user-input" placeholder="Ask about Qmod, SPARK, NEO, or anything about Learning Architecture" rows="1"></textarea>
             <button onclick="sendMessage()" id="send-btn">Send</button>
         </div>
     </div>
@@ -37,6 +37,7 @@
         const chatHistory = document.getElementById('chat-history');
         const userInput = document.getElementById('user-input');
 
+        // ── URL ROUTING ───────────────────────────────────────────────────────
         const urlParams = new URLSearchParams(window.location.search);
         const activeFilters = {
             role:     urlParams.get("role")     || null,
@@ -48,6 +49,11 @@
         if (Object.values(activeFilters).some(v => v)) {
             console.log("🔗 SPARK routing active:", activeFilters);
         }
+
+        // ── ACTIVE PROJECT TRACKING ───────────────────────────────────────────
+        // Tracked on the frontend so it survives server restarts on Render.
+        // Sent with every request so the server always knows the current project.
+        let activeProjectTitle = null;
 
         function askSuggestion(el) {
             userInput.value = el.textContent;
@@ -74,12 +80,11 @@
                 if (!match) return null;
                 const videoId = match[1];
 
-            const link = document.createElement('a');
-link.href = `https://www.youtube.com/watch?v=${videoId}`;
-link.target = "_blank";
-link.rel = "noopener noreferrer";
-link.style.cssText = "display:block; position:relative; background:transparent; line-height:0;";
-
+                const link = document.createElement('a');
+                link.href = `https://www.youtube.com/watch?v=${videoId}`;
+                link.target = "_blank";
+                link.rel = "noopener noreferrer";
+                link.style.cssText = "display:block; position:relative; background:transparent; line-height:0;";
 
                 const thumb = document.createElement('img');
                 thumb.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
@@ -136,24 +141,24 @@ link.style.cssText = "display:block; position:relative; background:transparent; 
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        prompt:   prompt,
-                        role:     activeFilters.role,
-                        industry: activeFilters.industry,
-                        category: activeFilters.category,
-                        company:  activeFilters.company
+                        prompt:             prompt,
+                        role:               activeFilters.role,
+                        industry:           activeFilters.industry,
+                        category:           activeFilters.category,
+                        company:            activeFilters.company,
+                        // ── Send active project so server can anchor follow-ups ──
+                        activeProjectTitle: activeProjectTitle
                     })
                 });
 
                 const data = await response.json();
-removeMessage(typingId);
-addMessage(data.response, 'bot-message', true);
+                removeMessage(typingId);
+                addMessage(data.response, 'bot-message', true);
 
-// ── After first response, suggest "Tell me more" in the input ────────────
-if (userInput.value === '') {
-    userInput.value = 'Tell me more';
-    userInput.select();
-}
-
+                // ── Update active project from server response ─────────────────
+                if (data.topProjectTitle) {
+                    activeProjectTitle = data.topProjectTitle;
+                }
 
                 if (data.mediaUrl) {
                     const mediaEl = buildMediaElement(data.mediaUrl);
@@ -161,6 +166,12 @@ if (userInput.value === '') {
                         chatHistory.appendChild(mediaEl);
                         chatHistory.scrollTop = chatHistory.scrollHeight;
                     }
+                }
+
+                // ── Suggest "Tell me more" after every response ────────────────
+                // No highlight — just sits ready to send
+                if (userInput.value === '') {
+                    userInput.value = 'Tell me more';
                 }
 
             } catch (error) {
@@ -189,6 +200,7 @@ if (userInput.value === '') {
         }
 
         function startNewChat() {
+            activeProjectTitle = null;
             location.reload(); 
         }
 
@@ -196,6 +208,17 @@ if (userInput.value === '') {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 sendMessage();
+            }
+        });
+
+        // ── Clear "Tell me more" when user starts typing their own question ───
+        userInput.addEventListener('input', () => {
+            if (userInput.value === 'Tell me more') return;
+        });
+
+        userInput.addEventListener('focus', () => {
+            if (userInput.value === 'Tell me more') {
+                userInput.value = '';
             }
         });
     </script>
