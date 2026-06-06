@@ -52,6 +52,7 @@ const CATEGORY_MAP = {
     "tool":       "Tool",
     "leadership": "Leadership",
     "strategy":   "Strategy"
+    "architecture": "Architecture"
 };
 
 function isFollowUpQuery(query) {
