@@ -13,6 +13,11 @@ const port = process.env.PORT || 3000;
 
 let memoryStore = [];
 
+// ── ACTIVE PROJECT TRACKING ───────────────────────────────────────────────────
+// Tracks the most recently discussed project title so follow-up questions
+// can be anchored to that project's chunks exclusively.
+let activeProjectTitle = null;
+
 const embeddings = new GoogleGenerativeAIEmbeddings({ 
     apiKey: process.env.GOOGLE_API_KEY, 
     model: "gemini-embedding-001",
@@ -50,6 +55,34 @@ const CATEGORY_MAP = {
     "strategy":   "Strategy"
 };
 
+// ── FOLLOW-UP DETECTION ───────────────────────────────────────────────────────
+// Detects whether a query is a follow-up to the current project conversation
+// rather than a new topic. If true, the search is scoped to the active project.
+function isFollowUpQuery(query) {
+    const followUpPatterns = [
+        /^yes/i,
+        /^tell me more/i,
+        /^what about/i,
+        /^more details/i,
+        /^can you elaborate/i,
+        /^expand on/i,
+        /^go deeper/i,
+        /^and the/i,
+        /^what (was|were|is|are) the (tech|tool|stack|result|impact|approach|process|team)/i,
+        /^how did (you|that)/i,
+        /^why did/i,
+        /^when did/i,
+        /tech stack/i,
+        /tools (you|used)/i,
+        /leadership approach/i,
+        /more about (that|this|it)/i,
+        /specific(ally)?/i,
+        /further details/i,
+        /elaborate/i
+    ];
+    return followUpPatterns.some(p => p.test(query.trim()));
+}
+
 function preFilterStore(store, { roles = [], industries = [], categories = [] }) {
     const hasFilters = roles.length > 0 || industries.length > 0 || categories.length > 0;
     if (!hasFilters) return store;
@@ -68,6 +101,20 @@ function preFilterStore(store, { roles = [], industries = [], categories = [] })
     }
 
     console.log(`🎯 Pre-filter active: ${filtered.length}/${store.length} chunks match filters.`);
+    return filtered;
+}
+
+// ── PROJECT FILTER ────────────────────────────────────────────────────────────
+// Filters the store to only chunks belonging to the active project title.
+// Used for follow-up queries to prevent cross-project contamination.
+function filterByProject(store, projectTitle) {
+    if (!projectTitle) return store;
+    const filtered = store.filter(item => item.metadata?.title === projectTitle);
+    if (filtered.length === 0) {
+        console.warn(`⚠️  No chunks found for project: ${projectTitle}. Using full store.`);
+        return store;
+    }
+    console.log(`📌 Project anchored: "${projectTitle}" (${filtered.length} chunks)`);
     return filtered;
 }
 
@@ -119,7 +166,7 @@ function dotProduct(vecA, vecB) {
 
 async function findRelevantContext(query, filteredStore, topK = 5) {
     const store = filteredStore || memoryStore;
-    if (store.length === 0) return { context: "", mediaUrl: null };
+    if (store.length === 0) return { context: "", mediaUrl: null, topProjectTitle: null };
 
     console.log("🧠 Thinking... (Searching Brain)");
     
@@ -135,19 +182,22 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
 
         console.log(`📚 Found ${topResults.length} relevant matches.`);
 
-        const mediaUrl = topResults[0]?.metadata?.mediaUrl || null;
-        if (mediaUrl) console.log(`🎬 Media attached: ${mediaUrl}`);
+        const mediaUrl        = topResults[0]?.metadata?.mediaUrl || null;
+        const topProjectTitle = topResults[0]?.metadata?.title    || null;
+
+        if (mediaUrl)        console.log(`🎬 Media attached: ${mediaUrl}`);
+        if (topProjectTitle) console.log(`📌 Top project: "${topProjectTitle}"`);
 
         const context = topResults.map(res => `
             PROJECT: ${res.metadata.title}
             DETAILS: ${res.content || res.pageContent}
         `).join('\n\n---\n\n');
 
-        return { context, mediaUrl };
+        return { context, mediaUrl, topProjectTitle };
 
     } catch (error) {
         console.error("❌ EMBEDDING ERROR:", error.message);
-        return { context: "", mediaUrl: null };
+        return { context: "", mediaUrl: null, topProjectTitle: null };
     }
 }
 
@@ -177,13 +227,31 @@ app.post('/ask-buddy', async (req, res) => {
         const activeIndustries = translateParam(rawIndustry, INDUSTRY_MAP);
         const activeCategories = translateParam(rawCategory, CATEGORY_MAP);
 
-        const filteredStore = preFilterStore(memoryStore, {
+        // Step 1: Apply tag-based pre-filter
+        let filteredStore = preFilterStore(memoryStore, {
             roles:      activeRoles,
             industries: activeIndustries,
             categories: activeCategories
         });
 
-        const { context, mediaUrl } = await findRelevantContext(userPrompt, filteredStore);
+        // Step 2: If this is a follow-up and we have an active project,
+        // narrow the store further to only that project's chunks
+        const followUp = isFollowUpQuery(userPrompt);
+        if (followUp && activeProjectTitle) {
+            console.log(`🔁 Follow-up detected — anchoring to: "${activeProjectTitle}"`);
+            filteredStore = filterByProject(filteredStore, activeProjectTitle);
+        } else if (!followUp) {
+            // Reset active project on new topic queries
+            activeProjectTitle = null;
+        }
+
+        const { context, mediaUrl, topProjectTitle } = await findRelevantContext(userPrompt, filteredStore);
+
+        // Step 3: Update active project tracking for next turn
+        if (topProjectTitle && !followUp) {
+            activeProjectTitle = topProjectTitle;
+            console.log(`📌 Active project set to: "${activeProjectTitle}"`);
+        }
 
         const jobPosting = loadJobPosting(rawCompany);
 
@@ -194,7 +262,6 @@ app.post('/ask-buddy', async (req, res) => {
         
         console.log("✅ Response sent.");
 
-        // ── SOURCE BADGE REMOVED — sourceTitle no longer returned ────────────
         res.json({ 
             response: danaResponse, 
             mediaUrl: mediaUrl || null
@@ -207,7 +274,8 @@ app.post('/ask-buddy', async (req, res) => {
 });
 
 app.post('/reset-chat', (req, res) => {
-    resetHistory(); 
+    resetHistory();
+    activeProjectTitle = null;
     console.log("🧹 Memory Cleared.");
     res.json({ status: "Memory Cleared" });
 });
