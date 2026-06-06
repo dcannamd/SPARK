@@ -70,6 +70,14 @@ FORMATTING:
 9. Use clear headers and concise bullet points for multi-part answers.
 10. Lead with the most strategically relevant information given the active portfolio lens.
 11. When asking follow-up questions, keep them tightly scoped to the current project being discussed — do not ask broad questions that could pull in unrelated projects.
+
+PROJECT TRACKING — CRITICAL:
+12. At the very end of EVERY response, after all your content, you MUST append this exact tag on its own line with no extra text:
+[[PROJECT: <exact project name from the retrieved context that your response primarily focused on, or NONE if the response covers multiple projects>]]
+Example: [[PROJECT: Qmod: Power your imagination]]
+Example: [[PROJECT: New Employee Onboarding]]
+Example: [[PROJECT: NONE]]
+This tag is used by the system to anchor follow-up questions. Never skip it. Never modify the format.
     `.trim();
 }
 
@@ -98,18 +106,26 @@ ${userQuery}
         
         const result = await chat.sendMessage(messagePayload);
         const response = await result.response;
-        const text = response.text();
+        const fullText = response.text();
 
+        // ── Strip the hidden PROJECT tag before sending to frontend ──────────
+        // The tag is parsed by server.js and removed from the visible response.
+        const projectTagMatch = fullText.match(/\[\[PROJECT:\s*(.+?)\]\]/);
+        const detectedProject = projectTagMatch ? projectTagMatch[1].trim() : null;
+        const cleanText = fullText.replace(/\[\[PROJECT:.*?\]\]/g, '').trimEnd();
+
+        // Store clean text in history so the tag doesn't accumulate
         chatHistory.push({ role: "user",  parts: [{ text: userQuery }] });
-        chatHistory.push({ role: "model", parts: [{ text: text }] });
+        chatHistory.push({ role: "model", parts: [{ text: cleanText }] });
 
-        return text;
+        return { text: cleanText, detectedProject };
+
     } catch (error) {
         console.error("❌ ERROR:", error.message);
         if (error.message.includes("404")) {
-            return "My memory core is experiencing a configuration conflict. Please verify the model configuration in rag-tutor.js.";
+            return { text: "My memory core is experiencing a configuration conflict. Please verify the model configuration in rag-tutor.js.", detectedProject: null };
         }
-        return "I'm having a brief connection issue. Please try again.";
+        return { text: "I'm having a brief connection issue. Please try again.", detectedProject: null };
     }
 }
 
