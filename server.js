@@ -79,8 +79,6 @@ function translateParam(rawParam, dictionary) {
         .filter(Boolean);
 }
 
-// ── COMPANY: Load job posting from job_postings/ folder ──────────────────────
-// Returns the full text of the job description or null if not found.
 function loadJobPosting(companySlug) {
     if (!companySlug) return null;
     const filePath = path.join(__dirname, 'job_postings', `${companySlug.toLowerCase().trim()}.txt`);
@@ -121,7 +119,7 @@ function dotProduct(vecA, vecB) {
 
 async function findRelevantContext(query, filteredStore, topK = 5) {
     const store = filteredStore || memoryStore;
-    if (store.length === 0) return { context: "", mediaUrl: null, sourceTitle: null };
+    if (store.length === 0) return { context: "", mediaUrl: null };
 
     console.log("🧠 Thinking... (Searching Brain)");
     
@@ -137,23 +135,19 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
 
         console.log(`📚 Found ${topResults.length} relevant matches.`);
 
-        const mediaUrl    = topResults[0]?.metadata?.mediaUrl   || null;
-        // ── SOURCE: Pass the top project title back to the frontend ──────────
-        const sourceTitle = topResults[0]?.metadata?.title      || null;
-
-        if (mediaUrl)    console.log(`🎬 Media attached: ${mediaUrl}`);
-        if (sourceTitle) console.log(`📎 Source: ${sourceTitle}`);
+        const mediaUrl = topResults[0]?.metadata?.mediaUrl || null;
+        if (mediaUrl) console.log(`🎬 Media attached: ${mediaUrl}`);
 
         const context = topResults.map(res => `
             PROJECT: ${res.metadata.title}
             DETAILS: ${res.content || res.pageContent}
         `).join('\n\n---\n\n');
 
-        return { context, mediaUrl, sourceTitle };
+        return { context, mediaUrl };
 
     } catch (error) {
         console.error("❌ EMBEDDING ERROR:", error.message);
-        return { context: "", mediaUrl: null, sourceTitle: null };
+        return { context: "", mediaUrl: null };
     }
 }
 
@@ -189,9 +183,8 @@ app.post('/ask-buddy', async (req, res) => {
             categories: activeCategories
         });
 
-        const { context, mediaUrl, sourceTitle } = await findRelevantContext(userPrompt, filteredStore);
+        const { context, mediaUrl } = await findRelevantContext(userPrompt, filteredStore);
 
-        // ── COMPANY: Load job posting if company param is present ─────────────
         const jobPosting = loadJobPosting(rawCompany);
 
         console.log("🤖 Asking Dana...");
@@ -201,15 +194,15 @@ app.post('/ask-buddy', async (req, res) => {
         
         console.log("✅ Response sent.");
 
+        // ── SOURCE BADGE REMOVED — sourceTitle no longer returned ────────────
         res.json({ 
-            response:    danaResponse, 
-            mediaUrl:    mediaUrl    || null,
-            sourceTitle: sourceTitle || null
+            response: danaResponse, 
+            mediaUrl: mediaUrl || null
         });
 
     } catch (error) {
         console.error("❌ PROCESSING ERROR:", error);
-        res.status(500).json({ response: "I'm having trouble accessing my memory right now.", mediaUrl: null, sourceTitle: null });
+        res.status(500).json({ response: "I'm having trouble accessing my memory right now.", mediaUrl: null });
     }
 });
 
