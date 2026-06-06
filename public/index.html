@@ -37,7 +37,6 @@
         const chatHistory = document.getElementById('chat-history');
         const userInput = document.getElementById('user-input');
 
-        // ── URL ROUTING ───────────────────────────────────────────────────────
         const urlParams = new URLSearchParams(window.location.search);
         const activeFilters = {
             role:     urlParams.get("role")     || null,
@@ -111,15 +110,6 @@
             return wrapper;
         }
 
-        // ── SOURCE BADGE: Shows which Notion project the answer came from ─────
-        function buildSourceBadge(sourceTitle) {
-            if (!sourceTitle) return null;
-            const badge = document.createElement('div');
-            badge.className = 'source-badge';
-            badge.textContent = `📎 Source: ${sourceTitle}`;
-            return badge;
-        }
-
         function addTypingIndicator() {
             const div = document.createElement('div');
             div.className = 'message bot-message typing-indicator';
@@ -157,23 +147,13 @@
                 removeMessage(typingId);
                 addMessage(data.response, 'bot-message', true);
 
-                // ── SOURCE: Render source badge below response ────────────────
-                if (data.sourceTitle) {
-                    const badge = buildSourceBadge(data.sourceTitle);
-                    if (badge) {
-                        chatHistory.appendChild(badge);
-                    }
-                }
-
-                // ── MEDIA: Render thumbnail below source badge ────────────────
                 if (data.mediaUrl) {
                     const mediaEl = buildMediaElement(data.mediaUrl);
                     if (mediaEl) {
                         chatHistory.appendChild(mediaEl);
+                        chatHistory.scrollTop = chatHistory.scrollHeight;
                     }
                 }
-
-                chatHistory.scrollTop = chatHistory.scrollHeight;
 
             } catch (error) {
                 removeMessage(typingId);
