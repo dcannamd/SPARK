@@ -74,11 +74,12 @@
                 if (!match) return null;
                 const videoId = match[1];
 
-                const link = document.createElement('a');
-                link.href = `https://www.youtube.com/watch?v=${videoId}`;
-                link.target = "_blank";
-                link.rel = "noopener noreferrer";
-                link.style.cssText = "display:block; position:relative;";
+            const link = document.createElement('a');
+link.href = `https://www.youtube.com/watch?v=${videoId}`;
+link.target = "_blank";
+link.rel = "noopener noreferrer";
+link.style.cssText = "display:block; position:relative; background:transparent; line-height:0;";
+
 
                 const thumb = document.createElement('img');
                 thumb.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
