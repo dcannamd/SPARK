@@ -13,274 +13,268 @@ const port = process.env.PORT || 3000;
 
 let memoryStore = [];
 
-// ── ACTIVE PROJECT TRACKING ───────────────────────────────────────────────────
-// Tracks the most recently discussed project title so follow-up questions
-// can be anchored to that project's chunks exclusively.
+// ── SESSION STATE ─────────────────────────────────────────────────────────────
 let activeProjectTitle = null;
+let shownMediaTitles = new Set();
 
 const embeddings = new GoogleGenerativeAIEmbeddings({ 
-    apiKey: process.env.GOOGLE_API_KEY, 
-    model: "gemini-embedding-001",
-    modelName: "gemini-embedding-001"
+   apiKey: process.env.GOOGLE_API_KEY, 
+   model: "gemini-embedding-001",
+   modelName: "gemini-embedding-001"
 });
 
 const ROLE_MAP = {
-    "lxd":                   "Learning Architecture & Design",
-    "lsa":                   "Learning Solutions Architecture",
-    "creative-technologist": "Creative Technology & UX",
-    "instructional-design":  "Instructional Design",
-    "ai-integration":        "AI Integration",
-    "general":               "General"
+   "lxd":                   "Learning Architecture & Design",
+   "lsa":                   "Learning Solutions Architecture",
+   "creative-technologist": "Creative Technology & UX",
+   "instructional-design":  "Instructional Design",
+   "ai-integration":        "AI Integration",
+   "general":               "General"
 };
 
 const INDUSTRY_MAP = {
-    "aerospace":  "Aerospace",
-    "saas":       "SaaS",
-    "healthcare": "Healthcare",
-    "finance":    "Finance",
-    "retail":     "Retail",
-    "government": "Government",
-    "nonprofit":  "Nonprofit",
-    "tech":       "Technology",
-    "defense":    "Defense",
-    "education":  "Education"
+   "aerospace":  "Aerospace",
+   "saas":       "SaaS",
+   "healthcare": "Healthcare",
+   "finance":    "Finance",
+   "retail":     "Retail",
+   "government": "Government",
+   "nonprofit":  "Nonprofit",
+   "tech":       "Technology",
+   "defense":    "Defense",
+   "education":  "Education"
 };
 
 const CATEGORY_MAP = {
-    "portfolio":  "Portfolio",
-    "case-study": "Case Study",
-    "process":    "Process",
-    "tool":       "Tool",
-    "leadership": "Leadership",
-    "strategy":   "Strategy"
+   "portfolio":  "Portfolio",
+   "case-study": "Case Study",
+   "process":    "Process",
+   "tool":       "Tool",
+   "leadership": "Leadership",
+   "strategy":   "Strategy"
 };
 
-// ── FOLLOW-UP DETECTION ───────────────────────────────────────────────────────
-// Detects whether a query is a follow-up to the current project conversation
-// rather than a new topic. If true, the search is scoped to the active project.
 function isFollowUpQuery(query) {
-    const followUpPatterns = [
-        /^yes/i,
-        /^tell me more/i,
-        /^what about/i,
-        /^more details/i,
-        /^can you elaborate/i,
-        /^expand on/i,
-        /^go deeper/i,
-        /^and the/i,
-        /^what (was|were|is|are) the (tech|tool|stack|result|impact|approach|process|team)/i,
-        /^how did (you|that)/i,
-        /^why did/i,
-        /^when did/i,
-        /tech stack/i,
-        /tools (you|used)/i,
-        /leadership approach/i,
-        /more about (that|this|it)/i,
-        /specific(ally)?/i,
-        /further details/i,
-        /elaborate/i
-    ];
-    return followUpPatterns.some(p => p.test(query.trim()));
+   const followUpPatterns = [
+       /^yes/i,
+       /^tell me more/i,
+       /^what about/i,
+       /^more details/i,
+       /^can you elaborate/i,
+       /^expand on/i,
+       /^go deeper/i,
+       /^and the/i,
+       /^what (was|were|is|are) the (tech|tool|stack|result|impact|approach|process|team)/i,
+       /^how did (you|that)/i,
+       /^why did/i,
+       /^when did/i,
+       /tech stack/i,
+       /tools (you|used)/i,
+       /leadership approach/i,
+       /more about (that|this|it)/i,
+       /specific(ally)?/i,
+       /further details/i,
+       /elaborate/i
+   ];
+   return followUpPatterns.some(p => p.test(query.trim()));
 }
 
 function preFilterStore(store, { roles = [], industries = [], categories = [] }) {
-    const hasFilters = roles.length > 0 || industries.length > 0 || categories.length > 0;
-    if (!hasFilters) return store;
+   const hasFilters = roles.length > 0 || industries.length > 0 || categories.length > 0;
+   if (!hasFilters) return store;
 
-    const filtered = store.filter(item => {
-        const meta = item.metadata || {};
-        const roleMatch     = roles.length === 0      || roles.some(r => (meta.Role      || []).includes(r));
-        const industryMatch = industries.length === 0 || industries.some(i => (meta.Industry || []).includes(i));
-        const categoryMatch = categories.length === 0 || categories.some(c => (meta.Category || []).includes(c));
-        return roleMatch && industryMatch && categoryMatch;
-    });
+   const filtered = store.filter(item => {
+       const meta = item.metadata || {};
+       const roleMatch     = roles.length === 0      || roles.some(r => (meta.Role      || []).includes(r));
+       const industryMatch = industries.length === 0 || industries.some(i => (meta.Industry || []).includes(i));
+       const categoryMatch = categories.length === 0 || categories.some(c => (meta.Category || []).includes(c));
+       return roleMatch && industryMatch && categoryMatch;
+   });
 
-    if (filtered.length === 0) {
-        console.warn("⚠️  Pre-filter returned 0 results. Falling back to full store.");
-        return store;
-    }
+   if (filtered.length === 0) {
+       console.warn("⚠️  Pre-filter returned 0 results. Falling back to full store.");
+       return store;
+   }
 
-    console.log(`🎯 Pre-filter active: ${filtered.length}/${store.length} chunks match filters.`);
-    return filtered;
+   console.log(`🎯 Pre-filter active: ${filtered.length}/${store.length} chunks match filters.`);
+   return filtered;
 }
 
-// ── PROJECT FILTER ────────────────────────────────────────────────────────────
-// Filters the store to only chunks belonging to the active project title.
-// Used for follow-up queries to prevent cross-project contamination.
 function filterByProject(store, projectTitle) {
-    if (!projectTitle) return store;
-    const filtered = store.filter(item => item.metadata?.title === projectTitle);
-    if (filtered.length === 0) {
-        console.warn(`⚠️  No chunks found for project: ${projectTitle}. Using full store.`);
-        return store;
-    }
-    console.log(`📌 Project anchored: "${projectTitle}" (${filtered.length} chunks)`);
-    return filtered;
+   if (!projectTitle) return store;
+   const filtered = store.filter(item => item.metadata?.title === projectTitle);
+   if (filtered.length === 0) {
+       console.warn(`⚠️  No chunks found for project: ${projectTitle}. Using full store.`);
+       return store;
+   }
+   console.log(`📌 Project anchored: "${projectTitle}" (${filtered.length} chunks)`);
+   return filtered;
 }
 
 function translateParam(rawParam, dictionary) {
-    if (!rawParam) return [];
-    return rawParam
-        .split(",")
-        .map(slug => dictionary[slug.trim().toLowerCase()])
-        .filter(Boolean);
+   if (!rawParam) return [];
+   return rawParam
+       .split(",")
+       .map(slug => dictionary[slug.trim().toLowerCase()])
+       .filter(Boolean);
 }
 
 function loadJobPosting(companySlug) {
-    if (!companySlug) return null;
-    const filePath = path.join(__dirname, 'job_postings', `${companySlug.toLowerCase().trim()}.txt`);
-    try {
-        if (fs.existsSync(filePath)) {
-            const text = fs.readFileSync(filePath, 'utf8');
-            console.log(`📋 Job posting loaded: ${companySlug}`);
-            return text;
-        } else {
-            console.warn(`⚠️  No job posting found for: ${companySlug}`);
-            return null;
-        }
-    } catch (e) {
-        console.error(`❌ Error loading job posting for ${companySlug}:`, e.message);
-        return null;
-    }
+   if (!companySlug) return null;
+   const filePath = path.join(__dirname, 'job_postings', `${companySlug.toLowerCase().trim()}.txt`);
+   try {
+       if (fs.existsSync(filePath)) {
+           const text = fs.readFileSync(filePath, 'utf8');
+           console.log(`📋 Job posting loaded: ${companySlug}`);
+           return text;
+       } else {
+           console.warn(`⚠️  No job posting found for: ${companySlug}`);
+           return null;
+       }
+   } catch (e) {
+       console.error(`❌ Error loading job posting for ${companySlug}:`, e.message);
+       return null;
+   }
 }
 
 async function initializeVectorStore() {
-    try {
-        console.log("⏳ Loading Knowledge Base...");
-        if (fs.existsSync(STORE_PATH)) {
-            const rawData = fs.readFileSync(STORE_PATH, 'utf8');
-            memoryStore = JSON.parse(rawData);
-            console.log(`✅ Knowledge Base READY (${memoryStore.length} chunks loaded).`);
-        } else {
-            console.error('❌ ERROR: memory_store.json NOT FOUND.');
-            console.error('   -> Run "node build-kb.js" to create it.');
-        }
-    } catch (error) {
-        console.error('❌ FATAL: Failed to load brain file:', error.message);
-    }
+   try {
+       console.log("⏳ Loading Knowledge Base...");
+       if (fs.existsSync(STORE_PATH)) {
+           const rawData = fs.readFileSync(STORE_PATH, 'utf8');
+           memoryStore = JSON.parse(rawData);
+           console.log(`✅ Knowledge Base READY (${memoryStore.length} chunks loaded).`);
+       } else {
+           console.error('❌ ERROR: memory_store.json NOT FOUND.');
+           console.error('   -> Run "node build-kb.js" to create it.');
+       }
+   } catch (error) {
+       console.error('❌ FATAL: Failed to load brain file:', error.message);
+   }
 }
 
 function dotProduct(vecA, vecB) {
-    return vecA.reduce((sum, val, i) => sum + val * vecB[i], 0);
+   return vecA.reduce((sum, val, i) => sum + val * vecB[i], 0);
 }
 
 async function findRelevantContext(query, filteredStore, topK = 5) {
-    const store = filteredStore || memoryStore;
-    if (store.length === 0) return { context: "", mediaUrl: null, topProjectTitle: null };
+   const store = filteredStore || memoryStore;
+   if (store.length === 0) return { context: "", mediaUrl: null, topProjectTitle: null };
 
-    console.log("🧠 Thinking... (Searching Brain)");
-    
-    try {
-        const queryVector = await embeddings.embedQuery(query);
+   console.log("🧠 Thinking... (Searching Brain)");
+   
+   try {
+       const queryVector = await embeddings.embedQuery(query);
 
-        const scored = store.map(item => ({
-            ...item,
-            score: dotProduct(queryVector, item.embedding)
-        }));
+       const scored = store.map(item => ({
+           ...item,
+           score: dotProduct(queryVector, item.embedding)
+       }));
 
-        const topResults = scored.sort((a, b) => b.score - a.score).slice(0, topK);
+       const topResults = scored.sort((a, b) => b.score - a.score).slice(0, topK);
 
-        console.log(`📚 Found ${topResults.length} relevant matches.`);
+       console.log(`📚 Found ${topResults.length} relevant matches.`);
 
-        const mediaUrl        = topResults[0]?.metadata?.mediaUrl || null;
-        const topProjectTitle = topResults[0]?.metadata?.title    || null;
+       const topProjectTitle = topResults[0]?.metadata?.title    || null;
+       const rawMediaUrl     = topResults[0]?.metadata?.mediaUrl || null;
 
-        if (mediaUrl)        console.log(`🎬 Media attached: ${mediaUrl}`);
-        if (topProjectTitle) console.log(`📌 Top project: "${topProjectTitle}"`);
+       // ── Only show media once per project per session ──────────────────────
+       const mediaUrl = (rawMediaUrl && topProjectTitle && !shownMediaTitles.has(topProjectTitle))
+           ? rawMediaUrl
+           : null;
 
-        const context = topResults.map(res => `
-            PROJECT: ${res.metadata.title}
-            DETAILS: ${res.content || res.pageContent}
-        `).join('\n\n---\n\n');
+       if (mediaUrl)        { shownMediaTitles.add(topProjectTitle); console.log(`🎬 Media attached: ${mediaUrl}`); }
+       if (topProjectTitle)   console.log(`📌 Top project: "${topProjectTitle}"`);
 
-        return { context, mediaUrl, topProjectTitle };
+       const context = topResults.map(res => `
+           PROJECT: ${res.metadata.title}
+           DETAILS: ${res.content || res.pageContent}
+       `).join('\n\n---\n\n');
 
-    } catch (error) {
-        console.error("❌ EMBEDDING ERROR:", error.message);
-        return { context: "", mediaUrl: null, topProjectTitle: null };
-    }
+       return { context, mediaUrl, topProjectTitle };
+
+   } catch (error) {
+       console.error("❌ EMBEDDING ERROR:", error.message);
+       return { context: "", mediaUrl: null, topProjectTitle: null };
+   }
 }
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
 app.use((req, res, next) => {
-    res.setHeader(
-        "Content-Security-Policy",
-        "default-src 'self'; img-src 'self' https://img.youtube.com data:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src 'self'; frame-src https://www.youtube.com;"
-    );
-    next();
+   res.setHeader(
+       "Content-Security-Policy",
+       "default-src 'self'; img-src 'self' https://img.youtube.com data:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src 'self'; frame-src https://www.youtube.com;"
+   );
+   next();
 });
 
 app.post('/ask-buddy', async (req, res) => {
-    try {
-        const userPrompt   = req.body.prompt;
-        const rawRole      = req.body.role      || null;
-        const rawIndustry  = req.body.industry  || null;
-        const rawCategory  = req.body.category  || null;
-        const rawCompany   = req.body.company   || null;
+   try {
+       const userPrompt   = req.body.prompt;
+       const rawRole      = req.body.role      || null;
+       const rawIndustry  = req.body.industry  || null;
+       const rawCategory  = req.body.category  || null;
+       const rawCompany   = req.body.company   || null;
 
-        console.log(`👤 User: "${userPrompt}"`);
-        console.log(`🔗 Active filters — role: ${rawRole || "none"} | industry: ${rawIndustry || "none"} | category: ${rawCategory || "none"} | company: ${rawCompany || "none"}`);
+       console.log(`👤 User: "${userPrompt}"`);
+       console.log(`🔗 Active filters — role: ${rawRole || "none"} | industry: ${rawIndustry || "none"} | category: ${rawCategory || "none"} | company: ${rawCompany || "none"}`);
 
-        const activeRoles      = translateParam(rawRole,     ROLE_MAP);
-        const activeIndustries = translateParam(rawIndustry, INDUSTRY_MAP);
-        const activeCategories = translateParam(rawCategory, CATEGORY_MAP);
+       const activeRoles      = translateParam(rawRole,     ROLE_MAP);
+       const activeIndustries = translateParam(rawIndustry, INDUSTRY_MAP);
+       const activeCategories = translateParam(rawCategory, CATEGORY_MAP);
 
-        // Step 1: Apply tag-based pre-filter
-        let filteredStore = preFilterStore(memoryStore, {
-            roles:      activeRoles,
-            industries: activeIndustries,
-            categories: activeCategories
-        });
+       let filteredStore = preFilterStore(memoryStore, {
+           roles:      activeRoles,
+           industries: activeIndustries,
+           categories: activeCategories
+       });
 
-        // Step 2: If this is a follow-up and we have an active project,
-        // narrow the store further to only that project's chunks
-        const followUp = isFollowUpQuery(userPrompt);
-        if (followUp && activeProjectTitle) {
-            console.log(`🔁 Follow-up detected — anchoring to: "${activeProjectTitle}"`);
-            filteredStore = filterByProject(filteredStore, activeProjectTitle);
-        } else if (!followUp) {
-            // Reset active project on new topic queries
-            activeProjectTitle = null;
-        }
+       const followUp = isFollowUpQuery(userPrompt);
+       if (followUp && activeProjectTitle) {
+           console.log(`🔁 Follow-up detected — anchoring to: "${activeProjectTitle}"`);
+           filteredStore = filterByProject(filteredStore, activeProjectTitle);
+       } else if (!followUp) {
+           activeProjectTitle = null;
+       }
 
-        const { context, mediaUrl, topProjectTitle } = await findRelevantContext(userPrompt, filteredStore);
+       const { context, mediaUrl, topProjectTitle } = await findRelevantContext(userPrompt, filteredStore);
 
-        // Step 3: Update active project tracking for next turn
-        if (topProjectTitle && !followUp) {
-            activeProjectTitle = topProjectTitle;
-            console.log(`📌 Active project set to: "${activeProjectTitle}"`);
-        }
+       if (topProjectTitle && !followUp) {
+           activeProjectTitle = topProjectTitle;
+           console.log(`📌 Active project set to: "${activeProjectTitle}"`);
+       }
 
-        const jobPosting = loadJobPosting(rawCompany);
+       const jobPosting = loadJobPosting(rawCompany);
 
-        console.log("🤖 Asking Dana...");
+       console.log("🤖 Asking Dana...");
 
-        const activeRoleLabel = activeRoles.length > 0 ? activeRoles[0] : null;
-        const danaResponse = await callBridgeBuddy(userPrompt, context, activeRoleLabel, jobPosting, rawCompany);
-        
-        console.log("✅ Response sent.");
+       const activeRoleLabel = activeRoles.length > 0 ? activeRoles[0] : null;
+       const danaResponse = await callBridgeBuddy(userPrompt, context, activeRoleLabel, jobPosting, rawCompany);
+       
+       console.log("✅ Response sent.");
 
-        res.json({ 
-            response: danaResponse, 
-            mediaUrl: mediaUrl || null
-        });
+       res.json({ 
+           response: danaResponse, 
+           mediaUrl: mediaUrl || null
+       });
 
-    } catch (error) {
-        console.error("❌ PROCESSING ERROR:", error);
-        res.status(500).json({ response: "I'm having trouble accessing my memory right now.", mediaUrl: null });
-    }
+   } catch (error) {
+       console.error("❌ PROCESSING ERROR:", error);
+       res.status(500).json({ response: "I'm having trouble accessing my memory right now.", mediaUrl: null });
+   }
 });
 
 app.post('/reset-chat', (req, res) => {
-    resetHistory();
-    activeProjectTitle = null;
-    console.log("🧹 Memory Cleared.");
-    res.json({ status: "Memory Cleared" });
+   resetHistory();
+   activeProjectTitle = null;
+   shownMediaTitles = new Set();
+   console.log("🧹 Memory Cleared.");
+   res.json({ status: "Memory Cleared" });
 });
 
 app.listen(port, () => {
-    console.log(`✅ Server running at http://localhost:${port}`);
-    initializeVectorStore();
+   console.log(`✅ Server running at http://localhost:${port}`);
+   initializeVectorStore();
 });
