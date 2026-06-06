@@ -145,8 +145,15 @@ link.style.cssText = "display:block; position:relative; background:transparent; 
                 });
 
                 const data = await response.json();
-                removeMessage(typingId);
-                addMessage(data.response, 'bot-message', true);
+removeMessage(typingId);
+addMessage(data.response, 'bot-message', true);
+
+// ── After first response, suggest "Tell me more" in the input ────────────
+if (userInput.value === '') {
+    userInput.value = 'Tell me more';
+    userInput.select();
+}
+
 
                 if (data.mediaUrl) {
                     const mediaEl = buildMediaElement(data.mediaUrl);
