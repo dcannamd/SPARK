@@ -14,9 +14,6 @@ const port = process.env.PORT || 3000;
 let memoryStore = [];
 
 // ── SESSION STATE ─────────────────────────────────────────────────────────────
-// shownMediaTitles tracks which project media has already been shown
-// so the thumbnail only appears once per project per session.
-// activeProjectTitle is now a fallback only — frontend sends it on every request.
 let shownMediaTitles = new Set();
 
 const embeddings = new GoogleGenerativeAIEmbeddings({ 
@@ -185,8 +182,7 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
             ? rawMediaUrl
             : null;
 
-        if (mediaUrl)        { shownMediaTitles.add(topProjectTitle); console.log(`🎬 Media attached: ${mediaUrl}`); }
-        if (topProjectTitle)   console.log(`📌 Top project: "${topProjectTitle}"`);
+        if (topProjectTitle) console.log(`📌 Top vector result: "${topProjectTitle}"`);
 
         const context = topResults.map(res => `
             PROJECT: ${res.metadata.title}
@@ -214,12 +210,11 @@ app.use((req, res, next) => {
 
 app.post('/ask-buddy', async (req, res) => {
     try {
-        const userPrompt          = req.body.prompt;
-        const rawRole             = req.body.role             || null;
-        const rawIndustry         = req.body.industry         || null;
-        const rawCategory         = req.body.category         || null;
-        const rawCompany          = req.body.company          || null;
-        // ── Receive active project title from frontend ────────────────────────
+        const userPrompt           = req.body.prompt;
+        const rawRole              = req.body.role             || null;
+        const rawIndustry          = req.body.industry         || null;
+        const rawCategory          = req.body.category         || null;
+        const rawCompany           = req.body.company          || null;
         const frontendProjectTitle = req.body.activeProjectTitle || null;
 
         console.log(`👤 User: "${userPrompt}"`);
@@ -236,9 +231,8 @@ app.post('/ask-buddy', async (req, res) => {
             categories: activeCategories
         });
 
-        // ── Use frontend-provided project title for follow-up anchoring ───────
         const followUp = isFollowUpQuery(userPrompt);
-        if (followUp && frontendProjectTitle) {
+        if (followUp && frontendProjectTitle && frontendProjectTitle !== 'NONE') {
             console.log(`🔁 Follow-up detected — anchoring to: "${frontendProjectTitle}"`);
             filteredStore = filterByProject(filteredStore, frontendProjectTitle);
         }
@@ -250,15 +244,38 @@ app.post('/ask-buddy', async (req, res) => {
         console.log("🤖 Asking Dana...");
 
         const activeRoleLabel = activeRoles.length > 0 ? activeRoles[0] : null;
-        const danaResponse = await callBridgeBuddy(userPrompt, context, activeRoleLabel, jobPosting, rawCompany);
-        
-        console.log("✅ Response sent.");
 
-        // ── Return topProjectTitle so frontend can update its tracking ─────────
+        // ── callBridgeBuddy now returns { text, detectedProject } ─────────────
+        const { text: danaResponse, detectedProject } = await callBridgeBuddy(
+            userPrompt, context, activeRoleLabel, jobPosting, rawCompany
+        );
+
+        // ── Use AI-detected project for tracking, not vector search ranking ───
+        // detectedProject is the project the AI actually talked about.
+        // Falls back to topProjectTitle if AI returns NONE or null.
+        const confirmedProject = (detectedProject && detectedProject !== 'NONE')
+            ? detectedProject
+            : null;
+
+        // ── Only attach media when confirmed project matches media project ─────
+        let finalMediaUrl = null;
+        if (confirmedProject && mediaUrl) {
+            // Check if the top vector result matches what AI actually discussed
+            if (topProjectTitle === confirmedProject) {
+                if (!shownMediaTitles.has(confirmedProject)) {
+                    shownMediaTitles.add(confirmedProject);
+                    finalMediaUrl = mediaUrl;
+                    console.log(`🎬 Media confirmed for: "${confirmedProject}"`);
+                }
+            }
+        }
+
+        console.log(`✅ Response sent. Detected project: "${confirmedProject || "multiple/none"}"`);
+
         res.json({ 
             response:        danaResponse, 
-            mediaUrl:        mediaUrl        || null,
-            topProjectTitle: topProjectTitle || null
+            mediaUrl:        finalMediaUrl || null,
+            topProjectTitle: confirmedProject || null
         });
 
     } catch (error) {
