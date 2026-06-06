@@ -246,9 +246,13 @@ app.post('/ask-buddy', async (req, res) => {
         const activeRoleLabel = activeRoles.length > 0 ? activeRoles[0] : null;
 
         // ── callBridgeBuddy now returns { text, detectedProject } ─────────────
-        const { text: danaResponse, detectedProject } = await callBridgeBuddy(
-            userPrompt, context, activeRoleLabel, jobPosting, rawCompany
-        );
+const buddyResult = await callBridgeBuddy(
+    userPrompt, context, activeRoleLabel, jobPosting, rawCompany
+);
+
+const danaResponse  = buddyResult?.text        || "I'm having a brief connection issue. Please try again.";
+const detectedProject = buddyResult?.detectedProject || null;
+
 
         // ── Use AI-detected project for tracking, not vector search ranking ───
         // detectedProject is the project the AI actually talked about.
