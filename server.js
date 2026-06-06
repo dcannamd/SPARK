@@ -26,6 +26,7 @@ const ROLE_MAP = {
     "lxd":                   "Learning Architecture & Design",
     "lsa":                   "Learning Solutions Architecture",
     "creative-technologist": "Creative Technology & UX",
+    "leadership":            "Leadership",
     "instructional-design":  "Instructional Design",
     "ai-integration":        "AI Integration",
     "general":               "General"
