@@ -228,3 +228,21 @@ button#send-btn {
     color: #9b8fd4;
 }
 
+/* ── CONTACT LINK ────────────────────────────────────────────────────────── */
+.contact-link {
+    align-self: flex-start;
+    font-size: 0.78rem;
+    margin-top: -8px;
+}
+
+.contact-link a {
+    color: #9b8fd4;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.contact-link a:hover, .contact-link a:active {
+    text-decoration: underline;
+}
+
+
