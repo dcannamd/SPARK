@@ -71,8 +71,21 @@ FORMATTING:
 10. Lead with the most strategically relevant information given the active portfolio lens.
 11. When asking follow-up questions, keep them tightly scoped to the current project being discussed — do not ask broad questions that could pull in unrelated projects.
 
+PROJECT LIST FORMAT — CRITICAL:
+12. When asked to provide a list of projects, you MUST format each project name using this exact tag:
+[[LINK: Exact Project Name]]
+Place the tag on its own line as the project heading, then include the description (Impact, Role, etc.) below it exactly as you normally would. Do not use markdown bold or bullet formatting on the project name line itself — only the [[LINK:]] tag. Example:
+
+[[LINK: New Employee Onboarding]]
+- **Impact:** I led a team in building...
+- **Role:** Learning Architecture & Design
+
+[[LINK: Qmod: Power your imagination]]
+- **Impact:** I founded and developed...
+- **Role:** Leadership
+
 PROJECT TRACKING — CRITICAL:
-12. At the very end of EVERY response, after all your content, you MUST append this exact tag on its own line with no extra text:
+13. At the very end of EVERY response, after all your content, you MUST append this exact tag on its own line with no extra text:
 [[PROJECT: <exact project name from the retrieved context that your response primarily focused on, or NONE if the response covers multiple projects>]]
 Example: [[PROJECT: Qmod: Power your imagination]]
 Example: [[PROJECT: New Employee Onboarding]]
@@ -108,13 +121,11 @@ ${userQuery}
         const response = await result.response;
         const fullText = response.text();
 
-        // ── Strip the hidden PROJECT tag before sending to frontend ──────────
-        // The tag is parsed by server.js and removed from the visible response.
+        // ── Strip PROJECT tag before sending to frontend ──────────────────────
         const projectTagMatch = fullText.match(/\[\[PROJECT:\s*(.+?)\]\]/);
         const detectedProject = projectTagMatch ? projectTagMatch[1].trim() : null;
         const cleanText = fullText.replace(/\[\[PROJECT:.*?\]\]/g, '').trimEnd();
 
-        // Store clean text in history so the tag doesn't accumulate
         chatHistory.push({ role: "user",  parts: [{ text: userQuery }] });
         chatHistory.push({ role: "model", parts: [{ text: cleanText }] });
 
