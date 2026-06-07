@@ -18,17 +18,17 @@
             <button class="new-chat-btn" onclick="startNewChat()">+ Start Fresh</button>
 
             <div class="message bot-message">
-                <p>Hi! I'm Dana — or at least my digital twin, powered by SPARK. Select from the predefined questions below, or ask me in the chat anything about my professional experience, projects, and journey as a Learning Architect.</p>
+                <p>Hi! I'm Dana — or at least my digital twin, powered by SPARK. Ask me anything about my professional experience, projects, and journey as a Learning Architect.</p>
                 <div class="suggestion-chips">
-                    <a class="chip" onclick="askSuggestion(this)">Tell me about this project</a>
-                    <a class="chip" onclick="askSuggestion(this)">Provide a list of your high impact projects</a>
-                    <a class="chip" onclick="askSuggestion(this)">How can you bring value to the organization</a>
-                </div> 
+                    <a class="chip" onclick="askSuggestion(this)">What is SPARK and how does it work?</a>
+                    <a class="chip" onclick="askSuggestion(this)">Provide a list of your projects</a>
+                    <a class="chip" onclick="askSuggestion(this)">Why would you be the perfect fit for my organization?</a>
+                </div>
             </div>
         </div>
 
         <div class="input-area">
-            <textarea id="user-input" placeholder="Ask me a question" rows="1"></textarea>
+            <textarea id="user-input" placeholder="Ask about Qmod, SPARK, NEO, or anything about Learning Architecture" rows="1"></textarea>
             <button onclick="sendMessage()" id="send-btn">Send</button>
         </div>
     </div>
@@ -51,13 +51,26 @@
         }
 
         // ── ACTIVE PROJECT TRACKING ───────────────────────────────────────────
-        // Tracked on the frontend so it survives server restarts on Render.
-        // Sent with every request so the server always knows the current project.
         let activeProjectTitle = null;
 
         function askSuggestion(el) {
             userInput.value = el.textContent;
             sendMessage();
+        }
+
+        // ── PROJECT LINK: Tap to ask about a specific project ─────────────────
+        function askAboutProject(projectName) {
+            userInput.value = `Tell me about ${projectName}`;
+            sendMessage();
+        }
+
+        // ── RENDER PROJECT LINKS: Replace [[LINK: Name]] tags with tappable links
+        // Keeps all description content below each name exactly as generated.
+        function renderProjectLinks(html) {
+            return html.replace(/\[\[LINK:\s*(.+?)\]\]/g, (match, projectName) => {
+                const name = projectName.trim();
+                return `<a class="project-link" onclick="askAboutProject('${name.replace(/'/g, "\\'")}')">${name}</a>`;
+            });
         }
 
         function getMediaType(url) {
@@ -146,16 +159,16 @@
                         industry:           activeFilters.industry,
                         category:           activeFilters.category,
                         company:            activeFilters.company,
-                        // ── Send active project so server can anchor follow-ups ──
                         activeProjectTitle: activeProjectTitle
                     })
                 });
 
                 const data = await response.json();
                 removeMessage(typingId);
+
+                // ── Render response with project links if present ─────────────
                 addMessage(data.response, 'bot-message', true);
 
-                // ── Update active project from server response ─────────────────
                 if (data.topProjectTitle) {
                     activeProjectTitle = data.topProjectTitle;
                 }
@@ -168,8 +181,6 @@
                     }
                 }
 
-                // ── Suggest "Tell me more" after every response ────────────────
-                // No highlight — just sits ready to send
                 if (userInput.value === '') {
                     userInput.value = 'Tell me more';
                 }
@@ -185,7 +196,9 @@
             div.className = `message ${className}`;
             div.id = 'msg-' + Date.now();
             if (isMarkdown) {
-                div.innerHTML = marked.parse(text);
+                // ── Parse markdown first, then replace [[LINK:]] tags ─────────
+                const rawHtml = marked.parse(text);
+                div.innerHTML = renderProjectLinks(rawHtml);
             } else {
                 div.textContent = text;
             }
@@ -209,11 +222,6 @@
                 e.preventDefault();
                 sendMessage();
             }
-        });
-
-        // ── Clear "Tell me more" when user starts typing their own question ───
-        userInput.addEventListener('input', () => {
-            if (userInput.value === 'Tell me more') return;
         });
 
         userInput.addEventListener('focus', () => {
