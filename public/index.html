@@ -1,234 +1,234 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dana | Learning Architect Twin</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+   <title>Dana | Learning Architect Twin</title>
+   <link rel="stylesheet" href="style.css">
+   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-    <div class="chat-container">
-        <header>
-            <h1>Welcome To SPARK</h1>
-            <p>A Digital Twin Experience Powered by SPARK (Shared Portfolio and Resource Knowledge-base)</p>
-        </header>
-        
-        <div id="chat-history" class="chat-history">
-            <button class="new-chat-btn" onclick="startNewChat()">+ Start Fresh</button>
+   <div class="chat-container">
+       <header>
+           <h1>Welcome To SPARK</h1>
+           <p>A Digital Twin Experience Powered by SPARK (Shared Portfolio and Resource Knowledge-base)</p>
+       </header>
+       
+       <div id="chat-history" class="chat-history">
+           <button class="new-chat-btn" onclick="startNewChat()">+ Start Fresh</button>
 
-            <div class="message bot-message">
-                <p>Hi! I'm Dana — or at least my digital twin, powered by SPARK. Ask me anything about my professional experience, projects, and journey as a Learning Architect.</p>
-                <div class="suggestion-chips">
-                    <a class="chip" onclick="askSuggestion(this)">What is SPARK and how does it work?</a>
-                    <a class="chip" onclick="askSuggestion(this)">Provide a list of your projects</a>
-                    <a class="chip" onclick="askSuggestion(this)">Why would you be the perfect fit for my organization?</a>
-                </div>
-            </div>
-        </div>
+           <div class="message bot-message">
+               <p>Hi! I'm Dana — or at least my digital twin, powered by SPARK. Ask me anything about my professional experience, projects, and journey as a Learning Architect.</p>
+               <div class="suggestion-chips">
+                   <a class="chip" onclick="askSuggestion(this)">What is SPARK and how does it work?</a>
+                   <a class="chip" onclick="askSuggestion(this)">Provide a list of your projects</a>
+                   <a class="chip" onclick="askSuggestion(this)">Why would you be the perfect fit for my organization?</a>
+               </div>
+           </div>
+       </div>
 
-        <div class="input-area">
-            <textarea id="user-input" placeholder="Ask about Qmod, SPARK, NEO, or anything about Learning Architecture" rows="1"></textarea>
-            <button onclick="sendMessage()" id="send-btn">Send</button>
-        </div>
-    </div>
+       <div class="input-area">
+           <textarea id="user-input" placeholder="Ask about Qmod, SPARK, NEO, or anything about Learning Architecture" rows="1"></textarea>
+           <button onclick="sendMessage()" id="send-btn">Send</button>
+       </div>
+   </div>
 
-    <script>
-        const chatHistory = document.getElementById('chat-history');
-        const userInput = document.getElementById('user-input');
+   <script>
+       const chatHistory = document.getElementById('chat-history');
+       const userInput = document.getElementById('user-input');
 
-        // ── URL ROUTING ───────────────────────────────────────────────────────
-        const urlParams = new URLSearchParams(window.location.search);
-        const activeFilters = {
-            role:     urlParams.get("role")     || null,
-            industry: urlParams.get("industry") || null,
-            category: urlParams.get("category") || null,
-            company:  urlParams.get("company")  || null
-        };
+       const urlParams = new URLSearchParams(window.location.search);
+       const activeFilters = {
+           role:     urlParams.get("role")     || null,
+           industry: urlParams.get("industry") || null,
+           category: urlParams.get("category") || null,
+           company:  urlParams.get("company")  || null
+       };
 
-        if (Object.values(activeFilters).some(v => v)) {
-            console.log("🔗 SPARK routing active:", activeFilters);
-        }
+       if (Object.values(activeFilters).some(v => v)) {
+           console.log("🔗 SPARK routing active:", activeFilters);
+       }
 
-        // ── ACTIVE PROJECT TRACKING ───────────────────────────────────────────
-        let activeProjectTitle = null;
+       let activeProjectTitle = null;
 
-        function askSuggestion(el) {
-            userInput.value = el.textContent;
-            sendMessage();
-        }
+       function askSuggestion(el) {
+           userInput.value = el.textContent;
+           sendMessage();
+       }
 
-        // ── PROJECT LINK: Tap to ask about a specific project ─────────────────
-        function askAboutProject(projectName) {
-            userInput.value = `Tell me about ${projectName}`;
-            sendMessage();
-        }
+       function askAboutProject(projectName) {
+           userInput.value = `Tell me about ${projectName}`;
+           sendMessage();
+       }
 
-        // ── RENDER PROJECT LINKS: Replace [[LINK: Name]] tags with tappable links
-        // Keeps all description content below each name exactly as generated.
-        function renderProjectLinks(html) {
-            return html.replace(/\[\[LINK:\s*(.+?)\]\]/g, (match, projectName) => {
-                const name = projectName.trim();
-                return `<a class="project-link" onclick="askAboutProject('${name.replace(/'/g, "\\'")}')">${name}</a>`;
-            });
-        }
+       function renderProjectLinks(html) {
+           return html.replace(/\[\[LINK:\s*(.+?)\]\]/g, (match, projectName) => {
+               const name = projectName.trim();
+               return `<a class="project-link" onclick="askAboutProject('${name.replace(/'/g, "\\'")}')">${name}</a>`;
+           });
+       }
 
-        function getMediaType(url) {
-            if (!url) return null;
-            if (url.includes("youtube.com") || url.includes("youtu.be")) return "youtube";
-            if (/\.(png|jpg|jpeg|gif|webp|svg)$/i.test(url)) return "image";
-            return null;
-        }
+       function getMediaType(url) {
+           if (!url) return null;
+           if (url.includes("youtube.com") || url.includes("youtu.be")) return "youtube";
+           if (/\.(png|jpg|jpeg|gif|webp|svg)$/i.test(url)) return "image";
+           return null;
+       }
 
-        function buildMediaElement(mediaUrl) {
-            const type = getMediaType(mediaUrl);
-            if (!type) return null;
+       function buildMediaElement(mediaUrl) {
+           const type = getMediaType(mediaUrl);
+           if (!type) return null;
 
-            const wrapper = document.createElement('div');
-            wrapper.className = 'media-wrapper';
-            wrapper.style.cssText = "";
+           const wrapper = document.createElement('div');
+           wrapper.className = 'media-wrapper';
+           wrapper.style.cssText = "";
 
-            if (type === "youtube") {
-                const match = mediaUrl.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-                if (!match) return null;
-                const videoId = match[1];
+           if (type === "youtube") {
+               const match = mediaUrl.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+               if (!match) return null;
+               const videoId = match[1];
 
-                const link = document.createElement('a');
-                link.href = `https://www.youtube.com/watch?v=${videoId}`;
-                link.target = "_blank";
-                link.rel = "noopener noreferrer";
-                link.style.cssText = "display:block; position:relative; background:transparent; line-height:0;";
+               const link = document.createElement('a');
+               link.href = `https://www.youtube.com/watch?v=${videoId}`;
+               link.target = "_blank";
+               link.rel = "noopener noreferrer";
+               link.style.cssText = "display:block; position:relative; background:transparent; line-height:0;";
 
-                const thumb = document.createElement('img');
-                thumb.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-                thumb.alt = "Watch video";
-                thumb.style.cssText = "width:100%; border-radius:10px; display:block;";
+               const thumb = document.createElement('img');
+               thumb.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+               thumb.alt = "Watch video";
+               thumb.style.cssText = "width:100%; border-radius:10px; display:block;";
 
-                const playBtn = document.createElement('div');
-                playBtn.style.cssText = `
-                    position:absolute; top:50%; left:50%;
-                    transform:translate(-50%,-50%);
-                    width:60px; height:60px; border-radius:50%;
-                    background:rgba(255,0,0,0.85);
-                    display:flex; align-items:center; justify-content:center;
-                `;
-                playBtn.innerHTML = `<div style="width:0;height:0;border-top:12px solid transparent;border-bottom:12px solid transparent;border-left:20px solid white;margin-left:4px;"></div>`;
+               const playBtn = document.createElement('div');
+               playBtn.style.cssText = `
+                   position:absolute; top:50%; left:50%;
+                   transform:translate(-50%,-50%);
+                   width:60px; height:60px; border-radius:50%;
+                   background:rgba(255,0,0,0.85);
+                   display:flex; align-items:center; justify-content:center;
+               `;
+               playBtn.innerHTML = `<div style="width:0;height:0;border-top:12px solid transparent;border-bottom:12px solid transparent;border-left:20px solid white;margin-left:4px;"></div>`;
 
-                link.appendChild(thumb);
-                link.appendChild(playBtn);
-                wrapper.appendChild(link);
+               link.appendChild(thumb);
+               link.appendChild(playBtn);
+               wrapper.appendChild(link);
 
-            } else if (type === "image") {
-                const img = document.createElement('img');
-                img.src = mediaUrl;
-                img.alt = "Project media";
-                img.setAttribute('loading', 'lazy');
-                wrapper.appendChild(img);
-            }
+           } else if (type === "image") {
+               const img = document.createElement('img');
+               img.src = mediaUrl;
+               img.alt = "Project media";
+               img.setAttribute('loading', 'lazy');
+               wrapper.appendChild(img);
+           }
 
-            return wrapper;
-        }
+           return wrapper;
+       }
 
-        function addTypingIndicator() {
-            const div = document.createElement('div');
-            div.className = 'message bot-message typing-indicator';
-            div.id = 'typing-indicator';
-            div.innerHTML = '<span></span><span></span><span></span>';
-            chatHistory.appendChild(div);
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-            return div.id;
-        }
+       function addTypingIndicator() {
+           const div = document.createElement('div');
+           div.className = 'message bot-message typing-indicator';
+           div.id = 'typing-indicator';
+           div.innerHTML = '<span></span><span></span><span></span>';
+           chatHistory.appendChild(div);
+           chatHistory.scrollTop = chatHistory.scrollHeight;
+           return div.id;
+       }
 
-        async function sendMessage() {
-            const prompt = userInput.value.trim();
-            if (!prompt) return;
+       async function sendMessage() {
+           const prompt = userInput.value.trim();
+           if (!prompt) return;
 
-            addMessage(prompt, 'user-message');
-            userInput.value = '';
-            chatHistory.scrollTop = chatHistory.scrollHeight;
+           addMessage(prompt, 'user-message');
+           userInput.value = '';
+           chatHistory.scrollTop = chatHistory.scrollHeight;
 
-            const typingId = addTypingIndicator();
+           const typingId = addTypingIndicator();
 
-            try {
-                const response = await fetch('/ask-buddy', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        prompt:             prompt,
-                        role:               activeFilters.role,
-                        industry:           activeFilters.industry,
-                        category:           activeFilters.category,
-                        company:            activeFilters.company,
-                        activeProjectTitle: activeProjectTitle
-                    })
-                });
+           try {
+               const response = await fetch('/ask-buddy', {
+                   method: 'POST',
+                   headers: { 'Content-Type': 'application/json' },
+                   body: JSON.stringify({
+                       prompt:             prompt,
+                       role:               activeFilters.role,
+                       industry:           activeFilters.industry,
+                       category:           activeFilters.category,
+                       company:            activeFilters.company,
+                       activeProjectTitle: activeProjectTitle
+                   })
+               });
 
-                const data = await response.json();
-                removeMessage(typingId);
+               const data = await response.json();
+               removeMessage(typingId);
+               addMessage(data.response, 'bot-message', true);
 
-                // ── Render response with project links if present ─────────────
-                addMessage(data.response, 'bot-message', true);
+               // ── CONTACT LINK: Appears below every bot response ────────────
+               const contactDiv = document.createElement('div');
+               contactDiv.className = 'contact-link';
+               contactDiv.innerHTML = `<a href="mailto:danacannamdesign@gmail.com">📩 Contact Dana</a>`;
+               chatHistory.appendChild(contactDiv);
 
-                if (data.topProjectTitle) {
-                    activeProjectTitle = data.topProjectTitle;
-                }
+               if (data.topProjectTitle) {
+                   activeProjectTitle = data.topProjectTitle;
+               }
 
-                if (data.mediaUrl) {
-                    const mediaEl = buildMediaElement(data.mediaUrl);
-                    if (mediaEl) {
-                        chatHistory.appendChild(mediaEl);
-                        chatHistory.scrollTop = chatHistory.scrollHeight;
-                    }
-                }
+               if (data.mediaUrl) {
+                   const mediaEl = buildMediaElement(data.mediaUrl);
+                   if (mediaEl) {
+                       chatHistory.appendChild(mediaEl);
+                       chatHistory.scrollTop = chatHistory.scrollHeight;
+                   }
+               }
 
-                if (userInput.value === '') {
-                    userInput.value = 'Tell me more';
-                }
+               if (userInput.value === '') {
+                   userInput.value = 'Tell me more';
+               }
 
-            } catch (error) {
-                removeMessage(typingId);
-                addMessage("Error: Could not reach the server.", 'bot-message error');
-            }
-        }
+               chatHistory.scrollTop = chatHistory.scrollHeight;
 
-        function addMessage(text, className, isMarkdown = false) {
-            const div = document.createElement('div');
-            div.className = `message ${className}`;
-            div.id = 'msg-' + Date.now();
-            if (isMarkdown) {
-                // ── Parse markdown first, then replace [[LINK:]] tags ─────────
-                const rawHtml = marked.parse(text);
-                div.innerHTML = renderProjectLinks(rawHtml);
-            } else {
-                div.textContent = text;
-            }
-            chatHistory.appendChild(div);
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-            return div.id;
-        }
+           } catch (error) {
+               removeMessage(typingId);
+               addMessage("Error: Could not reach the server.", 'bot-message error');
+           }
+       }
 
-        function removeMessage(id) {
-            const el = document.getElementById(id);
-            if (el) el.remove();
-        }
+       function addMessage(text, className, isMarkdown = false) {
+           const div = document.createElement('div');
+           div.className = `message ${className}`;
+           div.id = 'msg-' + Date.now();
+           if (isMarkdown) {
+               const rawHtml = marked.parse(text);
+               div.innerHTML = renderProjectLinks(rawHtml);
+           } else {
+               div.textContent = text;
+           }
+           chatHistory.appendChild(div);
+           chatHistory.scrollTop = chatHistory.scrollHeight;
+           return div.id;
+       }
 
-        function startNewChat() {
-            activeProjectTitle = null;
-            location.reload(); 
-        }
+       function removeMessage(id) {
+           const el = document.getElementById(id);
+           if (el) el.remove();
+       }
 
-        userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
+       function startNewChat() {
+           activeProjectTitle = null;
+           location.reload(); 
+       }
 
-        userInput.addEventListener('focus', () => {
-            if (userInput.value === 'Tell me more') {
-                userInput.value = '';
-            }
-        });
-    </script>
+       userInput.addEventListener('keypress', (e) => {
+           if (e.key === 'Enter' && !e.shiftKey) {
+               e.preventDefault();
+               sendMessage();
+           }
+       });
+
+       userInput.addEventListener('focus', () => {
+           if (userInput.value === 'Tell me more') {
+               userInput.value = '';
+           }
+       });
+   </script>
 </body>
 </html>
