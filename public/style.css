@@ -117,6 +117,9 @@ header p { font-size: 0.85rem; margin: 5px 0 0; opacity: 0.9; }
     align-items: center;
     padding: 10px 16px;
     width: fit-content;
+    background: transparent;
+    box-shadow: none;
+    padding: 4px 8px;
 }
 
 .spark-bolt {
