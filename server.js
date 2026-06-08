@@ -13,7 +13,6 @@ const port = process.env.PORT || 3000;
 
 let memoryStore = [];
 
-// ── SESSION STATE ─────────────────────────────────────────────────────────────
 let shownMediaTitles = new Set();
 
 const embeddings = new GoogleGenerativeAIEmbeddings({ 
@@ -46,12 +45,12 @@ const INDUSTRY_MAP = {
 };
 
 const CATEGORY_MAP = {
-    "portfolio":  "Portfolio",
-    "case-study": "Case Study",
-    "process":    "Process",
-    "tool":       "Tool",
-    "leadership": "Leadership",
-    "strategy":   "Strategy",
+    "portfolio":    "Portfolio",
+    "case-study":   "Case Study",
+    "process":      "Process",
+    "tool":         "Tool",
+    "leadership":   "Leadership",
+    "strategy":     "Strategy",
     "architecture": "Architecture"
 };
 
@@ -78,6 +77,13 @@ function isFollowUpQuery(query) {
         /elaborate/i
     ];
     return followUpPatterns.some(p => p.test(query.trim()));
+}
+
+// ── LIST QUERY DETECTION ──────────────────────────────────────────────────────
+// Detects requests for a full project list so topK can be increased
+// to ensure all projects get context chunks retrieved.
+function isListQuery(query) {
+    return /list|all projects|all of your projects|your projects|provide a list/i.test(query.trim());
 }
 
 function preFilterStore(store, { roles = [], industries = [], categories = [] }) {
@@ -179,7 +185,6 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
         const topProjectTitle = topResults[0]?.metadata?.title    || null;
         const rawMediaUrl     = topResults[0]?.metadata?.mediaUrl || null;
 
-        // Only show media once per project per session
         const mediaUrl = (rawMediaUrl && topProjectTitle && !shownMediaTitles.has(topProjectTitle))
             ? rawMediaUrl
             : null;
@@ -239,7 +244,12 @@ app.post('/ask-buddy', async (req, res) => {
             filteredStore = filterByProject(filteredStore, frontendProjectTitle);
         }
 
-        const { context, mediaUrl, topProjectTitle } = await findRelevantContext(userPrompt, filteredStore);
+        // ── Use higher topK for list queries so all projects get context ───────
+        const listQuery = isListQuery(userPrompt);
+        const topK = listQuery ? 20 : 5;
+        if (listQuery) console.log(`📋 List query detected — using topK: ${topK}`);
+
+        const { context, mediaUrl, topProjectTitle } = await findRelevantContext(userPrompt, filteredStore, topK);
 
         const jobPosting = loadJobPosting(rawCompany);
 
@@ -247,26 +257,19 @@ app.post('/ask-buddy', async (req, res) => {
 
         const activeRoleLabel = activeRoles.length > 0 ? activeRoles[0] : null;
 
-        // ── callBridgeBuddy now returns { text, detectedProject } ─────────────
-const buddyResult = await callBridgeBuddy(
-    userPrompt, context, activeRoleLabel, jobPosting, rawCompany
-);
+        const buddyResult = await callBridgeBuddy(
+            userPrompt, context, activeRoleLabel, jobPosting, rawCompany
+        );
 
-const danaResponse  = buddyResult?.text        || "I'm having a brief connection issue. Please try again.";
-const detectedProject = buddyResult?.detectedProject || null;
+        const danaResponse    = buddyResult?.text             || "I'm having a brief connection issue. Please try again.";
+        const detectedProject = buddyResult?.detectedProject  || null;
 
-
-        // ── Use AI-detected project for tracking, not vector search ranking ───
-        // detectedProject is the project the AI actually talked about.
-        // Falls back to topProjectTitle if AI returns NONE or null.
         const confirmedProject = (detectedProject && detectedProject !== 'NONE')
             ? detectedProject
             : null;
 
-        // ── Only attach media when confirmed project matches media project ─────
         let finalMediaUrl = null;
         if (confirmedProject && mediaUrl) {
-            // Check if the top vector result matches what AI actually discussed
             if (topProjectTitle === confirmedProject) {
                 if (!shownMediaTitles.has(confirmedProject)) {
                     shownMediaTitles.add(confirmedProject);
