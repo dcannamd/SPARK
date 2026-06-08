@@ -41,7 +41,7 @@ header {
    background: #000000; 
    color: white; 
    padding: 20px; 
-   text-align: center;
+   text-align: left;
    flex-shrink: 0;
 }
 
