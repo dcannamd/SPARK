@@ -259,7 +259,7 @@ button#send-btn {
 /* ── CHAT FOOTER ─────────────────────────────────────────────────────────── */
 .chat-footer {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     gap: 12px;
     padding: 10px 20px;
