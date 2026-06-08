@@ -76,29 +76,30 @@ async function runBuild() {
             console.log(`   Roles: [${roleArr.join(", ") || "none"}] | Categories: [${catArr.join(", ") || "none"}] | Industries: [${industryArr.join(", ") || "none"}]`);
             console.log(`   Date: ${projectDate || "none"} | Media: ${mediaUrl || "none"}`);
             console.log(`   Tech: ${tech} | Tools: ${tools}`);
+            console.log(`   Impact: ${impact !== "N/A" ? impact.substring(0, 80) + "..." : "none"}`);
 
             const deepContent = await getFullPageContent(page.id);
 
-            // ── TECH STACK AND TOOLS ARE LISTED FIRST AND REPEATED ───────────
-            // Placing them at the top of the chunk and again before FULL DETAILS
-            // ensures the AI treats them as the authoritative source for tool
-            // and technology questions rather than pulling from free-text content.
+            // ── BUSINESS IMPACT, ROLE, TECH, TOOLS all placed at top AND bottom ─
+            // This ensures they appear in the first chunk retrieved for any project
+            // so the AI always has them available for list and follow-up queries.
             const combinedText = `
 DANA'S PROJECT: ${title}
 ROLE: ${roleArr.join(", ") || "General"}
 CATEGORY: ${catArr.join(", ") || "N/A"}
 INDUSTRY: ${industryArr.join(", ") || "N/A"}
 PROJECT DATE: ${projectDate || "Not specified"}
-
+BUSINESS IMPACT: ${impact}
 OFFICIAL TECH STACK FOR ${title.toUpperCase()}: ${tech}
 OFFICIAL TOOLS FOR ${title.toUpperCase()}: ${tools}
-BUSINESS IMPACT: ${impact}
 STATUS: ${status}
 SOURCE: ${github}
 
 FULL DETAILS:
 ${deepContent}
 
+SUMMARY OF ROLE: ${roleArr.join(", ") || "General"}
+SUMMARY OF BUSINESS IMPACT: ${impact}
 SUMMARY OF TECH STACK: ${tech}
 SUMMARY OF TOOLS: ${tools}
             `.trim();
@@ -117,6 +118,7 @@ SUMMARY OF TOOLS: ${tools}
                         source:      github,
                         mediaUrl:    mediaUrl,
                         projectDate: projectDate,
+                        impact:      impact !== "N/A" ? impact : null,
                         tech:        tech,
                         tools:       tools,
                         Role:        roleArr,
