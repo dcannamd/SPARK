@@ -126,14 +126,14 @@
        }
 
        function addTypingIndicator() {
-           const div = document.createElement('div');
-           div.className = 'message bot-message typing-indicator';
-           div.id = 'typing-indicator';
-           div.innerHTML = '<span></span><span></span><span></span>';
-           chatHistory.appendChild(div);
-           chatHistory.scrollTop = chatHistory.scrollHeight;
-           return div.id;
-       }
+    const div = document.createElement('div');
+    div.className = 'message bot-message typing-indicator';
+    div.id = 'typing-indicator';
+    div.innerHTML = '<span class="spark-bolt">⚡</span>';
+    chatHistory.appendChild(div);
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+    return div.id;
+}
 
        async function sendMessage() {
            const prompt = userInput.value.trim();
