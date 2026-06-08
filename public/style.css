@@ -89,11 +89,11 @@ header p { font-size: 0.85rem; margin: 5px 0 0; opacity: 0.9; }
     flex-direction: column;
     gap: 8px;
     margin-top: 12px;
-    align-items: flex-start;
+    max-width: 380px;
 }
 
 .chip {
-    display: inline-block;
+    display: block;
     padding: 8px 12px;
     border-radius: 20px;
     border: 1px solid #9b8fd4;
@@ -103,7 +103,8 @@ header p { font-size: 0.85rem; margin: 5px 0 0; opacity: 0.9; }
     text-decoration: none;
     transition: background 0.2s, color 0.2s;
     line-height: 1.4;
-    width: auto;
+    width: 100%;
+    max-width: 380px;
 }
 
 .chip:hover, .chip:active {
