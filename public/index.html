@@ -33,6 +33,13 @@
            <textarea id="user-input" placeholder="Ask me a question" rows="1"></textarea>
            <button onclick="sendMessage()" id="send-btn">Send</button>
        </div>
+
+
+       <div class="chat-footer">
+    <a href="mailto:danacannamdesign@gmail.com" class="footer-link">📩 Contact Dana</a>
+    <span class="footer-divider">|</span>
+    <a href="#" class="footer-link" onclick="shareConversation()">🔗 Share SPARK</a>
+</div>
    </div>
 
    <script>
@@ -174,11 +181,7 @@
                removeMessage(typingId);
                addMessage(data.response, 'bot-message', true);
 
-               // ── CONTACT LINK: Appears below every bot response ────────────
-               const contactDiv = document.createElement('div');
-               contactDiv.className = 'contact-link';
-               contactDiv.innerHTML = `<a href="mailto:danacannamdesign@gmail.com">Contact Dana</a>`;
-               chatHistory.appendChild(contactDiv);
+            
 
                if (data.topProjectTitle) {
                    activeProjectTitle = data.topProjectTitle;
@@ -228,6 +231,12 @@
            activeProjectTitle = null;
            location.reload(); 
        }
+
+       function shareConversation() {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+        alert('Link copied to clipboard!');
+    });
+}
 
        userInput.addEventListener('keypress', (e) => {
            if (e.key === 'Enter' && !e.shiftKey) {

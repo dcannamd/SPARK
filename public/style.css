@@ -256,4 +256,31 @@ button#send-btn {
     text-decoration: underline;
 }
 
+/* ── CHAT FOOTER ─────────────────────────────────────────────────────────── */
+.chat-footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 20px;
+    border-top: 1px solid #f0f0f0;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.footer-link {
+    font-size: 0.78rem;
+    color: #9b8fd4;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.footer-link:hover {
+    text-decoration: underline;
+}
+
+.footer-divider {
+    color: #ddd;
+    font-size: 0.85rem;
+}
 
