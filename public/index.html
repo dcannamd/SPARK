@@ -5,7 +5,7 @@
    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
    <title>Dana | Learning Architect Twin</title>
    <link rel="stylesheet" href="style.css">
-   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
 </head>
 <body>
    <div class="chat-container">
@@ -125,13 +125,23 @@
            return wrapper;
        }
 
-       function addTypingIndicator() {
+     function addTypingIndicator() {
     const div = document.createElement('div');
     div.className = 'message bot-message typing-indicator';
     div.id = 'typing-indicator';
-    div.innerHTML = '<span class="spark-bolt"> ✨ </span>';
+    const animDiv = document.createElement('div');
+    animDiv.id = 'lottie-typing';
+    animDiv.style.cssText = 'width:80px; height:50px;';
+    div.appendChild(animDiv);
     chatHistory.appendChild(div);
     chatHistory.scrollTop = chatHistory.scrollHeight;
+    lottie.loadAnimation({
+        container: animDiv,
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: '/spark-typing-animation.json'
+    });
     return div.id;
 }
 
