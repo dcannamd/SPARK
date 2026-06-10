@@ -183,7 +183,10 @@
 
                const data = await response.json();
                removeMessage(typingId);
-               addMessage(data.response, 'bot-message', true);
+               const msgId = addMessage(data.response, 'bot-message', true);
+const msgEl = document.getElementById(msgId);
+if (msgEl) msgEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
 
             
 
