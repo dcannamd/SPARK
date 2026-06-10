@@ -214,10 +214,9 @@ app.use((req, res, next) => {
     next();
 });
 app.get('/resume', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'resume.html'));
+    res.sendFile(path.join(__dirname, 'public', 'dana-cannam-resume.html'));
 });
 
-app.post('/ask-buddy', async (req, res) => {
 
 app.post('/ask-buddy', async (req, res) => {
     try {
