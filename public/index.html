@@ -146,7 +146,8 @@
     animDiv.style.cssText = 'width:80px; height:50px;';
     div.appendChild(animDiv);
     chatHistory.appendChild(div);
-    chatHistory.scrollTop = chatHistory.scrollHeight;
+    // Don't auto-scroll here — handled per message type in sendMessage
+
     lottie.loadAnimation({
         container: animDiv,
         renderer: 'svg',
