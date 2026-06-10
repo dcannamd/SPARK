@@ -169,6 +169,8 @@ Feel free to spark a conversation, ask me anything.</p>
            chatHistory.scrollTop = chatHistory.scrollHeight;
 
            const typingId = addTypingIndicator();
+const typingEl = document.getElementById(typingId);
+if (typingEl) typingEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
            try {
                const response = await fetch('/ask-buddy', {
