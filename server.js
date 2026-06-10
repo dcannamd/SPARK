@@ -213,6 +213,11 @@ app.use((req, res, next) => {
 "default-src 'self'; img-src 'self' https://img.youtube.com data:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; connect-src 'self'; frame-src https://www.youtube.com; object-src 'self'; plugin-types application/pdf;"    );
     next();
 });
+app.get('/resume', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'resume.html'));
+});
+
+app.post('/ask-buddy', async (req, res) => {
 
 app.post('/ask-buddy', async (req, res) => {
     try {
