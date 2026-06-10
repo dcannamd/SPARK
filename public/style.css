@@ -197,6 +197,8 @@ button#send-btn {
    overflow: visible;
    max-width: 100%;
    background: transparent;
+   line-height: 0;
+   font-size: 0;
 }
 
 .media-wrapper iframe {
