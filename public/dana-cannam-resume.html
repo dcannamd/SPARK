@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dana Cannam — Resume</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:       #1a1814;
+      --ink-mid:   #4a4540;
+      --ink-soft:  #8a8278;
+      --rule:      #d8d0c4;
+      --accent:    #7a6a8a;
+      --accent-lt: #c4b8d0;
+      --paper:     #faf8f4;
+      --warm:      #f0ebe2;
+    }
+
+    html { font-size: 16px; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--warm);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 48px 24px 64px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── PAGE ── */
+    .page {
+      max-width: 800px;
+      margin: 0 auto;
+      background: var(--paper);
+      border: 1px solid var(--rule);
+    }
+
+    /* ── HEADER ── */
+    header {
+      padding: 56px 64px 40px;
+      border-bottom: 1px solid var(--rule);
+      position: relative;
+    }
+
+    .eyebrow {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 14px;
+    }
+
+    header h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 3.4rem;
+      font-weight: 300;
+      letter-spacing: -0.01em;
+      line-height: 1;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+
+    header h1 em {
+      font-style: italic;
+      font-weight: 300;
+      color: var(--accent);
+    }
+
+    .tagline {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--ink-soft);
+      margin-bottom: 28px;
+      line-height: 1.5;
+      max-width: 540px;
+    }
+
+    .contact-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 24px;
+      font-size: 0.75rem;
+      color: var(--ink-soft);
+      font-weight: 300;
+    }
+
+    .contact-row a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid var(--accent-lt);
+      transition: border-color 0.2s;
+    }
+
+    .contact-row a:hover { border-color: var(--accent); }
+
+    /* ── BODY ── */
+    .body {
+      padding: 0 64px 56px;
+    }
+
+    /* ── SECTION ── */
+    .section {
+      padding-top: 44px;
+    }
+
+    .section + .section {
+      border-top: 1px solid var(--rule);
+      margin-top: 44px;
+      padding-top: 44px;
+    }
+
+    .section-label {
+      font-size: 0.62rem;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 24px;
+    }
+
+    /* ── SUMMARY ── */
+    .summary-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem;
+      font-weight: 400;
+      line-height: 1.75;
+      color: var(--ink-mid);
+      max-width: 640px;
+    }
+
+    .summary-text strong {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    /* ── ROLE ── */
+    .role {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0 24px;
+      margin-bottom: 36px;
+    }
+
+    .role:last-child { margin-bottom: 0; }
+
+    .role-meta { grid-column: 1 / -1; margin-bottom: 12px; }
+
+    .role-title {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 2px;
+    }
+
+    .role-company-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .role-company {
+      font-size: 0.78rem;
+      color: var(--accent);
+      font-weight: 400;
+      letter-spacing: 0.02em;
+    }
+
+    .role-dates {
+      font-size: 0.72rem;
+      color: var(--ink-soft);
+      font-weight: 300;
+    }
+
+    .role-body { grid-column: 1 / -1; }
+
+    .role ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .role ul li {
+      font-size: 0.84rem;
+      line-height: 1.7;
+      color: var(--ink-mid);
+      padding-left: 16px;
+      position: relative;
+      margin-bottom: 6px;
+      font-weight: 300;
+    }
+
+    .role ul li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 10px;
+      width: 5px;
+      height: 1px;
+      background: var(--accent-lt);
+    }
+
+    .role ul li strong {
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    /* ── ACHIEVEMENT CALLOUT ── */
+    .callout {
+      border-left: 2px solid var(--accent);
+      padding: 10px 16px;
+      margin: 12px 0 16px;
+      background: rgba(122, 106, 138, 0.04);
+    }
+
+    .callout p {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      font-style: italic;
+      color: var(--ink-mid);
+      line-height: 1.6;
+    }
+
+    /* ── EDU ── */
+    .edu-item {
+      margin-bottom: 20px;
+    }
+
+    .edu-item:last-child { margin-bottom: 0; }
+
+    .edu-degree {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 3px;
+    }
+
+    .edu-thesis {
+      font-size: 0.78rem;
+      font-style: italic;
+      color: var(--ink-soft);
+      margin-bottom: 2px;
+    }
+
+    .edu-school {
+      font-size: 0.75rem;
+      color: var(--ink-soft);
+      font-weight: 300;
+    }
+
+    /* ── SKILLS ── */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px 40px;
+    }
+
+    .skill-block { }
+
+    .skill-label {
+      font-size: 0.62rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .skill-list {
+      font-size: 0.8rem;
+      line-height: 1.7;
+      color: var(--ink-mid);
+      font-weight: 300;
+    }
+
+    /* ── CERTS ── */
+    .cert-item {
+      font-size: 0.82rem;
+      color: var(--ink-mid);
+      font-weight: 300;
+      margin-bottom: 6px;
+      padding-left: 16px;
+      position: relative;
+    }
+
+    .cert-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 10px;
+      width: 5px;
+      height: 1px;
+      background: var(--accent-lt);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--rule);
+      padding: 18px 64px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    footer a {
+      font-size: 0.72rem;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 400;
+    }
+
+    .footer-tag {
+      font-size: 0.65rem;
+      color: var(--ink-soft);
+      font-weight: 300;
+      letter-spacing: 0.08em;
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 640px) {
+      body { padding: 0; }
+      .page { border: none; }
+      header, .body, footer { padding-left: 28px; padding-right: 28px; }
+      header { padding-top: 40px; }
+      header h1 { font-size: 2.4rem; }
+      .skills-grid { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .page { border: none; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="eyebrow">Learning Architect · Creative Technologist · Human-Centered Designer</div>
+    <h1>Dana <em>Cannam</em></h1>
+    <p class="tagline">Bridging human intelligence and emerging technology to build learning systems that actually change how people work.</p>
+    <div class="contact-row">
+      <span>Courtenay, BC, Canada</span>
+      <span>+1 (250) 465 9578</span>
+      <a href="mailto:danacannamdesign@gmail.com">danacannamdesign@gmail.com</a>
+      <a href="https://www.linkedin.com/in/danacannam" target="_blank">LinkedIn</a>
+      <a href="https://danas-digital-twin.onrender.com" target="_blank">SPARK Portfolio</a>
+    </div>
+  </header>
+
+  <div class="body">
+
+    <div class="section">
+      <div class="section-label">Profile</div>
+      <p class="summary-text">
+        I sit at a <strong>genuinely rare intersection</strong> — fifteen years of learning architecture and instructional design, fluency in AI systems and creative technology, and a track record of building things that didn't exist before. I've founded and sold a company, consulted for governments and militaries, and shipped enterprise learning platforms to clients including Mercedes, BMW, Microsoft, and Ford. My work doesn't just train people — it <strong>transforms how organizations think and operate.</strong>
+      </p>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Experience</div>
+
+      <div class="role">
+        <div class="role-meta">
+          <div class="role-title">Manager, Creative Labs &amp; Customer Education</div>
+          <div class="role-company-line">
+            <span class="role-company">ProtoPie · Remote</span>
+            <span class="role-dates">Jul 2024 – Jun 2026</span>
+          </div>
+        </div>
+        <div class="role-body">
+          <div class="callout">
+            <p>Architected and launched an internal AI knowledge assistant that transformed proprietary training assets into a company-wide operational intelligence tool — a first-of-its-kind system that became critical infrastructure.</p>
+          </div>
+          <ul>
+            <li>Led global customer education strategy driving <strong>enterprise adoption of ProtoPie</strong> across tier-one clients including Mercedes, BMW, Volkswagen, Snap, Burberry, Microsoft, and Ford.</li>
+            <li>Designed and launched the <strong>Partner Certification Program</strong> — a credentialing framework enabling top-tier design agencies to validate advanced prototyping expertise and expand enterprise reach.</li>
+            <li>Built and scaled <strong>customizable learning portals</strong> serving as a single source of truth for onboarding, training, and ongoing customer success across enterprise accounts.</li>
+            <li>Managed the Creative Labs team, driving <strong>technical innovation and advanced prototyping initiatives</strong> for global clients.</li>
+            <li>Conducted live demonstrations, webinars, and deep-dive tutorials on AI Assistant and User Testing features, translating complex capability into accessible practice.</li>
+            <li>Initiated and managed internal training cohorts and a Champions community, building organizational knowledge infrastructure from the ground up.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="role">
+        <div class="role-meta">
+          <div class="role-title">Corporate Learning Consultant</div>
+          <div class="role-company-line">
+            <span class="role-company">Independent · Canada</span>
+            <span class="role-dates">Oct 2023 – Aug 2024</span>
+          </div>
+        </div>
+        <div class="role-body">
+          <ul>
+            <li>Delivered learning strategy, instructional design, and content development for <strong>Vancouver Airport Authority (YVR)</strong> and the <strong>Canadian Military (LCSS program)</strong> across ILT, VILT, and eLearning modalities.</li>
+            <li>Partnered with defense stakeholders to design training solutions aligned with <strong>competency frameworks and high-security operational requirements</strong>, operating under Controlled Goods Clearance.</li>
+            <li>Introduced <strong>Learning Experience Design methodologies</strong> to military and corporate contexts — embedding gamification, learner profiles, and competency-based design where they had not previously existed.</li>
+            <li>Operated in <strong>Agile Scrum environments</strong>, ensuring iterative development and delivery in compliance-driven, high-stakes contexts.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="role">
+        <div class="role-meta">
+          <div class="role-title">Senior Learning Architect</div>
+          <div class="role-company-line">
+            <span class="role-company">GroupHEALTH Benefit Solutions · Surrey, BC</span>
+            <span class="role-dates">Sep 2020 – Oct 2023</span>
+          </div>
+        </div>
+        <div class="role-body">
+          <div class="callout">
+            <p>Redesigned compliance training and reduced privacy and security breaches by 75% within six months — a measurable, organization-wide impact directly attributable to learning design decisions.</p>
+          </div>
+          <ul>
+            <li>Led the Instructional Design and Employee Experience practice for the Corporate L&amp;D team, delivering digital training to <strong>1,000+ employees across four organizations.</strong></li>
+            <li>Designed a <strong>Learning Experience Framework</strong> based on competency profiles, applied to onboarding, compliance, and Microsoft 365 adoption at scale.</li>
+            <li>Built a <strong>learning technology roadmap</strong> integrating LMS systems with Microsoft 365 and external platforms, future-proofing the organization's learning infrastructure.</li>
+            <li>Launched the company-wide <strong>Learning Champions Community</strong>, enabling peer-to-peer knowledge sharing across 20+ employees.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="role">
+        <div class="role-meta">
+          <div class="role-title">Founder &amp; Creative Director</div>
+          <div class="role-company-line">
+            <span class="role-company">Qmod · The Randstad, Netherlands</span>
+            <span class="role-dates">Jul 2014 – Jan 2020</span>
+          </div>
+        </div>
+        <div class="role-body">
+          <div class="callout">
+            <p>Founded, bootstrapped, and scaled an EdTech hardware company — then achieved acquisition by E.ON Agile, Europe's largest utility venture division, after three years of growth.</p>
+          </div>
+          <ul>
+            <li>Built an <strong>Educational Technology platform</strong> specializing in end-to-end design, development, and large-scale manufacturing of STEM products for schools and learning institutions worldwide.</li>
+            <li>Developed custom educational tools to measure and harness <strong>alternative energy from natural sources</strong>, distributed to schools and makerspaces across North America, Europe, and Africa.</li>
+            <li>Took the company from concept to acquisition — demonstrating the full founder arc: vision, execution, scale, and successful exit.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="section">
+      <div class="section-label">Education</div>
+      <div class="edu-item">
+        <div class="edu-degree">Master of Design — Human Centered Design (MDes)</div>
+        <div class="edu-thesis">Thesis: Community Social Credit AR and Web Application Platform</div>
+        <div class="edu-school">Design Academy Eindhoven · Netherlands · 2008 – 2010</div>
+      </div>
+      <div class="edu-item">
+        <div class="edu-degree">Bachelor of Industrial Design</div>
+        <div class="edu-school">University of Alberta · Canada · 2003 – 2007</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Certifications</div>
+      <div class="cert-item">Microsoft Certified: Azure Fundamentals AZ-900 · Nov 2022</div>
+      <div class="cert-item">Controlled Goods Clearance · Public Services and Procurement Canada · Dec 2023</div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Expertise</div>
+      <div class="skills-grid">
+        <div class="skill-block">
+          <div class="skill-label">Learning &amp; Design</div>
+          <div class="skill-list">Learning Architecture · Instructional Design · Learning Experience Design (LXD) · Competency Frameworks · Certification Program Design · Customer Education Strategy · Agile Scrum</div>
+        </div>
+        <div class="skill-block">
+          <div class="skill-label">Technology &amp; AI</div>
+          <div class="skill-list">ProtoPie Studio &amp; Connect · AI RAG Systems · LLM Prompt Engineering · LangChain · Gemini · Node.js · JavaScript · Python · WebSockets · Vector Databases · LMS Integration · Microsoft 365</div>
+        </div>
+        <div class="skill-block">
+          <div class="skill-label">Creative Technology</div>
+          <div class="skill-list">Hardware/Software Integration · Unity 3D · Electron · MSFS · Advanced UX Prototyping · STEM Product Design &amp; Manufacturing</div>
+        </div>
+        <div class="skill-block">
+          <div class="skill-label">Leadership &amp; Strategy</div>
+          <div class="skill-list">Strategic Planning · Enterprise Client Consultation · Stakeholder Management · Cross-functional Leadership · Product Adoption · Founder Experience</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <a href="https://danas-digital-twin.onrender.com">← SPARK Portfolio</a>
+    <span class="footer-tag">Dana Cannam · danacannamdesign@gmail.com</span>
+  </footer>
+
+</div>
+</body>
+</html>
