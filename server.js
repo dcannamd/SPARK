@@ -178,9 +178,21 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
             score: dotProduct(queryVector, item.embedding)
         }));
 
-        const topResults = scored.sort((a, b) => b.score - a.score).slice(0, topK);
+       let topResults;
+if (topK > 10) {
+    // For list queries: ensure one chunk per project is included
+    const byProject = {};
+    scored.sort((a, b) => b.score - a.score).forEach(item => {
+        const title = item.metadata?.title;
+        if (title && !byProject[title]) byProject[title] = item;
+    });
+    topResults = Object.values(byProject);
+} else {
+    topResults = scored.sort((a, b) => b.score - a.score).slice(0, topK);
+}
 
-        console.log(`📚 Found ${topResults.length} relevant matches.`);
+console.log(`📚 Found ${topResults.length} relevant matches.`);
+
 
         const topProjectTitle = topResults[0]?.metadata?.title    || null;
         const rawMediaUrl     = topResults[0]?.metadata?.mediaUrl || null;
