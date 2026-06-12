@@ -203,10 +203,15 @@ console.log(`📚 Found ${topResults.length} relevant matches.`);
 
         if (topProjectTitle) console.log(`📌 Top vector result: "${topProjectTitle}"`);
 
-        const context = topResults.map(res => `
-            PROJECT: ${res.metadata.title}
-            DETAILS: ${res.content || res.pageContent}
-        `).join('\n\n---\n\n');
+      const context = topResults.map(res => `
+    PROJECT: ${res.metadata.title}
+    ROLE: ${(res.metadata.Role || []).join(", ") || "Not specified"}
+    BUSINESS IMPACT: ${res.metadata.impact || "Not specified"}
+    CLIENT: ${res.metadata.client || "Not specified"}
+    DATE: ${res.metadata.projectDate || "Not specified"}
+    DETAILS: ${res.content || res.pageContent}
+`).join('\n\n---\n\n');
+
 
         return { context, mediaUrl, topProjectTitle };
 
