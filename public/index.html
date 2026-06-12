@@ -6,7 +6,7 @@
    <title>Dana | Learning Architect Twin</title>
    <link rel="stylesheet" href="style.css">
    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
 </head>
 <body>
    <div class="chat-container">
@@ -16,19 +16,16 @@
        </header>
        
        <div id="chat-history" class="chat-history">
-           
 
            <div class="message bot-message">
-    <p>Hi there, and welcome to SPARK✨ I'm an interactive learning experience 
-built by Dana to help you explore his professional journey. 
-Feel free to spark a conversation, ask me anything.</p>
+               <p>Hi there, and welcome to SPARK✨ I'm an interactive learning experience built by Dana to help you explore his professional journey. Feel free to spark a conversation, ask me anything.</p>
+           </div>
+           <div class="suggestion-chips">
+               <a class="chip" onclick="askSuggestion(this)">How does SPARK work?</a>
+               <a class="chip" onclick="askSuggestion(this)">View project list</a>
+               <a class="chip" onclick="askSuggestion(this)">Why hire Dana?</a>
+           </div>
 
-</div>
-<div class="suggestion-chips">
-    <a class="chip" onclick="askSuggestion(this)">How does SPARK work?</a>
-    <a class="chip" onclick="askSuggestion(this)">View project list</a>
-    <a class="chip" onclick="askSuggestion(this)">Why hire Dana?</a>
-</div>
        </div>
 
        <div class="input-area">
@@ -36,22 +33,22 @@ Feel free to spark a conversation, ask me anything.</p>
            <button onclick="sendMessage()" id="send-btn">Send</button>
        </div>
 
-
-      <div class="chat-footer">
-    <a href="mailto:danacannamdesign@gmail.com" class="footer-link">Contact Dana</a>
-    <span class="footer-divider">|</span>
-    <a href="/resume" target="_blank" class="footer-link">Resume</a>
-    <span class="footer-divider">|</span>
-    <a href="#" class="footer-link" onclick="shareConversation(); return false;">Share SPARK</a>
-    <span class="footer-divider">|</span>
-    <a href="#" class="footer-link" onclick="startNewChat(); return false;">+ Start Fresh</a>
-</div>
+       <div class="chat-footer">
+           <a href="mailto:danacannamdesign@gmail.com" class="footer-link">Contact Dana</a>
+           <span class="footer-divider">|</span>
+           <a href="/resume" target="_blank" class="footer-link">Resume</a>
+           <span class="footer-divider">|</span>
+           <a href="#" class="footer-link" onclick="shareConversation(); return false;">Share SPARK</a>
+           <span class="footer-divider">|</span>
+           <a href="#" class="footer-link" onclick="startNewChat(); return false;">+ Start Fresh</a>
+       </div>
    </div>
 
    <script>
        const chatHistory = document.getElementById('chat-history');
        const userInput = document.getElementById('user-input');
 
+       // ── URL ROUTING ───────────────────────────────────────────────────────
        const urlParams = new URLSearchParams(window.location.search);
        const activeFilters = {
            role:     urlParams.get("role")     || null,
@@ -76,10 +73,38 @@ Feel free to spark a conversation, ask me anything.</p>
            sendMessage();
        }
 
+       // ── RENDER PROJECT LINKS ──────────────────────────────────────────────
        function renderProjectLinks(html) {
            return html.replace(/\[\[LINK:\s*(.+?)\]\]/g, (match, projectName) => {
                const name = projectName.trim();
                return `<a class="project-link" onclick="askAboutProject('${name.replace(/'/g, "\\'")}')">${name}</a>`;
+           });
+       }
+
+       // ── RENDER INLINE VIDEO TAGS ──────────────────────────────────────────
+       // Replaces [[VIDEO: url]] tags with YouTube thumbnails inline
+       function renderVideoTags(html) {
+           return html.replace(/\[\[VIDEO:\s*(https?:\/\/[^\]]+)\]\]/g, (match, url) => {
+               const videoMatch = url.trim().match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+               if (!videoMatch) return '';
+               const videoId = videoMatch[1];
+               return `
+                   <div class="inline-video-wrapper">
+                       <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" rel="noopener noreferrer"
+                          style="display:block; position:relative; line-height:0; font-size:0; border-radius:10px; overflow:hidden;">
+                           <img src="https://img.youtube.com/vi/${videoId}/mqdefault.jpg" 
+                                alt="Watch video" 
+                                style="width:100%; border-radius:10px; display:block;">
+                           <div style="position:absolute; top:50%; left:50%;
+                               transform:translate(-50%,-50%);
+                               width:60px; height:60px; border-radius:50%;
+                               background:rgba(255,0,0,0.85);
+                               display:flex; align-items:center; justify-content:center;">
+                               <div style="width:0;height:0;border-top:12px solid transparent;border-bottom:12px solid transparent;border-left:20px solid white;margin-left:4px;"></div>
+                           </div>
+                       </a>
+                   </div>
+               `;
            });
        }
 
@@ -96,7 +121,6 @@ Feel free to spark a conversation, ask me anything.</p>
 
            const wrapper = document.createElement('div');
            wrapper.className = 'media-wrapper';
-           wrapper.style.cssText = "";
 
            if (type === "youtube") {
                const match = mediaUrl.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
@@ -107,9 +131,11 @@ Feel free to spark a conversation, ask me anything.</p>
                link.href = `https://www.youtube.com/watch?v=${videoId}`;
                link.target = "_blank";
                link.rel = "noopener noreferrer";
-            link.style.cssText = "display:block; position:relative; background:transparent; line-height:0; font-size:0; border-radius:10px; overflow:hidden;";
+               link.style.cssText = "display:block; position:relative; background:transparent; line-height:0; font-size:0; border-radius:10px; overflow:hidden;";
+
                const thumb = document.createElement('img');
-thumb.src = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;               thumb.alt = "Watch video";
+               thumb.src = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+               thumb.alt = "Watch video";
                thumb.style.cssText = "width:100%; border-radius:10px; display:block;";
 
                const playBtn = document.createElement('div');
@@ -137,26 +163,24 @@ thumb.src = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;              
            return wrapper;
        }
 
-     function addTypingIndicator() {
-    const div = document.createElement('div');
-    div.className = 'message bot-message typing-indicator';
-    div.id = 'typing-indicator';
-    const animDiv = document.createElement('div');
-    animDiv.id = 'lottie-typing';
-    animDiv.style.cssText = 'width:80px; height:50px;';
-    div.appendChild(animDiv);
-    chatHistory.appendChild(div);
-    // Don't auto-scroll here — handled per message type in sendMessage
-
-    lottie.loadAnimation({
-        container: animDiv,
-        renderer: 'svg',
-        loop: true,
-        autoplay: true,
-        path: '/spark_typing_animation.json'
-    });
-    return div.id;
-}
+       function addTypingIndicator() {
+           const div = document.createElement('div');
+           div.className = 'message bot-message typing-indicator';
+           div.id = 'typing-indicator';
+           const animDiv = document.createElement('div');
+           animDiv.id = 'lottie-typing';
+           animDiv.style.cssText = 'width:80px; height:50px;';
+           div.appendChild(animDiv);
+           chatHistory.appendChild(div);
+           lottie.loadAnimation({
+               container: animDiv,
+               renderer: 'svg',
+               loop: true,
+               autoplay: true,
+               path: '/spark_typing_animation.json'
+           });
+           return div.id;
+       }
 
        async function sendMessage() {
            const prompt = userInput.value.trim();
@@ -167,8 +191,8 @@ thumb.src = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;              
            chatHistory.scrollTop = chatHistory.scrollHeight;
 
            const typingId = addTypingIndicator();
-const typingEl = document.getElementById(typingId);
-if (typingEl) typingEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+           const typingEl = document.getElementById(typingId);
+           if (typingEl) typingEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
            try {
                const response = await fetch('/ask-buddy', {
@@ -186,17 +210,16 @@ if (typingEl) typingEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
                const data = await response.json();
                removeMessage(typingId);
+
                const msgId = addMessage(data.response, 'bot-message', true);
-const msgEl = document.getElementById(msgId);
-if (msgEl) msgEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-
-            
+               const msgEl = document.getElementById(msgId);
+               if (msgEl) msgEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
                if (data.topProjectTitle) {
                    activeProjectTitle = data.topProjectTitle;
                }
 
+               // ── Primary media from Media URL column ───────────────────────
                if (data.mediaUrl) {
                    const mediaEl = buildMediaElement(data.mediaUrl);
                    if (mediaEl) {
@@ -222,8 +245,10 @@ if (msgEl) msgEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
            div.className = `message ${className}`;
            div.id = 'msg-' + Date.now();
            if (isMarkdown) {
+               // Parse markdown, then render project links, then render inline video tags
                const rawHtml = marked.parse(text);
-               div.innerHTML = renderProjectLinks(rawHtml);
+               const withLinks = renderProjectLinks(rawHtml);
+               div.innerHTML = renderVideoTags(withLinks);
            } else {
                div.textContent = text;
            }
@@ -239,14 +264,15 @@ if (msgEl) msgEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
        function startNewChat() {
            activeProjectTitle = null;
-           location.reload(); 
+           fetch('/reset-chat', { method: 'POST' })
+               .finally(() => location.reload());
        }
 
        function shareConversation() {
-    navigator.clipboard.writeText(window.location.href).then(() => {
-        alert('Link copied to clipboard!');
-    });
-}
+           navigator.clipboard.writeText(window.location.href).then(() => {
+               alert('Link copied to clipboard!');
+           });
+       }
 
        userInput.addEventListener('keypress', (e) => {
            if (e.key === 'Enter' && !e.shiftKey) {
