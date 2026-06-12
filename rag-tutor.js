@@ -71,12 +71,8 @@ FORMATTING:
 10. Lead with the most strategically relevant information given the active portfolio lens.
 11. When asking follow-up questions, keep them tightly scoped to the current project being discussed.
 
-VIDEO TAG PASSTHROUGH — CRITICAL:
-12. The retrieved context may contain video tags in this exact format: [[VIDEO: url]]
-You MUST include these tags verbatim in your response exactly where they appear in the context — do not move them, remove them, paraphrase them, or describe them. They are rendered as video thumbnails by the frontend. Treat them as invisible placeholders that must be preserved in position.
-
 PROJECT LIST FORMAT — CRITICAL:
-13. When asked to provide a list of projects, you MUST format EVERY project using EXACTLY this structure. NO EXCEPTIONS:
+12. When asked to provide a list of projects, you MUST format EVERY project using EXACTLY this structure. NO EXCEPTIONS:
 
 [[LINK: Exact Project Name]]
 - **Impact:** Use the BUSINESS IMPACT field directly from the retrieved context. This field EXISTS for every project — use it directly. NEVER say "those specific details haven't been added" or "not yet specified" for Impact or Role when BUSINESS IMPACT and ROLE fields exist in the context. Rule 3 does NOT apply to list queries — always use the fields.
@@ -85,7 +81,7 @@ PROJECT LIST FORMAT — CRITICAL:
 Every single project MUST have both an Impact and a Role line. The BUSINESS IMPACT and ROLE fields are always present for list queries — use them.
 
 PROJECT TRACKING — CRITICAL:
-14. At the very end of EVERY response, after all your content, you MUST append this exact tag on its own line with no extra text:
+13. At the very end of EVERY response, after all your content, you MUST append this exact tag on its own line with no extra text:
 [[PROJECT: <exact project name from the retrieved context that your response primarily focused on, or NONE if the response covers multiple projects>]]
 Example: [[PROJECT: Qmod Educational Platform]]
 Example: [[PROJECT: New Employee Onboarding]]
@@ -121,7 +117,6 @@ ${userQuery}
         const response = await result.response;
         const fullText = response.text();
 
-        // ── Strip PROJECT tag before sending to frontend ──────────────────────
         const projectTagMatch = fullText.match(/\[\[PROJECT:\s*(.+?)\]\]/);
         const detectedProject = projectTagMatch ? projectTagMatch[1].trim() : null;
         const cleanText = fullText.replace(/\[\[PROJECT:.*?\]\]/g, '').trimEnd();
