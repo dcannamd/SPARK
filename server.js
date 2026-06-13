@@ -53,6 +53,15 @@ const CATEGORY_MAP = {
     "architecture": "Architecture"
 };
 
+// ── SPECIAL PAGE TITLES ───────────────────────────────────────────────────────
+// Pages that should be excluded from general search results and project lists.
+// They are only surfaced when directly asked about.
+const EXCLUDED_PAGE_TITLE = "Dana's Expertise";
+
+function isExcludedPageQuery(query) {
+    return /dana.*expertise|expertise.*dana/i.test(query);
+}
+
 function isFollowUpQuery(query) {
     const followUpPatterns = [
         /^yes/i,
@@ -82,9 +91,6 @@ function isListQuery(query) {
     return /list|all projects|all of your projects|your projects|provide a list|view project/i.test(query.trim());
 }
 
-// ── ROLE DETECTION FROM QUERY ─────────────────────────────────────────────────
-// Detects role intent from free-text queries so the pre-filter can be applied
-// even when no URL role parameter is present.
 function detectRoleFromQuery(query) {
     if (/leadership|leader|manag|director|executive|strategy/i.test(query))
         return ["Leadership"];
@@ -95,8 +101,6 @@ function detectRoleFromQuery(query) {
     return [];
 }
 
-// ── CATEGORY DETECTION FROM QUERY ────────────────────────────────────────────
-// Detects category intent from free-text queries for more precise filtering.
 function detectCategoryFromQuery(query) {
     if (/compliance|privacy|security|breach|regulation/i.test(query))
         return ["Compliance"];
@@ -207,20 +211,22 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
 
         let topResults;
         if (topK > 10) {
-            // For list queries: one best chunk per unique project
             const byProject = {};
             scored.sort((a, b) => b.score - a.score).forEach(item => {
                 const title = item.metadata?.title;
-                if (title && !byProject[title]) byProject[title] = item;
+                if (title && !byProject[title] && title !== EXCLUDED_PAGE_TITLE) {
+                    byProject[title] = item;
+                }
             });
             topResults = Object.values(byProject);
         } else {
             topResults = scored.sort((a, b) => b.score - a.score).slice(0, topK);
         }
 
-        // ── Exclude Work With Dana from all vector search results ─────────────
-        const filteredResults = topResults.filter(
-            item => item.metadata?.title !== "Work With Dana"
+        // ── Only allow excluded page through when directly asked about ────────
+        const excludedQuery = isExcludedPageQuery(query);
+        const filteredResults = topResults.filter(item =>
+            excludedQuery || item.metadata?.title !== EXCLUDED_PAGE_TITLE
         );
 
         console.log(`📚 Found ${filteredResults.length} relevant matches.`);
@@ -234,7 +240,6 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
 
         if (topProjectTitle) console.log(`📌 Top vector result: "${topProjectTitle}"`);
 
-        // ── Inject metadata explicitly so AI always has impact and role ───────
         const context = filteredResults.map(res => `
             PROJECT: ${res.metadata.title}
             ROLE: ${(res.metadata.Role || []).join(", ") || "Not specified"}
@@ -267,23 +272,17 @@ app.get('/resume', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'dana-cannam-resume.html'));
 });
 
-// ── COVER LETTER ENDPOINT ─────────────────────────────────────────────────────
 app.post('/generate-cover-letter', async (req, res) => {
     try {
         const rawCompany = req.body.company || null;
         const jobPosting = loadJobPosting(rawCompany);
-
         console.log(`📝 Cover letter requested for: ${rawCompany || "general"}`);
-
         const coverLetter = await generateCoverLetter(jobPosting, rawCompany);
-
         if (!coverLetter) {
             return res.status(500).json({ error: "Failed to generate cover letter." });
         }
-
         console.log("✅ Cover letter generated.");
         res.json({ coverLetter });
-
     } catch (error) {
         console.error("❌ COVER LETTER ERROR:", error);
         res.status(500).json({ error: "Failed to generate cover letter." });
@@ -313,8 +312,10 @@ app.post('/ask-buddy', async (req, res) => {
             categories: activeCategories
         });
 
-        // ── Supplement with query-detected roles/categories if no URL filters ──
-        if (activeRoles.length === 0) {
+        // ── Skip role/category detection for excluded page queries ────────────
+        const excludedQuery = isExcludedPageQuery(userPrompt);
+
+        if (activeRoles.length === 0 && !excludedQuery) {
             const detectedRoles      = detectRoleFromQuery(userPrompt);
             const detectedCategories = detectCategoryFromQuery(userPrompt);
 
@@ -333,9 +334,8 @@ app.post('/ask-buddy', async (req, res) => {
             filteredStore = filterByProject(filteredStore, frontendProjectTitle);
         }
 
-        // ── topK scales based on query type ──────────────────────────────────
         const listQuery = isListQuery(userPrompt);
-        const roleQuery = (detectRoleFromQuery(userPrompt).length > 0 || detectCategoryFromQuery(userPrompt).length > 0) && activeRoles.length === 0;
+        const roleQuery = !excludedQuery && (detectRoleFromQuery(userPrompt).length > 0 || detectCategoryFromQuery(userPrompt).length > 0) && activeRoles.length === 0;
         const topK = listQuery ? 20 : roleQuery ? 10 : 5;
 
         if (listQuery) console.log(`📋 List query detected — using topK: ${topK}`);
