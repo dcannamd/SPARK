@@ -63,8 +63,12 @@
        }
 
        let activeProjectTitle = null;
+      let lastSuggestionChip = null;
 
-       // ── COVER LETTER MODE ─────────────────────────────────────────────────
+      
+
+       // ── let lastSuggestionChip = null;
+COVER LETTER MODE ─────────────────────────────────────────────────
        // Triggered silently on page load when ?mode=cover is in the URL.
        // Only visible to Dana via the custom URL — hiring managers never see this.
        async function initCoverLetterMode() {
@@ -112,10 +116,12 @@
            sendMessage();
        }
 
-       function askAboutProject(projectName) {
-           userInput.value = `Tell me about ${projectName}`;
-           sendMessage();
-       }
+       function askSuggestion(el) {
+    lastSuggestionChip = el.textContent.trim();
+    userInput.value = el.textContent;
+    sendMessage();
+}
+
 
        function renderProjectLinks(html) {
            return html.replace(/\[\[LINK:\s*(.+?)\]\]/g, (match, projectName) => {
