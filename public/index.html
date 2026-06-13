@@ -215,6 +215,43 @@ COVER LETTER MODE ────────────────────�
            const typingId = addTypingIndicator();
            const typingEl = document.getElementById(typingId);
            if (typingEl) typingEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+         // ── CONTEXTUAL FOLLOW-UP CHIPS ────────────────────────────────────────────
+const followUpMap = {
+    "How does SPARK work?": [
+        { label: "View Dana's projects", query: "View project list" },
+        { label: "What's Dana's strongest project?", query: "What is Dana's strongest project and what was the impact?" }
+    ],
+    "Why hire Dana?": [
+        { label: "View Dana's projects", query: "View project list" },
+        { label: "Tell me about his AI work", query: "Tell me about Dana's AI projects" },
+        { label: "Contact Dana", action: "contact" }
+    ]
+};
+
+const followUps = followUpMap[lastSuggestionChip];
+if (followUps) {
+    const chipRow = document.createElement('div');
+    chipRow.className = 'suggestion-chips follow-up-chips';
+    followUps.forEach(item => {
+        const chip = document.createElement('a');
+        chip.className = 'chip';
+        chip.textContent = item.label;
+        if (item.action === 'contact') {
+            chip.href = 'mailto:danacannamdesign@gmail.com';
+        } else {
+            chip.onclick = () => {
+                lastSuggestionChip = null;
+                userInput.value = item.query;
+                sendMessage();
+            };
+        }
+        chipRow.appendChild(chip);
+    });
+    chatHistory.appendChild(chipRow);
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+    lastSuggestionChip = null;
+}
+
 
            try {
                const response = await fetch('/ask-buddy', {
