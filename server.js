@@ -181,7 +181,10 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
                 const title = item.metadata?.title;
                 if (title && !byProject[title]) byProject[title] = item;
             });
-            topResults = Object.values(byProject);
+            topResults = Object.values(byProject).filter(
+    item => item.metadata?.title !== "Work With Dana"
+);
+
         } else {
             topResults = scored.sort((a, b) => b.score - a.score).slice(0, topK);
         }
