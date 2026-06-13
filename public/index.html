@@ -23,7 +23,7 @@
            <div class="suggestion-chips">
                <a class="chip" onclick="askSuggestion(this)">How does SPARK work?</a>
                <a class="chip" onclick="askSuggestion(this)">View project list</a>
-               <a class="chip" onclick="askSuggestion(this)">Working with Dana</a>
+               <a class="chip" onclick="askSuggestion(this)">Why hire Dana?</a>
            </div>
 
        </div>
@@ -40,7 +40,7 @@
            <span class="footer-divider">|</span>
            <a href="#" class="footer-link" onclick="shareConversation(); return false;">Share SPARK</a>
            <span class="footer-divider">|</span>
-           <a href="#" class="footer-link" onclick="startNewChat(); return false;">+ New Chat</a>
+           <a href="#" class="footer-link" onclick="startNewChat(); return false;">+ Start Fresh</a>
        </div>
    </div>
 
@@ -48,12 +48,14 @@
        const chatHistory = document.getElementById('chat-history');
        const userInput = document.getElementById('user-input');
 
+       // ── URL ROUTING ───────────────────────────────────────────────────────
        const urlParams = new URLSearchParams(window.location.search);
        const activeFilters = {
            role:     urlParams.get("role")     || null,
            industry: urlParams.get("industry") || null,
            category: urlParams.get("category") || null,
-           company:  urlParams.get("company")  || null
+           company:  urlParams.get("company")  || null,
+           mode:     urlParams.get("mode")     || null
        };
 
        if (Object.values(activeFilters).some(v => v)) {
@@ -61,6 +63,49 @@
        }
 
        let activeProjectTitle = null;
+
+       // ── COVER LETTER MODE ─────────────────────────────────────────────────
+       // Triggered silently on page load when ?mode=cover is in the URL.
+       // Only visible to Dana via the custom URL — hiring managers never see this.
+       async function initCoverLetterMode() {
+           if (activeFilters.mode !== 'cover') return;
+           if (!activeFilters.company) {
+               console.warn("⚠️ Cover letter mode requires ?company= parameter");
+               return;
+           }
+
+           console.log("📝 Cover letter mode activated");
+
+           // Show a loading message
+           const loadingId = addMessage("Generating your cover letter for " + activeFilters.company + "...", 'bot-message');
+
+           try {
+               const response = await fetch('/generate-cover-letter', {
+                   method: 'POST',
+                   headers: { 'Content-Type': 'application/json' },
+                   body: JSON.stringify({ company: activeFilters.company })
+               });
+
+               const data = await response.json();
+               removeMessage(loadingId);
+
+               if (data.coverLetter) {
+                   // Render as preformatted text to preserve letter formatting
+                   const div = document.createElement('div');
+                   div.className = 'message bot-message cover-letter';
+                   div.id = 'msg-' + Date.now();
+                   const pre = document.createElement('pre');
+                   pre.textContent = data.coverLetter;
+                   div.appendChild(pre);
+                   chatHistory.appendChild(div);
+                   div.scrollIntoView({ behavior: 'smooth', block: 'start' });
+               }
+
+           } catch (error) {
+               removeMessage(loadingId);
+               addMessage("Error generating cover letter. Please try again.", 'bot-message error');
+           }
+       }
 
        function askSuggestion(el) {
            userInput.value = el.textContent;
@@ -253,6 +298,11 @@
            if (userInput.value === 'Tell me more') {
                userInput.value = '';
            }
+       });
+
+       // ── Init cover letter mode on page load if ?mode=cover ────────────────
+       window.addEventListener('load', () => {
+           initCoverLetterMode();
        });
    </script>
 </body>
