@@ -82,6 +82,19 @@ function isListQuery(query) {
     return /list|all projects|all of your projects|your projects|provide a list|view project/i.test(query.trim());
 }
 
+// ── ROLE DETECTION FROM QUERY ─────────────────────────────────────────────────
+// Detects role intent from free-text queries so the pre-filter can be applied
+// even when no URL role parameter is present.
+function detectRoleFromQuery(query) {
+    if (/leadership|leader|manag|director|executive|strategy/i.test(query))
+        return ["Leadership"];
+    if (/\bai\b|rag|technical|technology|creative tech|prototype|prototyping|node|code/i.test(query))
+        return ["Creative Technology & UX"];
+    if (/learning architect|lxd|instructional|curriculum|onboarding|training|education/i.test(query))
+        return ["Learning Architecture & Design"];
+    return [];
+}
+
 function preFilterStore(store, { roles = [], industries = [], categories = [] }) {
     const hasFilters = roles.length > 0 || industries.length > 0 || categories.length > 0;
     if (!hasFilters) return store;
@@ -188,7 +201,6 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
         }
 
         // ── Exclude Work With Dana from all vector search results ─────────────
-        // Work With Dana is only surfaced via the "Working with Dana" chip directly.
         const filteredResults = topResults.filter(
             item => item.metadata?.title !== "Work With Dana"
         );
@@ -283,15 +295,28 @@ app.post('/ask-buddy', async (req, res) => {
             categories: activeCategories
         });
 
+        // ── Supplement with query-detected roles if no URL role filter active ──
+        if (activeRoles.length === 0) {
+            const detectedRoles = detectRoleFromQuery(userPrompt);
+            if (detectedRoles.length > 0) {
+                console.log(`🏷️ Role detected from query: ${detectedRoles.join(", ")}`);
+                filteredStore = preFilterStore(memoryStore, { roles: detectedRoles });
+            }
+        }
+
         const followUp = isFollowUpQuery(userPrompt);
         if (followUp && frontendProjectTitle && frontendProjectTitle !== 'NONE') {
             console.log(`🔁 Follow-up detected — anchoring to: "${frontendProjectTitle}"`);
             filteredStore = filterByProject(filteredStore, frontendProjectTitle);
         }
 
+        // ── topK scales based on query type ──────────────────────────────────
         const listQuery = isListQuery(userPrompt);
-        const topK = listQuery ? 20 : 5;
+        const roleQuery = detectRoleFromQuery(userPrompt).length > 0 && activeRoles.length === 0;
+        const topK = listQuery ? 20 : roleQuery ? 10 : 5;
+
         if (listQuery) console.log(`📋 List query detected — using topK: ${topK}`);
+        if (roleQuery) console.log(`🏷️ Role query detected — using topK: ${topK}`);
 
         const { context, mediaUrl, topProjectTitle } = await findRelevantContext(userPrompt, filteredStore, topK);
 
