@@ -53,15 +53,6 @@ const CATEGORY_MAP = {
     "architecture": "Architecture"
 };
 
-// ── SPECIAL PAGE TITLES ───────────────────────────────────────────────────────
-// Pages that should be excluded from general search results and project lists.
-// They are only surfaced when directly asked about.
-const EXCLUDED_PAGE_TITLE = "Dana's Expertise";
-
-function isExcludedPageQuery(query) {
-    return /dana.*expertise|expertise.*dana/i.test(query);
-}
-
 function isFollowUpQuery(query) {
     const followUpPatterns = [
         /^yes/i,
@@ -211,28 +202,28 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
 
         let topResults;
         if (topK > 10) {
+            // ── List queries: one best chunk per visible project ──────────────
             const byProject = {};
             scored.sort((a, b) => b.score - a.score).forEach(item => {
-                const title = item.metadata?.title;
-                if (title && !byProject[title] && title !== EXCLUDED_PAGE_TITLE) {
+                const title   = item.metadata?.title;
+                const visible = item.metadata?.visible;
+                if (title && !byProject[title] && visible !== "No") {
                     byProject[title] = item;
                 }
             });
             topResults = Object.values(byProject);
         } else {
-            topResults = scored.sort((a, b) => b.score - a.score).slice(0, topK);
+            // ── Regular queries: exclude hidden pages ─────────────────────────
+            topResults = scored
+                .filter(item => item.metadata?.visible !== "No")
+                .sort((a, b) => b.score - a.score)
+                .slice(0, topK);
         }
 
-        // ── Only allow excluded page through when directly asked about ────────
-        const excludedQuery = isExcludedPageQuery(query);
-        const filteredResults = topResults.filter(item =>
-            excludedQuery || item.metadata?.title !== EXCLUDED_PAGE_TITLE
-        );
+        console.log(`📚 Found ${topResults.length} relevant matches.`);
 
-        console.log(`📚 Found ${filteredResults.length} relevant matches.`);
-
-        const topProjectTitle = filteredResults[0]?.metadata?.title    || null;
-        const rawMediaUrl     = filteredResults[0]?.metadata?.mediaUrl || null;
+        const topProjectTitle = topResults[0]?.metadata?.title    || null;
+        const rawMediaUrl     = topResults[0]?.metadata?.mediaUrl || null;
 
         const mediaUrl = (rawMediaUrl && topProjectTitle && !shownMediaTitles.has(topProjectTitle))
             ? rawMediaUrl
@@ -240,7 +231,7 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
 
         if (topProjectTitle) console.log(`📌 Top vector result: "${topProjectTitle}"`);
 
-        const context = filteredResults.map(res => `
+        const context = topResults.map(res => `
             PROJECT: ${res.metadata.title}
             ROLE: ${(res.metadata.Role || []).join(", ") || "Not specified"}
             BUSINESS IMPACT: ${res.metadata.impact || "Not specified"}
@@ -255,6 +246,49 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
         console.error("❌ EMBEDDING ERROR:", error.message);
         return { context: "", mediaUrl: null, topProjectTitle: null };
     }
+}
+
+// ── VISIBLE=NO OVERRIDE: used when a hidden page is directly requested ────────
+async function findContextForHiddenPage(query, topK = 5) {
+    console.log("🧠 Searching hidden pages...");
+    try {
+        const queryVector = await embeddings.embedQuery(query);
+        const scored = memoryStore
+            .filter(item => item.metadata?.visible === "No")
+            .map(item => ({ ...item, score: dotProduct(queryVector, item.embedding) }));
+
+        const topResults = scored.sort((a, b) => b.score - a.score).slice(0, topK);
+        console.log(`📚 Found ${topResults.length} hidden page matches.`);
+
+        const topProjectTitle = topResults[0]?.metadata?.title || null;
+        if (topProjectTitle) console.log(`📌 Hidden page: "${topProjectTitle}"`);
+
+        const context = topResults.map(res => `
+            PROJECT: ${res.metadata.title}
+            ROLE: ${(res.metadata.Role || []).join(", ") || "Not specified"}
+            BUSINESS IMPACT: ${res.metadata.impact || "Not specified"}
+            CLIENT: ${res.metadata.client || "Not specified"}
+            DATE: ${res.metadata.projectDate || "Not specified"}
+            DETAILS: ${res.content || res.pageContent}
+        `).join('\n\n---\n\n');
+
+        return { context, mediaUrl: null, topProjectTitle };
+    } catch (error) {
+        console.error("❌ HIDDEN PAGE SEARCH ERROR:", error.message);
+        return { context: "", mediaUrl: null, topProjectTitle: null };
+    }
+}
+
+// ── DETECT IF QUERY IS ABOUT A HIDDEN PAGE ────────────────────────────────────
+function isHiddenPageQuery(query) {
+    const hiddenTitles = memoryStore
+        .filter(item => item.metadata?.visible === "No")
+        .map(item => item.metadata?.title)
+        .filter(Boolean);
+    
+    return hiddenTitles.some(title => 
+        query.toLowerCase().includes(title.toLowerCase())
+    );
 }
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -306,43 +340,53 @@ app.post('/ask-buddy', async (req, res) => {
         const activeIndustries = translateParam(rawIndustry, INDUSTRY_MAP);
         const activeCategories = translateParam(rawCategory, CATEGORY_MAP);
 
-        let filteredStore = preFilterStore(memoryStore, {
-            roles:      activeRoles,
-            industries: activeIndustries,
-            categories: activeCategories
-        });
-
-        // ── Skip role/category detection for excluded page queries ────────────
-        const excludedQuery = isExcludedPageQuery(userPrompt);
-
-        if (activeRoles.length === 0 && !excludedQuery) {
-            const detectedRoles      = detectRoleFromQuery(userPrompt);
-            const detectedCategories = detectCategoryFromQuery(userPrompt);
-
-            if (detectedRoles.length > 0 || detectedCategories.length > 0) {
-                console.log(`🏷️ Detected from query — roles: [${detectedRoles.join(", ") || "none"}] | categories: [${detectedCategories.join(", ") || "none"}]`);
-                filteredStore = preFilterStore(memoryStore, {
-                    roles:      detectedRoles,
-                    categories: detectedCategories
-                });
-            }
-        }
-
-        const followUp = isFollowUpQuery(userPrompt);
-        if (followUp && frontendProjectTitle && frontendProjectTitle !== 'NONE') {
-            console.log(`🔁 Follow-up detected — anchoring to: "${frontendProjectTitle}"`);
-            filteredStore = filterByProject(filteredStore, frontendProjectTitle);
-        }
-
+        // ── Check if query is about a hidden page ─────────────────────────────
+        const hiddenPageQuery = isHiddenPageQuery(userPrompt);
         const listQuery = isListQuery(userPrompt);
-        const roleQuery = !excludedQuery && (detectRoleFromQuery(userPrompt).length > 0 || detectCategoryFromQuery(userPrompt).length > 0) && activeRoles.length === 0;
-        const topK = listQuery ? 20 : roleQuery ? 10 : 5;
 
-        if (listQuery) console.log(`📋 List query detected — using topK: ${topK}`);
-        if (roleQuery) console.log(`🏷️ Role/category query detected — using topK: ${topK}`);
+        let contextResult;
 
-        const { context, mediaUrl, topProjectTitle } = await findRelevantContext(userPrompt, filteredStore, topK);
+        if (hiddenPageQuery) {
+            // ── Route directly to hidden page search ──────────────────────────
+            console.log(`🔒 Hidden page query detected`);
+            contextResult = await findContextForHiddenPage(userPrompt);
+        } else {
+            // ── Normal search flow ────────────────────────────────────────────
+            let filteredStore = preFilterStore(memoryStore, {
+                roles:      activeRoles,
+                industries: activeIndustries,
+                categories: activeCategories
+            });
 
+            if (activeRoles.length === 0) {
+                const detectedRoles      = detectRoleFromQuery(userPrompt);
+                const detectedCategories = detectCategoryFromQuery(userPrompt);
+
+                if (detectedRoles.length > 0 || detectedCategories.length > 0) {
+                    console.log(`🏷️ Detected from query — roles: [${detectedRoles.join(", ") || "none"}] | categories: [${detectedCategories.join(", ") || "none"}]`);
+                    filteredStore = preFilterStore(memoryStore, {
+                        roles:      detectedRoles,
+                        categories: detectedCategories
+                    });
+                }
+            }
+
+            const followUp = isFollowUpQuery(userPrompt);
+            if (followUp && frontendProjectTitle && frontendProjectTitle !== 'NONE' && !listQuery) {
+                console.log(`🔁 Follow-up detected — anchoring to: "${frontendProjectTitle}"`);
+                filteredStore = filterByProject(filteredStore, frontendProjectTitle);
+            }
+
+            const roleQuery = (detectRoleFromQuery(userPrompt).length > 0 || detectCategoryFromQuery(userPrompt).length > 0) && activeRoles.length === 0;
+            const topK = listQuery ? 20 : roleQuery ? 10 : 5;
+
+            if (listQuery) console.log(`📋 List query detected — using topK: ${topK}`);
+            if (roleQuery) console.log(`🏷️ Role/category query detected — using topK: ${topK}`);
+
+            contextResult = await findRelevantContext(userPrompt, filteredStore, topK);
+        }
+
+        const { context, mediaUrl, topProjectTitle } = contextResult;
         const jobPosting = loadJobPosting(rawCompany);
 
         console.log("🤖 Asking Dana...");
