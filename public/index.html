@@ -158,11 +158,15 @@
 
        // ── PROJECT LINK RENDERING ────────────────────────────────────────────
        function renderProjectLinks(html) {
-           return html.replace(/\[\[LINK:\s*(.+?)\]\]/g, (match, projectName) => {
-               const name = projectName.trim();
-               return `<a class="project-link" onclick="askAboutProject('${name.replace(/'/g, "\\'")}')">${name}</a>`;
-           });
-       }
+    // Match both [[LINK: Name]] and [[Name]] formats
+    return html.replace(/\[\[(?:LINK:\s*)?([^\]]+?)\]\]/g, (match, projectName) => {
+        const name = projectName.trim();
+        // Skip PROJECT tracking tags
+        if (name.startsWith('PROJECT:')) return '';
+        return `<a class="project-link" onclick="askAboutProject('${name.replace(/'/g, "\\'")}')">${name}</a>`;
+    });
+}
+
 
        function getMediaType(url) {
            if (!url) return null;
