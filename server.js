@@ -191,24 +191,29 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
 
         console.log(`📚 Found ${topResults.length} relevant matches.`);
 
-        const topProjectTitle = topResults[0]?.metadata?.title    || null;
-        const rawMediaUrl     = topResults[0]?.metadata?.mediaUrl || null;
+        // ── Exclude Work With Dana from all vector search results ─────────────────
+const filteredResults = topResults.filter(
+    item => item.metadata?.title !== "Work With Dana"
+);
 
-        const mediaUrl = (rawMediaUrl && topProjectTitle && !shownMediaTitles.has(topProjectTitle))
-            ? rawMediaUrl
-            : null;
+const topProjectTitle = filteredResults[0]?.metadata?.title    || null;
+const rawMediaUrl     = filteredResults[0]?.metadata?.mediaUrl || null;
 
-        if (topProjectTitle) console.log(`📌 Top vector result: "${topProjectTitle}"`);
+const mediaUrl = (rawMediaUrl && topProjectTitle && !shownMediaTitles.has(topProjectTitle))
+    ? rawMediaUrl
+    : null;
 
-        // ── Inject metadata explicitly so AI always has impact and role ───────
-        const context = topResults.map(res => `
-            PROJECT: ${res.metadata.title}
-            ROLE: ${(res.metadata.Role || []).join(", ") || "Not specified"}
-            BUSINESS IMPACT: ${res.metadata.impact || "Not specified"}
-            CLIENT: ${res.metadata.client || "Not specified"}
-            DATE: ${res.metadata.projectDate || "Not specified"}
-            DETAILS: ${res.content || res.pageContent}
-        `).join('\n\n---\n\n');
+if (topProjectTitle) console.log(`📌 Top vector result: "${topProjectTitle}"`);
+
+const context = filteredResults.map(res => `
+    PROJECT: ${res.metadata.title}
+    ROLE: ${(res.metadata.Role || []).join(", ") || "Not specified"}
+    BUSINESS IMPACT: ${res.metadata.impact || "Not specified"}
+    CLIENT: ${res.metadata.client || "Not specified"}
+    DATE: ${res.metadata.projectDate || "Not specified"}
+    DETAILS: ${res.content || res.pageContent}
+`).join('\n\n---\n\n');
+
 
         return { context, mediaUrl, topProjectTitle };
 
