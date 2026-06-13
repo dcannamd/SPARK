@@ -219,9 +219,11 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
         }
 
         // ── Exclude Work With Dana from all vector search results ─────────────
-        const filteredResults = topResults.filter(
-            item => item.metadata?.title !== "Work With Dana"
-        );
+        const isWorkWithDanaQuery = /work with dana/i.test(query);
+const filteredResults = topResults.filter(item => 
+    isWorkWithDanaQuery || item.metadata?.title !== "Work With Dana"
+);
+
 
         console.log(`📚 Found ${filteredResults.length} relevant matches.`);
 
