@@ -95,6 +95,24 @@ function detectRoleFromQuery(query) {
     return [];
 }
 
+// ── CATEGORY DETECTION FROM QUERY ────────────────────────────────────────────
+// Detects category intent from free-text queries for more precise filtering.
+function detectCategoryFromQuery(query) {
+    if (/compliance|privacy|security|breach|regulation/i.test(query))
+        return ["Compliance"];
+    if (/onboard|new hire|orientation|new employee/i.test(query))
+        return ["Onboarding"];
+    if (/research|discovery|analysis|assess/i.test(query))
+        return ["Research"];
+    if (/architect|system design|infrastructure|framework/i.test(query))
+        return ["Architecture"];
+    if (/enablement|training program|champion|certification/i.test(query))
+        return ["Enablement"];
+    if (/prototype|prototyping/i.test(query))
+        return ["Prototyping"];
+    return [];
+}
+
 function preFilterStore(store, { roles = [], industries = [], categories = [] }) {
     const hasFilters = roles.length > 0 || industries.length > 0 || categories.length > 0;
     if (!hasFilters) return store;
@@ -295,12 +313,17 @@ app.post('/ask-buddy', async (req, res) => {
             categories: activeCategories
         });
 
-        // ── Supplement with query-detected roles if no URL role filter active ──
+        // ── Supplement with query-detected roles/categories if no URL filters ──
         if (activeRoles.length === 0) {
-            const detectedRoles = detectRoleFromQuery(userPrompt);
-            if (detectedRoles.length > 0) {
-                console.log(`🏷️ Role detected from query: ${detectedRoles.join(", ")}`);
-                filteredStore = preFilterStore(memoryStore, { roles: detectedRoles });
+            const detectedRoles      = detectRoleFromQuery(userPrompt);
+            const detectedCategories = detectCategoryFromQuery(userPrompt);
+
+            if (detectedRoles.length > 0 || detectedCategories.length > 0) {
+                console.log(`🏷️ Detected from query — roles: [${detectedRoles.join(", ") || "none"}] | categories: [${detectedCategories.join(", ") || "none"}]`);
+                filteredStore = preFilterStore(memoryStore, {
+                    roles:      detectedRoles,
+                    categories: detectedCategories
+                });
             }
         }
 
@@ -312,11 +335,11 @@ app.post('/ask-buddy', async (req, res) => {
 
         // ── topK scales based on query type ──────────────────────────────────
         const listQuery = isListQuery(userPrompt);
-        const roleQuery = detectRoleFromQuery(userPrompt).length > 0 && activeRoles.length === 0;
+        const roleQuery = (detectRoleFromQuery(userPrompt).length > 0 || detectCategoryFromQuery(userPrompt).length > 0) && activeRoles.length === 0;
         const topK = listQuery ? 20 : roleQuery ? 10 : 5;
 
         if (listQuery) console.log(`📋 List query detected — using topK: ${topK}`);
-        if (roleQuery) console.log(`🏷️ Role query detected — using topK: ${topK}`);
+        if (roleQuery) console.log(`🏷️ Role/category query detected — using topK: ${topK}`);
 
         const { context, mediaUrl, topProjectTitle } = await findRelevantContext(userPrompt, filteredStore, topK);
 
