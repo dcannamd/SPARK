@@ -72,7 +72,7 @@ FORMATTING:
 11. When asking follow-up questions, keep them tightly scoped to the current project being discussed.
 
 MARKDOWN LINK PASSTHROUGH:
-12. If the retrieved context contains markdown links in the format [text](url), include them verbatim in your response exactly where they appear. Do not remove or replace them with plain text.
+12. If the retrieved context contains markdown links in the format [text](url), include them verbatim in your response exactly where they appear.
 
 PROJECT LIST FORMAT — ABSOLUTE RULE:
 13. When the user asks for a list of projects, this rule OVERRIDES ALL OTHER RULES including rule 3.
@@ -81,7 +81,7 @@ The retrieved context for list queries ALWAYS contains BUSINESS IMPACT and ROLE 
 
 FORBIDDEN RESPONSES for list queries:
 - "Those specific details haven't been added to the knowledge base yet" — FORBIDDEN
-- "Not yet specified" — FORBIDDEN  
+- "Not yet specified" — FORBIDDEN
 - "I don't have details on this" — FORBIDDEN
 
 FORMAT every project EXACTLY like this — no exceptions:
@@ -94,6 +94,64 @@ PROJECT TRACKING — CRITICAL:
 14. At the very end of EVERY response, after all your content, append this exact tag:
 [[PROJECT: <exact project name or NONE if multiple projects>]]
 Never skip this. Never modify the format.
+    `.trim();
+}
+
+function buildCoverLetterPrompt(jobPosting = null, companySlug = null) {
+    const companyName = companySlug 
+        ? companySlug.charAt(0).toUpperCase() + companySlug.slice(1)
+        : "your organization";
+
+    const jobBlock = jobPosting
+        ? `JOB POSTING:\n${jobPosting}`
+        : "No job posting provided. Write a general cover letter based on Dana's experience.";
+
+    return `
+You are generating a professional cover letter for Dana Cannam.
+
+ABOUT DANA:
+Dana Cannam is a Learning Architect, Creative Technologist, and Human-Centered Designer 
+with over 15 years of experience. He has founded and sold a company (Qmod, acquired by 
+E.ON Agile), consulted for governments and militaries, and shipped enterprise learning 
+platforms to clients including Mercedes, BMW, Microsoft, and Ford. He reduced security 
+breaches by 75% at GroupHEALTH, improved Time to Value KPIs by 45% at ProtoPie, and 
+built an AI RAG knowledge assistant that became foundational to ProtoPie's enterprise 
+AI product. He is based in Courtenay, BC and is available remotely.
+
+${jobBlock}
+
+COVER LETTER RULES:
+1. Write in FIRST PERSON as Dana — "I", "me", "my"
+2. ATS-FRIENDLY: plain professional language, no special characters, no tables, no bullet points
+3. Under 400 words total
+4. Traditional business letter format
+5. Use specific results and numbers from Dana's experience — never be vague
+6. Mirror language from the job posting where relevant — this improves ATS scoring
+7. Do not fabricate experience or results not mentioned above
+8. Today's date is ${new Date().toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' })}
+
+STRUCTURE — follow exactly:
+- City and date (Courtenay, BC — [date])
+- One blank line
+- "Dear Hiring Manager,"
+- One blank line
+- Paragraph 1: Opening hook — 2 sentences connecting Dana's background to this specific role. Lead with a result or a bold statement, not "I am writing to apply."
+- One blank line
+- Paragraph 2: Why ${companyName} — 2-3 sentences using language from the job posting. Show genuine understanding of what they need.
+- One blank line  
+- Paragraph 3: What Dana brings — 3-4 sentences. Pull 2-3 specific quantified results most relevant to this role. Connect them directly to the role requirements.
+- One blank line
+- Paragraph 4: SPARK mention — exactly 2 sentences. Mention SPARK as an AI-powered interactive portfolio experience and invite them to explore it at danas-digital-twin.onrender.com
+- One blank line
+- Closing: "I welcome the opportunity to discuss how my experience can contribute to ${companyName}."
+- One blank line
+- "Sincerely,"
+- "Dana Cannam"
+- "danacannamdesign@gmail.com"
+- "+1 (250) 465 9578"
+- "danas-digital-twin.onrender.com"
+
+Write the cover letter now. No preamble, no explanation — just the letter.
     `.trim();
 }
 
@@ -136,13 +194,33 @@ ${userQuery}
     } catch (error) {
         console.error("❌ ERROR:", error.message);
         if (error.message.includes("404")) {
-            return { text: "My memory core is experiencing a configuration conflict. Please verify the model configuration in rag-tutor.js.", detectedProject: null };
+            return { text: "My memory core is experiencing a configuration conflict.", detectedProject: null };
         }
         return { text: "I'm having a brief connection issue. Please try again.", detectedProject: null };
     }
 }
 
+async function generateCoverLetter(jobPosting = null, companySlug = null) {
+    try {
+        const prompt = buildCoverLetterPrompt(jobPosting, companySlug);
+
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-2.5-flash",
+            systemInstruction: prompt
+        });
+
+        const result = await model.generateContent("Generate the cover letter now.");
+        const response = await result.response;
+        return response.text();
+
+    } catch (error) {
+        console.error("❌ COVER LETTER ERROR:", error.message);
+        return null;
+    }
+}
+
 module.exports = { 
-    callBridgeBuddy, 
+    callBridgeBuddy,
+    generateCoverLetter,
     resetHistory: () => { chatHistory = []; } 
 };
