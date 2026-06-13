@@ -176,44 +176,43 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
 
         let topResults;
         if (topK > 10) {
+            // For list queries: one best chunk per unique project
             const byProject = {};
             scored.sort((a, b) => b.score - a.score).forEach(item => {
                 const title = item.metadata?.title;
                 if (title && !byProject[title]) byProject[title] = item;
             });
-            topResults = Object.values(byProject).filter(
-    item => item.metadata?.title !== "Work With Dana"
-);
-
+            topResults = Object.values(byProject);
         } else {
             topResults = scored.sort((a, b) => b.score - a.score).slice(0, topK);
         }
 
-        console.log(`📚 Found ${topResults.length} relevant matches.`);
+        // ── Exclude Work With Dana from all vector search results ─────────────
+        // Work With Dana is only surfaced via the "Working with Dana" chip directly.
+        const filteredResults = topResults.filter(
+            item => item.metadata?.title !== "Work With Dana"
+        );
 
-        // ── Exclude Work With Dana from all vector search results ─────────────────
-const filteredResults = topResults.filter(
-    item => item.metadata?.title !== "Work With Dana"
-);
+        console.log(`📚 Found ${filteredResults.length} relevant matches.`);
 
-const topProjectTitle = filteredResults[0]?.metadata?.title    || null;
-const rawMediaUrl     = filteredResults[0]?.metadata?.mediaUrl || null;
+        const topProjectTitle = filteredResults[0]?.metadata?.title    || null;
+        const rawMediaUrl     = filteredResults[0]?.metadata?.mediaUrl || null;
 
-const mediaUrl = (rawMediaUrl && topProjectTitle && !shownMediaTitles.has(topProjectTitle))
-    ? rawMediaUrl
-    : null;
+        const mediaUrl = (rawMediaUrl && topProjectTitle && !shownMediaTitles.has(topProjectTitle))
+            ? rawMediaUrl
+            : null;
 
-if (topProjectTitle) console.log(`📌 Top vector result: "${topProjectTitle}"`);
+        if (topProjectTitle) console.log(`📌 Top vector result: "${topProjectTitle}"`);
 
-const context = filteredResults.map(res => `
-    PROJECT: ${res.metadata.title}
-    ROLE: ${(res.metadata.Role || []).join(", ") || "Not specified"}
-    BUSINESS IMPACT: ${res.metadata.impact || "Not specified"}
-    CLIENT: ${res.metadata.client || "Not specified"}
-    DATE: ${res.metadata.projectDate || "Not specified"}
-    DETAILS: ${res.content || res.pageContent}
-`).join('\n\n---\n\n');
-
+        // ── Inject metadata explicitly so AI always has impact and role ───────
+        const context = filteredResults.map(res => `
+            PROJECT: ${res.metadata.title}
+            ROLE: ${(res.metadata.Role || []).join(", ") || "Not specified"}
+            BUSINESS IMPACT: ${res.metadata.impact || "Not specified"}
+            CLIENT: ${res.metadata.client || "Not specified"}
+            DATE: ${res.metadata.projectDate || "Not specified"}
+            DETAILS: ${res.content || res.pageContent}
+        `).join('\n\n---\n\n');
 
         return { context, mediaUrl, topProjectTitle };
 
