@@ -4,7 +4,7 @@ const fs = require('fs');
 const { GoogleGenerativeAIEmbeddings } = require("@langchain/google-genai");
 require('dotenv').config();
 
-const { callBridgeBuddy, resetHistory } = require('./rag-tutor.js');
+const { callBridgeBuddy, generateCoverLetter, resetHistory } = require('./rag-tutor.js');
 
 const STORE_PATH = path.join(__dirname, 'vector_store', 'memory_store.json');
 
@@ -12,7 +12,6 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 let memoryStore = [];
-
 let shownMediaTitles = new Set();
 
 const embeddings = new GoogleGenerativeAIEmbeddings({ 
@@ -79,11 +78,8 @@ function isFollowUpQuery(query) {
     return followUpPatterns.some(p => p.test(query.trim()));
 }
 
-// ── LIST QUERY DETECTION ──────────────────────────────────────────────────────
-// Detects requests for a full project list so topK can be increased
-// to ensure all projects get context chunks retrieved.
 function isListQuery(query) {
-    return /list|all projects|all of your projects|your projects|provide a list/i.test(query.trim());
+    return /list|all projects|all of your projects|your projects|provide a list|view project/i.test(query.trim());
 }
 
 function preFilterStore(store, { roles = [], industries = [], categories = [] }) {
@@ -178,21 +174,19 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
             score: dotProduct(queryVector, item.embedding)
         }));
 
-       let topResults;
-if (topK > 10) {
-    // For list queries: ensure one chunk per project is included
-    const byProject = {};
-    scored.sort((a, b) => b.score - a.score).forEach(item => {
-        const title = item.metadata?.title;
-        if (title && !byProject[title]) byProject[title] = item;
-    });
-    topResults = Object.values(byProject);
-} else {
-    topResults = scored.sort((a, b) => b.score - a.score).slice(0, topK);
-}
+        let topResults;
+        if (topK > 10) {
+            const byProject = {};
+            scored.sort((a, b) => b.score - a.score).forEach(item => {
+                const title = item.metadata?.title;
+                if (title && !byProject[title]) byProject[title] = item;
+            });
+            topResults = Object.values(byProject);
+        } else {
+            topResults = scored.sort((a, b) => b.score - a.score).slice(0, topK);
+        }
 
-console.log(`📚 Found ${topResults.length} relevant matches.`);
-
+        console.log(`📚 Found ${topResults.length} relevant matches.`);
 
         const topProjectTitle = topResults[0]?.metadata?.title    || null;
         const rawMediaUrl     = topResults[0]?.metadata?.mediaUrl || null;
@@ -203,15 +197,15 @@ console.log(`📚 Found ${topResults.length} relevant matches.`);
 
         if (topProjectTitle) console.log(`📌 Top vector result: "${topProjectTitle}"`);
 
-      const context = topResults.map(res => `
-    PROJECT: ${res.metadata.title}
-    ROLE: ${(res.metadata.Role || []).join(", ") || "Not specified"}
-    BUSINESS IMPACT: ${res.metadata.impact || "Not specified"}
-    CLIENT: ${res.metadata.client || "Not specified"}
-    DATE: ${res.metadata.projectDate || "Not specified"}
-    DETAILS: ${res.content || res.pageContent}
-`).join('\n\n---\n\n');
-
+        // ── Inject metadata explicitly so AI always has impact and role ───────
+        const context = topResults.map(res => `
+            PROJECT: ${res.metadata.title}
+            ROLE: ${(res.metadata.Role || []).join(", ") || "Not specified"}
+            BUSINESS IMPACT: ${res.metadata.impact || "Not specified"}
+            CLIENT: ${res.metadata.client || "Not specified"}
+            DATE: ${res.metadata.projectDate || "Not specified"}
+            DETAILS: ${res.content || res.pageContent}
+        `).join('\n\n---\n\n');
 
         return { context, mediaUrl, topProjectTitle };
 
@@ -227,13 +221,37 @@ app.use(express.json());
 app.use((req, res, next) => {
     res.setHeader(
         "Content-Security-Policy",
-"default-src 'self'; img-src 'self' https://img.youtube.com data:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; connect-src 'self'; frame-src https://www.youtube.com; object-src 'self'; plugin-types application/pdf;"    );
+        "default-src 'self'; img-src 'self' https://img.youtube.com data:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; connect-src 'self'; frame-src https://www.youtube.com; object-src 'self';"
+    );
     next();
 });
+
 app.get('/resume', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'dana-cannam-resume.html'));
 });
 
+// ── COVER LETTER ENDPOINT ─────────────────────────────────────────────────────
+app.post('/generate-cover-letter', async (req, res) => {
+    try {
+        const rawCompany = req.body.company || null;
+        const jobPosting = loadJobPosting(rawCompany);
+
+        console.log(`📝 Cover letter requested for: ${rawCompany || "general"}`);
+
+        const coverLetter = await generateCoverLetter(jobPosting, rawCompany);
+
+        if (!coverLetter) {
+            return res.status(500).json({ error: "Failed to generate cover letter." });
+        }
+
+        console.log("✅ Cover letter generated.");
+        res.json({ coverLetter });
+
+    } catch (error) {
+        console.error("❌ COVER LETTER ERROR:", error);
+        res.status(500).json({ error: "Failed to generate cover letter." });
+    }
+});
 
 app.post('/ask-buddy', async (req, res) => {
     try {
@@ -264,7 +282,6 @@ app.post('/ask-buddy', async (req, res) => {
             filteredStore = filterByProject(filteredStore, frontendProjectTitle);
         }
 
-        // ── Use higher topK for list queries so all projects get context ───────
         const listQuery = isListQuery(userPrompt);
         const topK = listQuery ? 20 : 5;
         if (listQuery) console.log(`📋 List query detected — using topK: ${topK}`);
@@ -281,8 +298,8 @@ app.post('/ask-buddy', async (req, res) => {
             userPrompt, context, activeRoleLabel, jobPosting, rawCompany
         );
 
-        const danaResponse    = buddyResult?.text             || "I'm having a brief connection issue. Please try again.";
-        const detectedProject = buddyResult?.detectedProject  || null;
+        const danaResponse    = buddyResult?.text            || "I'm having a brief connection issue. Please try again.";
+        const detectedProject = buddyResult?.detectedProject || null;
 
         const confirmedProject = (detectedProject && detectedProject !== 'NONE')
             ? detectedProject
