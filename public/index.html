@@ -22,8 +22,8 @@
            </div>
            <div class="suggestion-chips">
                <a class="chip" onclick="askSuggestion(this)">How does SPARK work?</a>
-               <a class="chip" onclick="askSuggestion(this)">View project list</a>
-               <a class="chip" onclick="askSuggestion(this)">Why hire Dana?</a>
+               <a class="chip" onclick="askSuggestion(this)">View Dana's project list</a>
+               <a class="chip" onclick="lastSuggestionChip=&quot;Dana's expertise&quot;; userInput.value=&quot;Tell me about Dana's expertise&quot;; sendMessage();">Dana's expertise</a>
            </div>
 
        </div>
@@ -48,7 +48,6 @@
        const chatHistory = document.getElementById('chat-history');
        const userInput = document.getElementById('user-input');
 
-       // ── URL ROUTING ───────────────────────────────────────────────────────
        const urlParams = new URLSearchParams(window.location.search);
        const activeFilters = {
            role:     urlParams.get("role")     || null,
@@ -65,28 +64,22 @@
        let activeProjectTitle = null;
        let lastSuggestionChip = null;
 
-       // ── COVER LETTER MODE ─────────────────────────────────────────────────
        async function initCoverLetterMode() {
            if (activeFilters.mode !== 'cover') return;
            if (!activeFilters.company) {
                console.warn("⚠️ Cover letter mode requires ?company= parameter");
                return;
            }
-
            console.log("📝 Cover letter mode activated");
-
            const loadingId = addMessage("Generating your cover letter for " + activeFilters.company + "...", 'bot-message');
-
            try {
                const response = await fetch('/generate-cover-letter', {
                    method: 'POST',
                    headers: { 'Content-Type': 'application/json' },
                    body: JSON.stringify({ company: activeFilters.company })
                });
-
                const data = await response.json();
                removeMessage(loadingId);
-
                if (data.coverLetter) {
                    const div = document.createElement('div');
                    div.className = 'message bot-message cover-letter';
@@ -97,14 +90,12 @@
                    chatHistory.appendChild(div);
                    div.scrollIntoView({ behavior: 'smooth', block: 'start' });
                }
-
            } catch (error) {
                removeMessage(loadingId);
                addMessage("Error generating cover letter. Please try again.", 'bot-message error');
            }
        }
 
-       // ── SUGGESTION CHIPS ──────────────────────────────────────────────────
        function askSuggestion(el) {
            lastSuggestionChip = el.textContent.trim();
            userInput.value = el.textContent;
@@ -116,15 +107,13 @@
            sendMessage();
        }
 
-       // ── CONTEXTUAL FOLLOW-UP CHIPS MAP ────────────────────────────────────
        const followUpMap = {
            "How does SPARK work?": [
                { label: "View Dana's projects", query: "View project list" },
                { label: "What's Dana's strongest project?", query: "What is Dana's strongest project and what was the impact?" }
            ],
-           "Why hire Dana?": [
+           "Dana's expertise": [
                { label: "View Dana's projects", query: "View project list" },
-               { label: "Tell me about his AI work", query: "Tell me about Dana's AI projects" },
                { label: "Contact Dana", action: "contact" }
            ]
        };
@@ -132,10 +121,8 @@
        function renderFollowUpChips(triggerChip) {
            const followUps = followUpMap[triggerChip];
            if (!followUps) return;
-
            const chipRow = document.createElement('div');
            chipRow.className = 'suggestion-chips follow-up-chips';
-
            followUps.forEach(item => {
                const chip = document.createElement('a');
                chip.className = 'chip';
@@ -151,15 +138,14 @@
                }
                chipRow.appendChild(chip);
            });
-
            chatHistory.appendChild(chipRow);
            chatHistory.scrollTop = chatHistory.scrollHeight;
        }
 
-       // ── PROJECT LINK RENDERING ────────────────────────────────────────────
        function renderProjectLinks(html) {
-           return html.replace(/\[\[LINK:\s*(.+?)\]\]/g, (match, projectName) => {
+           return html.replace(/\[\[(?:LINK:\s*)?([^\]]+?)\]\]/g, (match, projectName) => {
                const name = projectName.trim();
+               if (name.startsWith('PROJECT:')) return '';
                return `<a class="project-link" onclick="askAboutProject('${name.replace(/'/g, "\\'")}')">${name}</a>`;
            });
        }
@@ -174,40 +160,27 @@
        function buildMediaElement(mediaUrl) {
            const type = getMediaType(mediaUrl);
            if (!type) return null;
-
            const wrapper = document.createElement('div');
            wrapper.className = 'media-wrapper';
-
            if (type === "youtube") {
                const match = mediaUrl.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
                if (!match) return null;
                const videoId = match[1];
-
                const link = document.createElement('a');
                link.href = `https://www.youtube.com/watch?v=${videoId}`;
                link.target = "_blank";
                link.rel = "noopener noreferrer";
                link.style.cssText = "display:block; position:relative; background:transparent; line-height:0; font-size:0; border-radius:10px; overflow:hidden;";
-
                const thumb = document.createElement('img');
                thumb.src = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
                thumb.alt = "Watch video";
                thumb.style.cssText = "width:100%; border-radius:10px; display:block;";
-
                const playBtn = document.createElement('div');
-               playBtn.style.cssText = `
-                   position:absolute; top:50%; left:50%;
-                   transform:translate(-50%,-50%);
-                   width:60px; height:60px; border-radius:50%;
-                   background:rgba(255,0,0,0.85);
-                   display:flex; align-items:center; justify-content:center;
-               `;
+               playBtn.style.cssText = `position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:60px; height:60px; border-radius:50%; background:rgba(255,0,0,0.85); display:flex; align-items:center; justify-content:center;`;
                playBtn.innerHTML = `<div style="width:0;height:0;border-top:12px solid transparent;border-bottom:12px solid transparent;border-left:20px solid white;margin-left:4px;"></div>`;
-
                link.appendChild(thumb);
                link.appendChild(playBtn);
                wrapper.appendChild(link);
-
            } else if (type === "image") {
                const img = document.createElement('img');
                img.src = mediaUrl;
@@ -215,7 +188,6 @@
                img.setAttribute('loading', 'lazy');
                wrapper.appendChild(img);
            }
-
            return wrapper;
        }
 
@@ -271,7 +243,6 @@
                const msgEl = document.getElementById(msgId);
                if (msgEl) msgEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-               // ── Render follow-up chips if triggered by chip 1 or 3 ────────
                if (lastSuggestionChip) {
                    renderFollowUpChips(lastSuggestionChip);
                    lastSuggestionChip = null;
@@ -346,7 +317,6 @@
            }
        });
 
-       // ── Init cover letter mode on page load if ?mode=cover ────────────────
        window.addEventListener('load', () => {
            initCoverLetterMode();
        });
