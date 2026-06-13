@@ -22,11 +22,8 @@
            </div>
            <div class="suggestion-chips">
                <a class="chip" onclick="askSuggestion(this)">How does SPARK work?</a>
-               <a class="chip" onclick="askSuggestion(this)">View Dana's project list</a>
-<a class="chip" onclick="lastSuggestionChip='Dana\'s expertise'; userInput.value='Tell me about Dana\'s expertise'; sendMessage();">Dana's expertise</a>
-; sendMessage();">Dana's expertise</a>
-
-
+               <a class="chip" onclick="askSuggestion(this)">View project list</a>
+               <a class="chip" onclick="askSuggestion(this)">Why hire Dana?</a>
            </div>
 
        </div>
@@ -125,11 +122,11 @@
                { label: "View Dana's projects", query: "View project list" },
                { label: "What's Dana's strongest project?", query: "What is Dana's strongest project and what was the impact?" }
            ],
-           "Dana's expertise": [
-    { label: "View Dana's projects", query: "View project list" },
-    { label: "Contact Dana", action: "contact" }
-]
-
+           "Why hire Dana?": [
+               { label: "View Dana's projects", query: "View project list" },
+               { label: "Tell me about his AI work", query: "Tell me about Dana's AI projects" },
+               { label: "Contact Dana", action: "contact" }
+           ]
        };
 
        function renderFollowUpChips(triggerChip) {
@@ -161,15 +158,11 @@
 
        // ── PROJECT LINK RENDERING ────────────────────────────────────────────
        function renderProjectLinks(html) {
-    // Match both [[LINK: Name]] and [[Name]] formats
-    return html.replace(/\[\[(?:LINK:\s*)?([^\]]+?)\]\]/g, (match, projectName) => {
-        const name = projectName.trim();
-        // Skip PROJECT tracking tags
-        if (name.startsWith('PROJECT:')) return '';
-        return `<a class="project-link" onclick="askAboutProject('${name.replace(/'/g, "\\'")}')">${name}</a>`;
-    });
-}
-
+           return html.replace(/\[\[LINK:\s*(.+?)\]\]/g, (match, projectName) => {
+               const name = projectName.trim();
+               return `<a class="project-link" onclick="askAboutProject('${name.replace(/'/g, "\\'")}')">${name}</a>`;
+           });
+       }
 
        function getMediaType(url) {
            if (!url) return null;
