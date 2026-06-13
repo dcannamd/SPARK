@@ -210,25 +210,18 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
             // For list queries: one best chunk per unique project
             const byProject = {};
             scored.sort((a, b) => b.score - a.score).forEach(item => {
-    const title = item.metadata?.title;
-if (title && !byProject[title] && title !== "Dana's Expertise") byProject[title] = item;
-});
-
+                const title = item.metadata?.title;
+                if (title && !byProject[title]) byProject[title] = item;
+            });
             topResults = Object.values(byProject);
         } else {
             topResults = scored.sort((a, b) => b.score - a.score).slice(0, topK);
         }
 
         // ── Exclude Work With Dana from all vector search results ─────────────
-const isWorkWithDanaQuery = /work with dana|dana.*expertise|expertise.*dana/i.test(query);
-const filteredResults = topResults.filter(item => 
-    isWorkWithDanaQuery || item.metadata?.title !== "Work With Dana"
-);
-
-const filteredResults = topResults.filter(item => 
-    isWorkWithDanaQuery || item.metadata?.title !== "Work With Dana"
-);
-
+        const filteredResults = topResults.filter(
+            item => item.metadata?.title !== "Work With Dana"
+        );
 
         console.log(`📚 Found ${filteredResults.length} relevant matches.`);
 
