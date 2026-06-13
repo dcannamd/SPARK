@@ -211,7 +211,7 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
             const byProject = {};
             scored.sort((a, b) => b.score - a.score).forEach(item => {
     const title = item.metadata?.title;
-    if (title && !byProject[title] && title !== "Work With Dana") byProject[title] = item;
+if (title && !byProject[title] && title !== "Dana's Expertise") byProject[title] = item;
 });
 
             topResults = Object.values(byProject);
@@ -221,6 +221,10 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
 
         // ── Exclude Work With Dana from all vector search results ─────────────
 const isWorkWithDanaQuery = /work with dana|dana.*expertise|expertise.*dana/i.test(query);
+const filteredResults = topResults.filter(item => 
+    isWorkWithDanaQuery || item.metadata?.title !== "Work With Dana"
+);
+
 const filteredResults = topResults.filter(item => 
     isWorkWithDanaQuery || item.metadata?.title !== "Work With Dana"
 );
