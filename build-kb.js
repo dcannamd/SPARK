@@ -67,6 +67,12 @@ async function runBuild() {
             const tools       = props["Tools"]?.multi_select?.map(s => s.name).join(", ") || "N/A";
             const mediaUrl    = props["Media URL"]?.url || null;
             const projectDate = props["Date"]?.date?.start || null;
+            const client      = props["Client"]?.rich_text?.map(t => t.plain_text).join("") || null;
+
+            // ── VISIBLE: Controls whether project appears in general search ───
+            // "Yes" = shows in project list and general queries (default)
+            // "No"  = hidden from list, only surfaced when directly asked
+            const visible = props["Visible"]?.select?.name || "Yes";
 
             roleArr.forEach(r => tagInventory.roles.add(r));
             catArr.forEach(c => tagInventory.categories.add(c));
@@ -74,17 +80,15 @@ async function runBuild() {
 
             console.log(`📖 Deep scanning: "${title}"`);
             console.log(`   Roles: [${roleArr.join(", ") || "none"}] | Categories: [${catArr.join(", ") || "none"}] | Industries: [${industryArr.join(", ") || "none"}]`);
-            console.log(`   Date: ${projectDate || "none"} | Media: ${mediaUrl || "none"}`);
+            console.log(`   Date: ${projectDate || "none"} | Client: ${client || "none"} | Visible: ${visible}`);
             console.log(`   Tech: ${tech} | Tools: ${tools}`);
             console.log(`   Impact: ${impact !== "N/A" ? impact.substring(0, 80) + "..." : "none"}`);
 
             const deepContent = await getFullPageContent(page.id);
 
-            // ── BUSINESS IMPACT, ROLE, TECH, TOOLS all placed at top AND bottom ─
-            // This ensures they appear in the first chunk retrieved for any project
-            // so the AI always has them available for list and follow-up queries.
             const combinedText = `
 DANA'S PROJECT: ${title}
+CLIENT: ${client || "Not specified"}
 ROLE: ${roleArr.join(", ") || "General"}
 CATEGORY: ${catArr.join(", ") || "N/A"}
 INDUSTRY: ${industryArr.join(", ") || "N/A"}
@@ -98,6 +102,7 @@ SOURCE: ${github}
 FULL DETAILS:
 ${deepContent}
 
+SUMMARY OF CLIENT: ${client || "Not specified"}
 SUMMARY OF ROLE: ${roleArr.join(", ") || "General"}
 SUMMARY OF BUSINESS IMPACT: ${impact}
 SUMMARY OF TECH STACK: ${tech}
@@ -113,11 +118,13 @@ SUMMARY OF TOOLS: ${tools}
                     content: chunk,
                     embedding: vector,
                     metadata: { 
-                        title, 
+                        title,
+                        visible,
                         status, 
                         source:      github,
                         mediaUrl:    mediaUrl,
                         projectDate: projectDate,
+                        client:      client,
                         impact:      impact !== "N/A" ? impact : null,
                         tech:        tech,
                         tools:       tools,
