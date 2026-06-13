@@ -297,5 +297,15 @@ button#send-btn {
     margin: 0;
 }
 
+/* ── FOLLOW-UP CHIPS ─────────────────────────────────────────────────────── */
+.follow-up-chips {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+    align-items: flex-start;
+}
+
+
 
 
