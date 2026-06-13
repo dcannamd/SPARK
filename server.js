@@ -210,9 +210,10 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
             // For list queries: one best chunk per unique project
             const byProject = {};
             scored.sort((a, b) => b.score - a.score).forEach(item => {
-                const title = item.metadata?.title;
-                if (title && !byProject[title]) byProject[title] = item;
-            });
+    const title = item.metadata?.title;
+    if (title && !byProject[title] && title !== "Work With Dana") byProject[title] = item;
+});
+
             topResults = Object.values(byProject);
         } else {
             topResults = scored.sort((a, b) => b.score - a.score).slice(0, topK);
