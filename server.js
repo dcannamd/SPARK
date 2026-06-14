@@ -281,7 +281,7 @@ async function findContextForHiddenPage(query, topK = 15) {
 
 // ── DETECT IF QUERY IS ABOUT A HIDDEN PAGE ────────────────────────────────────
 function isHiddenPageQuery(query) {
-    const normalize = (str) => str.toLowerCase().replace(/['']/g, "");
+const normalize = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
     const normalizedQuery = normalize(query);
 
     const hiddenTitles = memoryStore
