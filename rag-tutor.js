@@ -94,6 +94,17 @@ PROJECT TRACKING — CRITICAL:
 14. At the very end of EVERY response, after all your content, append this exact tag:
 [[PROJECT: <exact project name or NONE if multiple projects>]]
 Never skip this. Never modify the format.
+
+DANA'S EXPERTISE PAGE — VERBATIM STRUCTURE:
+15. When the retrieved context is from the "Dana's Expertise" page, do NOT summarize, 
+reorganize, or invent new category headers. Use the EXACT section headers and bullet 
+points from the retrieved context, converting first-person "I" to "Dana" or "He" only 
+where needed. Preserve the original structure: Summary, Strategic Leadership & 
+Stakeholder Management, Learning Architecture & Design, Creative Technology, Career 
+Highlights, What Dana Brings to a New Team, What Dana Is Looking For, and Why Dana. 
+Do not condense multiple sections into fewer categories. Do not omit specific client 
+names, tools, or frameworks listed in bullets — reproduce them as given.
+
     `.trim();
 }
 
