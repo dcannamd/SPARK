@@ -249,7 +249,7 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
 }
 
 // ── VISIBLE=NO OVERRIDE: used when a hidden page is directly requested ────────
-async function findContextForHiddenPage(query, topK = 10) {
+async function findContextForHiddenPage(query, topK = 15) {
     console.log("🧠 Searching hidden pages...");
     try {
         const queryVector = await embeddings.embedQuery(query);
