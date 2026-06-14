@@ -281,13 +281,16 @@ async function findContextForHiddenPage(query, topK = 15) {
 
 // ── DETECT IF QUERY IS ABOUT A HIDDEN PAGE ────────────────────────────────────
 function isHiddenPageQuery(query) {
+    const normalize = (str) => str.toLowerCase().replace(/['']/g, "");
+    const normalizedQuery = normalize(query);
+
     const hiddenTitles = memoryStore
         .filter(item => item.metadata?.visible === "No")
         .map(item => item.metadata?.title)
         .filter(Boolean);
-    
+
     return hiddenTitles.some(title => 
-        query.toLowerCase().includes(title.toLowerCase())
+        normalizedQuery.includes(normalize(title))
     );
 }
 
