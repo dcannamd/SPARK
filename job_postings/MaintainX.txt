@@ -1,0 +1,62 @@
+# Customer Education Manager
+
+**Company:** MaintainX
+**Location:** Montreal, Quebec, Canada
+
+## About the Job
+
+MaintainX is the world’s leading AI-powered maintenance and asset management platform, serving 13,000+ customers including Duracell, Shell, Cintas, and Brenntag. We raised $150M in Series D funding led by Bessemer Venture Partners and Bain Capital Ventures, bringing our total funding to $254M. We were named to the Forbes 2025 Cloud 100, the definitive ranking of the top 100 private cloud companies in the world.
+
+Reporting to the Senior Manager of Customer Education, the Customer Education Manager will be responsible for designing, producing, and maintaining educational content for MaintainX’s customer education channels. This role will focus on authoring content that enables MaintainX users to develop the core competencies required to be successful maintenance and reliability professionals. This includes courses and videos for MaintainX Academy, as well as providing instructional design support for offerings such as workshops and certifications. In this role, you will work closely with the Client Success, Product, and Marketing teams to understand the educational needs of our customers and integrate those insights with our organizational vision to develop high-quality skill-based learning content.
+
+## What You’ll Do
+
+- Own a key segment of the MaintainX curriculum, including defining the knowledge and skills that customers need to be successful in their role and mapping it to content that will drive outcomes.
+- Conduct continuous research into your learning audience to stay current on their motivations to learn and any skill-related changes in their professional world.
+- Use models such as ADDIE and SAM to develop instructional content that helps customers adopt behaviours that will make them successful in the role, both inside and outside of the MaintainX platform.
+- Design and execute a content maintenance strategy for your segment of the curriculum, calibrated to the product roadmap and measured customer impact.
+- Develop a content distribution plan for your segment of the curriculum that goes beyond the customer academy, leveraging channels such as help documentation, in-app guidance, and marketing collateral to get your content in front of customers when and where they need it.
+- Help define the Customer Education roadmap in collaboration with your broader team.
+- Provide consultation to other Customer Education team members on curriculum and content design.
+
+## About You
+
+**Required:**
+
+- A minimum of five (5) years experience in an education-related role, such as Customer Education, Training & Enablement, Learning & Development, or teaching.
+- A minimum of three (3) years experience developing eLearning content.
+- Proficiency with video production tools such as Camtasia.
+- Proficiency with course authoring tools such as Articulate, Adobe Captivate, or Parta.
+- Familiarity with learning management systems.
+- Experience collaborating with subject matter experts (SMEs) for content ideation and review.
+- A strong ability to communicate technical concepts in accessible and concise language.
+- An acute eye for detail when it comes to grammar, aesthetics, and consistency.
+
+**Nice to Have (not required):**
+
+- Experience working for companies with rapidly changing products, particularly software-as-a-service (SaaS).
+- Familiarity with project management tools (e.g. Jira, Notion).
+- Familiarity with a Customer Academy LMS, such as WorkRamp or Skilljar.
+- Work experience in industrial maintenance and/or manufacturing.
+- Experience using CMMSes and/or Enterprise Asset Management systems.
+- A maintenance and/or reliability-related certification, such as CMRP or CRE.
+
+## About the Team
+
+The Customer Education team makes it our mission to ensure that any knowledge customers need in order to achieve their goals with MaintainX is at their fingertips. We apply a humble and empathetic design methodology that keeps the deskless workforce at the center of everything we do. We deliver content through eLearning and instructor-led training channels to educate MaintainX customers in the medium that best suits their needs. Above all, we have an unwavering commitment to quality and accuracy that is reflective of MaintainX’s world-class product.
+
+## What’s in It for You
+
+- Competitive salary and meaningful equity opportunities.
+- Healthcare, dental, and vision coverage.
+- 401(k) / RRSP program.
+- Take what you need PTO.
+- A Work Culture where:
+  - You’ll work alongside folks across the globe that reflect the MaintainX values: Smart, Humble, Optimist.
+  - We believe in meritocracy, where ideas and effort are publicly celebrated.
+
+## About Us
+
+Our mission is to deliver one platform for maintenance, repair & operations teams to keep the physical world running. We believe the greatest asset in any organization is the people. That’s why we built an intuitive, mobile-first solution to help boost productivity and collaboration across teams and locations.
+
+MaintainX is committed to creating a diverse environment. All qualified applicants will receive consideration for employment without regard to race, colour, religion, gender, gender identity or expression, sexual orientation, national origin, genetics, disability, age, or veteran status.
