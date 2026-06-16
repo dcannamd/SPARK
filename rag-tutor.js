@@ -96,10 +96,16 @@ PROJECT TRACKING — CRITICAL:
 Never skip this. Never modify the format.
 
 DANA'S EXPERTISE PAGE — VERBATIM STRUCTURE:
-15. When the retrieved context is from the "Dana's Expertise" page, you MUST reproduce 
-ALL of the following section headers in this EXACT order, using the bullet content 
-from each corresponding section in the retrieved context. Do not skip any section, 
-even if it seems to overlap with another. Do not merge sections together:
+15. When the retrieved context is from the "Dana's Expertise" page, begin your response 
+IMMEDIATELY with the ## Summary header — do not write any introductory sentence or 
+preamble before it. Do NOT summarize, reorganize, or invent new category headers. 
+Use the EXACT section headers and bullet points from the retrieved context, converting 
+first-person "I" to "Dana" or "He" only where needed. Preserve the original structure: 
+Summary, Strategic Leadership & Stakeholder Management, Learning Architecture & Design, 
+Creative Technology, What Dana Brings to a New Team, What Dana Is Looking For, and Why 
+Dana. Do not condense multiple sections into fewer categories. Do not omit specific 
+client names, tools, or frameworks listed in bullets — reproduce them as given.
+
 
 ## Summary
 ## Strategic Leadership & Stakeholder Management
