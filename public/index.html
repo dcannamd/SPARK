@@ -244,9 +244,24 @@
                if (msgEl) msgEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
                if (lastSuggestionChip) {
-                   renderFollowUpChips(lastSuggestionChip);
-                   lastSuggestionChip = null;
-               }
+    renderFollowUpChips(lastSuggestionChip);
+    lastSuggestionChip = null;
+} else if (data.topProjectTitle && data.topProjectTitle !== 'NONE') {
+    // Show project list chip after any single project response
+    const chipRow = document.createElement('div');
+    chipRow.className = 'suggestion-chips follow-up-chips';
+    const chip = document.createElement('a');
+    chip.className = 'chip';
+    chip.textContent = 'View project list';
+    chip.onclick = () => {
+        userInput.value = 'View project list';
+        sendMessage();
+    };
+    chipRow.appendChild(chip);
+    chatHistory.appendChild(chipRow);
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+}
+
 
                if (data.topProjectTitle) {
                    activeProjectTitle = data.topProjectTitle;
