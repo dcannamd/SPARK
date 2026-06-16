@@ -202,7 +202,6 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
 
         let topResults;
         if (topK > 10) {
-            // ── List queries: one best chunk per visible project ──────────────
             const byProject = {};
             scored.sort((a, b) => b.score - a.score).forEach(item => {
                 const title   = item.metadata?.title;
@@ -213,7 +212,6 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
             });
             topResults = Object.values(byProject);
         } else {
-            // ── Regular queries: exclude hidden pages ─────────────────────────
             topResults = scored
                 .filter(item => item.metadata?.visible !== "No")
                 .sort((a, b) => b.score - a.score)
@@ -248,9 +246,11 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
     }
 }
 
-// ── VISIBLE=NO OVERRIDE: used when a hidden page is directly requested ────────
+// ── HIDDEN PAGE SEARCH ────────────────────────────────────────────────────────
+// Searches only Visible=No pages. Used for Dana's Expertise, Outside of Work,
+// and any future hidden pages.
 async function findContextForHiddenPage(query, topK = 15) {
-    console.log("🧠 Searching hidden pages...");
+    console.log("🔒 Searching hidden pages...");
     try {
         const queryVector = await embeddings.embedQuery(query);
         const scored = memoryStore
@@ -279,9 +279,10 @@ async function findContextForHiddenPage(query, topK = 15) {
     }
 }
 
-// ── DETECT IF QUERY IS ABOUT A HIDDEN PAGE ────────────────────────────────────
+// ── HIDDEN PAGE DETECTION ─────────────────────────────────────────────────────
+// Returns true if the query directly references a hidden page title.
 function isHiddenPageQuery(query) {
-const normalize = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const normalize = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
     const normalizedQuery = normalize(query);
 
     const hiddenTitles = memoryStore
@@ -289,9 +290,19 @@ const normalize = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
         .map(item => item.metadata?.title)
         .filter(Boolean);
 
-    return hiddenTitles.some(title => 
+    return hiddenTitles.some(title =>
         normalizedQuery.includes(normalize(title))
     );
+}
+
+// ── PERSONAL QUERY DETECTION ──────────────────────────────────────────────────
+// Returns true if the query is about Dana's personality, interests, or personal life.
+// Routes to hidden pages (Outside of Work, Dana's Expertise) rather than project search.
+function isPersonalQuery(query) {
+    return /outside of work|personal|hobbies|interests|guitar|music|paddle|swim|
+ocean|personality|what.*like|who is dana|what kind of person|managing style|
+values|coaching style|work with|working style|outside work|free time|
+what does dana do|dana like to|dana enjoy/i.test(query.trim());
 }
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -343,18 +354,16 @@ app.post('/ask-buddy', async (req, res) => {
         const activeIndustries = translateParam(rawIndustry, INDUSTRY_MAP);
         const activeCategories = translateParam(rawCategory, CATEGORY_MAP);
 
-        // ── Check if query is about a hidden page ─────────────────────────────
-        const hiddenPageQuery = isHiddenPageQuery(userPrompt);
+        // ── Route to hidden pages if query matches hidden page or personal topic ──
+        const hiddenPageQuery = isHiddenPageQuery(userPrompt) || isPersonalQuery(userPrompt);
         const listQuery = isListQuery(userPrompt);
 
         let contextResult;
 
-        if (hiddenPageQuery) {
-            // ── Route directly to hidden page search ──────────────────────────
-            console.log(`🔒 Hidden page query detected`);
+        if (hiddenPageQuery && !listQuery) {
+            console.log(`🔒 Hidden/personal query detected — routing to hidden pages`);
             contextResult = await findContextForHiddenPage(userPrompt);
         } else {
-            // ── Normal search flow ────────────────────────────────────────────
             let filteredStore = preFilterStore(memoryStore, {
                 roles:      activeRoles,
                 industries: activeIndustries,
