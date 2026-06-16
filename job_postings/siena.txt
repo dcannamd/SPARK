@@ -1,0 +1,112 @@
+# Head of Education & Enablement — Siena
+
+## About Siena
+
+Siena is the **Agent of Record** for consumer brands — one agent that owns the entire customer journey, running on a shared intelligence layer no point tool can replicate.
+
+Consumer brands run ten or more disconnected tools to manage their customers. Siena collapses that stack into a single agent. It started with support (the hardest surface a brand has) and expands from there: Shopping Agent, Social Agent, Siena working alongside a brand's own operators. One agent across every surface, with shared memory, shared context, and shared tools.
+
+Hundreds of brands already run real customer volume on Siena in production. This is built, working, and growing — and we are racing to build what comes next.
+
+---
+
+## The Team
+
+We are a small, fully distributed, global team. We hire **athletes**. Everyone here:
+
+- Owns real outcomes
+- Defaults to writing over meetings
+- Communicates with directness
+- Acts the moment they see something worth acting on
+
+Low ego. High standards. Fast clock.
+
+---
+
+## The Role
+
+Siena is the CX operating system for brands. We ship faster than anyone in the category — and that pace has outrun our ability to teach what we're building.
+
+This role exists to change that. You will teach Siena to three audiences:
+
+1. **The people who build it** — internal team
+2. **The brands who use it** — customers
+3. **The market that will eventually adopt it** — the broader world
+
+You will build the curriculum, the community, and the credentials that make Siena something people *learn*, not something they *discover*.
+
+> You are a product person who teaches. A builder who writes. A communicator who ships.
+
+---
+
+## What You'll Do
+
+- **Product education** — Every release lands with a session, a doc, and a demo the company actually walks away knowing.
+- **Customer workshops** — Recurring product sessions, one use case at a time. Real depth, real outcomes.
+- **Customer onboarding** — From signed contract to first value, repeatable across every segment.
+- **New hire onboarding** — Ramp every new hire through your program so they're productive faster.
+- **Demo library** — Live, recorded, vertical-specific, persona-specific. Sales pulls from it. Customers learn from it.
+- **Siena Academy** — Curriculum, certifications, learning paths. Internal and external. The credential brands earn to show they know Siena.
+- **Siena community** — Recurring spaces, events, and rituals where customers, partners, and operators learn from us and each other.
+- **Market education** — Open courses, public content, frameworks others adopt. The Academy becomes the category-defining resource on CX AI.
+- **Sales enablement** — Demo scripts, vertical storylines, the words that close deals.
+- **AI systems** — Build the agents that scale all of the above. Your taste is the final filter.
+
+---
+
+## What We're Looking For
+
+| Trait | What It Means |
+|---|---|
+| **Product-fluent** | You understand AI products deeply. You can use Siena, break it, and teach it. |
+| **Exceptional teacher** | You make complex things simple. A 30-minute session someone walks away knowing. |
+| **Storyteller** | You write, present, and translate complex product into clear narrative. |
+| **Community builder** | You've gathered people around something they care about. |
+| **AI-native** | You build agents and systems. You've replaced workflows with AI. |
+| **Builder** | You've shipped something from zero — a curriculum, program, academy, or community. |
+| **Brand-excited** | You care about the brands we serve: Spanx, Allbirds, FIGS, HexClad, Brooklinen, and more. |
+
+### Hard Filters
+
+- ✅ Product-fluent — can demo, break, and teach Siena at depth
+- ✅ Exceptional teacher and storyteller
+- ✅ AI-native — builds with AI, not just uses it
+- ✅ Builder — has shipped something from zero
+
+---
+
+## Why Siena?
+
+- **Real ownership** — Own problems, not tasks. Autonomy to solve them your way.
+- **Work that ships** — What you build reaches real consumer brands fast.
+- **A category we're creating** — The Agent of Record is new ground with unsolved problems.
+- **A team that respects your judgment** — Globally distributed, async-first, low bureaucracy.
+- **Great salary + equity** — Own a piece of what you build.
+- **Learning budget** — If you're growing, so are we.
+- **AI-fluency by default** — Few places push production AI further or faster.
+
+---
+
+## Our Values
+
+The people who thrive here are:
+
+- Curious and customer-obsessed
+- Taking ownership without being asked
+- Direct with feedback — giving and receiving
+- High-standard while moving at startup speed
+- Relationship builders — because that's how great work gets done
+
+---
+
+## Our Approach to AI
+
+Everyone gets premium accounts (ChatGPT, Claude, Perplexity Pro, Cursor, Lovable) plus a quarterly budget for new tools. The magic happens in how we share knowledge — demo days, Slack threads, learning from each other's AI workflows.
+
+---
+
+## Equal Opportunity
+
+Siena provides equal employment opportunities without regard to race, color, religion, sex, national origin, age, disability, genetics, sexual orientation, gender identity, or gender expression. We welcome people from all backgrounds, experiences, perspectives, and abilities.
+
+*We use AI-assisted screening tools as part of our hiring process. All decisions are made by humans. You can request a human-only review at **talent@siena.cx**.*
