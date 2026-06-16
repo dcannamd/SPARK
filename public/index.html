@@ -276,7 +276,7 @@
                }
 
                if (userInput.value === '') {
-                   userInput.value = 'See project list or ask a question';
+                   userInput.value = 'Ask a question';
                }
 
                chatHistory.scrollTop = chatHistory.scrollHeight;
@@ -327,7 +327,7 @@
        });
 
        userInput.addEventListener('focus', () => {
-           if (userInput.value === 'See project list or ask a question') {
+           if (userInput.value === 'Ask a question') {
                userInput.value = '';
            }
        });
