@@ -1,0 +1,68 @@
+About the job
+At BioRender, we’re on a mission to accelerate the world’s ability to learn, discover, and communicate science — transforming how knowledge is shared and making science open, collaborative, and easily understandable by all.
+
+We’re shaping the future of science communication and are looking for talented individuals to help bring this vision to life! 🚀
+
+About BioRender
+
+BioRender is on a mission to accelerate the world’s ability to learn, discover, and communicate science. We build software for scientists — from academics to biotech enterprises — to create professional-grade scientific figures, presentations, and data visualizations. Trusted by over 2 million scientists across 200+ countries, BioRender is where the world’s best science gets communicated.
+
+The Opportunity
+
+BioRender is expanding with our new Graphing product and we need someone to own the launch experience end-to-end. As our first Implementation Specialist, you’ll be the dedicated expert ensuring every organization that adopts Graphing gets up and running quickly, confidently, and successfully.
+
+This is a high-impact, customer-facing role sitting within BioRender’s Customer Education team. You’ll design and deliver the onboarding programs, migration support, and training resources that make Graphing adoption frictionless while also scaling those programs across our full-serve customer base.
+
+This role is critical because: Successful implementation is critical to long-term adoption and success. You directly support positive renewal outcomes by setting customers up for success through successful activation and change management support.
+
+What You’ll Do
+
+Lead Graphing & New Product Launches
+
+Own tiered post-sales launch support for new graphing accounts - including dedicated onboarding sessions, product guidance, and admin support
+Serve as the primary implementation point of contact for Graphing customers, from contract close through first meaningful activation
+
+Migration & Technical Onboarding
+
+Lead migration support for customers transitioning from other graphing tools, ensuring a smooth and confidence-inspiring switch
+Set up and customize templates for new Graphing customers
+
+Build & Scale Onboarding Resources
+
+Develop customized onboarding resources by user type, skill level, and product area (e.g., quick-start guides, training decks, video walkthroughs)
+Create plug-and-play templates and setup assets that reduce time-to-value for every new Graphing user
+Scale effective onboarding across all accounts
+
+Optimize Internal Collaboration
+
+Build standardized resources for CSMs to support effective onboarding like plug and play training decks and email templates
+Partner with CSMs to support effective Graphing launch onsites, where applicable
+
+Required
+
+What We’re Looking For
+
+3+ years in a customer-facing implementation, onboarding, solutions engineering, or technical CSM role at a SaaS company
+Experience with data analysis tools (Prism, R/ggplot, Python/matplotlib, SPSS, etc.) or a background in life sciences, biology, or a scientific discipline
+Proven track record of owning complex product launches or onboarding programs from design through delivery
+Strong ability to translate technical product features into clear, accessible training and documentation
+Excellent written and verbal communication — you can explain a complex concept clearly to a PhD researcher and a department admin
+Highly organized, self-directed, and comfortable operating in ambiguous, fast-moving environments
+Demonstrated empathy for the customer experience and a bias toward proactive, anticipatory support
+
+Bonus Points
+
+We love our users! Have experience using BioRender’s app
+Familiarity with Customer.io, Gainsight, Intercom, or similar CS/lifecycle platforms
+Experience building train-the-trainer programs or champion enablement models
+Comfort working cross-functionally with CSM’s, Product, Marketing, and Sales
+
+Why Join us?
+
+Mission-driven work: every customer you activate is a scientist who can now communicate their research more effectively
+High-ownership, high-impact role — you’re building something new, not inheriting a playbook
+Collaborative culture with strong CS leadership and cross-functional support
+Competitive compensation, benefits, and remote-first flexibility
+A product customers genuinely love — and a company on an extraordinary growth trajectory
+
+BioRender is an Equal Opportunity Employer. We celebrate diversity and are committed to creating an inclusive environment for all employees. All qualified applicants will receive consideration for employment without regard to race, color, religion, sex, sexual orientation, gender identity, national origin, disability, or veteran status. By submitting this application, you consent to the processing of your personal data by BioRender in accordance with GDPR and our Privacy Policy.
