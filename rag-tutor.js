@@ -127,6 +127,9 @@ ${i + 1}. ${p.title}
    Impact: ${p.impact}
    Role: ${p.role}
    Tech/Tools: ${p.tech}
+   Team Management: ${p.teamManagement || "N/A"}
+   Cross-Functional Alignment: ${p.crossFunctional || "N/A"}
+   Organizational Leadership: ${p.orgLeadership || "N/A"}
 `).join('')}
 `
         : `
@@ -168,7 +171,7 @@ STRUCTURE — follow exactly:
 - One blank line
 - Paragraph 2: Why ${companyName} — 2-3 sentences using language from the job posting. Show genuine understanding of what they need.
 - One blank line
-- Paragraph 3: What Dana brings — 3-4 sentences. Reference 2-3 specific projects by name with their quantified results. Connect them directly to the role requirements.
+- Paragraph 3: What Dana brings — 3-4 sentences. Reference 2-3 specific projects by name with their quantified results. Where available, use the TEAM MANAGEMENT, CROSS-FUNCTIONAL ALIGNMENT, and ORGANIZATIONAL LEADERSHIP fields to demonstrate leadership depth — name specific departments (Sales, Marketing, Product, Engineering) and team management practices. Connect everything directly to the role requirements.
 - One blank line
 - Paragraph 4: SPARK mention — weave naturally into the narrative. Example: "You can explore [relevant project name] and the rest of my portfolio in depth at danas-spark.onrender.com — an AI-powered experience I built to let hiring managers engage with my work conversationally rather than through a static page."
 - One blank line
