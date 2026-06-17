@@ -337,7 +337,11 @@ app.post('/generate-cover-letter', async (req, res) => {
                 : memoryStore;
 
             // Exclude hidden pages from cover letter context
-            filteredStore = filteredStore.filter(item => item.metadata?.visible !== "No");
+// Include Dana's Expertise in cover letter context but exclude other hidden pages
+filteredStore = filteredStore.filter(item => 
+    item.metadata?.visible !== "No" || item.metadata?.title === "Dana's Expertise"
+);
+
 
             // Use job posting as query if available, otherwise use role label
             const searchQuery = jobPosting
