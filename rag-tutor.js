@@ -98,13 +98,14 @@ PROJECT TRACKING — CRITICAL:
 Never skip this. Never modify the format.
 
 DANA'S EXPERTISE PAGE — VERBATIM STRUCTURE:
-15. When the retrieved context is from the "Dana's Expertise" page, begin your response 
-IMMEDIATELY with the ## Summary header — do not write any introductory sentence or 
-preamble before it. Do NOT summarize, reorganize, or invent new category headers. 
-Use the EXACT section headers and bullet points from the retrieved context, converting 
-first-person "I" to "Dana" or "He" only where needed. Preserve the original structure: 
-Summary, Core Expertise, What Dana Brings to a New Team, What Dana Is Looking For, and 
-Why Dana. Do not condense multiple sections into fewer categories. Do not omit specific 
+15. When the retrieved context is from the "Dana's Expertise" page, begin your response
+IMMEDIATELY with the ## Summary header — do not write any introductory sentence or
+preamble before it. Do NOT summarize, reorganize, or invent new category headers.
+Use the EXACT section headers and bullet points from the retrieved context, converting
+first-person "I" to "Dana" or "He" only where needed. Preserve the original structure:
+Summary, Core Expertise, Organizational Leadership & Cross-Functional Alignment,
+What Dana Brings to a New Team, What Dana Is Looking For, and Why Dana.
+Do not condense multiple sections into fewer categories. Do not omit specific
 client names, tools, or frameworks listed in bullets — reproduce them as given.
     `.trim();
 }
@@ -118,7 +119,6 @@ function buildCoverLetterPrompt(jobPosting = null, companySlug = null, relevantP
         ? `JOB POSTING:\n${jobPosting}`
         : "No job posting provided. Write a general cover letter based on Dana's experience.";
 
-    // ── Format top projects for injection into the prompt ─────────────────────
     const projectBlock = relevantProjects.length > 0
         ? `
 MOST RELEVANT PROJECTS FOR THIS ROLE (use these specifically in the letter):
@@ -139,14 +139,16 @@ DANA'S BACKGROUND (use these results):
 - Founded and sold Qmod (EdTech hardware company) to E.ON Agile after three years of growth
 - Led enterprise learning for clients including Mercedes, BMW, Microsoft, Ford, Airbus, and COMAC
 - Built SPARK — an AI-powered RAG portfolio experience using Node.js, Google Gemini, and Notion
+- Managed a Vancouver-based Creative Technology team through daily standups and weekly project reviews
+- Collaborated cross-functionally with Sales, Marketing, Product, and Engineering at ProtoPie
 `;
 
     return `
 You are generating a professional cover letter for Dana Cannam.
 
 ABOUT DANA:
-Dana Cannam is a Learning Architect, Creative Technologist, and Human-Centered Designer 
-with over 15 years of experience. He is based in Courtenay, BC and is available remotely.
+Dana Cannam is a Learning Ecosystem Strategist and Creative Technologist with over 15
+years of experience. He is based in Courtenay, BC and is available remotely.
 
 ${projectBlock}
 
@@ -154,26 +156,28 @@ ${jobBlock}
 
 COVER LETTER RULES:
 1. Write in FIRST PERSON as Dana — "I", "me", "my"
-2. ATS-FRIENDLY: plain professional language, no special characters, no tables, no bullet points
+2. ATS-FRIENDLY: plain professional language, no special characters, no tables
 3. Target under 400 words total
 4. Traditional business letter format
 5. Use specific project names and results from the MOST RELEVANT PROJECTS above — name them directly
 6. Mirror language from the job posting where relevant — this improves ATS scoring
 7. Do not fabricate experience or results not mentioned above
 8. Today's date is ${new Date().toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' })}
+9. NEVER use the phrase "learning architecture" — use "learning ecosystem strategy" or "learning solutions design" instead
+10. Bullet points ARE allowed in paragraph 3 only — use them to list project wins for scannability
 
 STRUCTURE — follow exactly:
 - City and date (Courtenay, BC — [date])
 - One blank line
 - "Dear Hiring Manager,"
 - One blank line
-- Paragraph 1: Opening hook — 2 sentences connecting Dana's background to this specific role. Lead with a result or a bold statement, not "I am writing to apply."
+- Paragraph 1: Opening hook — 2 punchy sentences. Lead with tenure and a bold result. Use "learning ecosystem strategy" not "learning architecture." Include a concrete reference to managing a Vancouver-based Creative Technology team while delivering enterprise learning programs to global clients across North America, EMEA, and Asia to immediately establish global leadership credibility. Never start with "I am writing to apply."
 - One blank line
 - Paragraph 2: Why ${companyName} — 2-3 sentences using language from the job posting. Show genuine understanding of what they need.
 - One blank line
-- Paragraph 3: What Dana brings — 3-4 sentences. Reference 2-3 specific projects by name with their quantified results. Where available, use the TEAM MANAGEMENT, CROSS-FUNCTIONAL ALIGNMENT, and ORGANIZATIONAL LEADERSHIP fields to demonstrate leadership depth — name specific departments (Sales, Marketing, Product, Engineering) and team management practices. Connect everything directly to the role requirements.
+- Paragraph 3: What Dana brings — Start with 1 transitional sentence, then format 2-3 project wins as bullet points. Each bullet must: name the project in bold, include a specific quantified result, and reference cross-functional collaboration or team leadership where available from the TEAM MANAGEMENT, CROSS-FUNCTIONAL ALIGNMENT, and ORGANIZATIONAL LEADERSHIP fields. End with one sentence anchoring global team leadership concretely.
 - One blank line
-- Paragraph 4: SPARK mention — weave naturally into the narrative. Example: "You can explore [relevant project name] and the rest of my portfolio in depth at danas-spark.onrender.com — an AI-powered experience I built to let hiring managers engage with my work conversationally rather than through a static page."
+- Paragraph 4: SPARK mention — weave naturally. Example: "You can explore [relevant project name] and the rest of my portfolio in depth at danas-digital-twin.onrender.com — an AI-powered experience I built to let hiring managers engage with my work conversationally rather than through a static page."
 - One blank line
 - Closing: "I welcome the opportunity to discuss how my experience can contribute to ${companyName}."
 - One blank line
@@ -181,7 +185,7 @@ STRUCTURE — follow exactly:
 - "Dana Cannam"
 - "danacannamdesign@gmail.com"
 - "+1 (250) 465 9578"
-- "danas-spark.onrender.com"
+- "danas-digital-twin.onrender.com"
 
 Write the cover letter now. No preamble, no explanation — just the letter.
     `.trim();
