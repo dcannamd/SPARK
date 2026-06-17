@@ -299,7 +299,10 @@ function isHiddenPageQuery(query) {
 // Returns true if the query is about Dana's personality, interests, or personal life.
 // Routes to hidden pages (Outside of Work, Dana's Expertise) rather than project search.
 function isPersonalQuery(query) {
-return /outside of work|personal|hobbies|interests|guitar|music|paddle|swim|ocean|personality|what.*like|who is dana|what kind of person|managing style|values|coaching style|work with|working style|outside work|free time|what does dana do|dana like to|dana enjoy|skills|strengths|abilities|what can dana|what does dana bring|what dana offers/i.test(query.trim());
+    return /outside of work|personal|hobbies|interests|guitar|music|paddle|swim|
+ocean|personality|what.*like|who is dana|what kind of person|managing style|
+values|coaching style|work with|working style|outside work|free time|
+what does dana do|dana like to|dana enjoy/i.test(query.trim());
 }
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -320,14 +323,67 @@ app.get('/resume', (req, res) => {
 app.post('/generate-cover-letter', async (req, res) => {
     try {
         const rawCompany = req.body.company || null;
+        const rawRole    = req.body.role    || null;
         const jobPosting = loadJobPosting(rawCompany);
-        console.log(`📝 Cover letter requested for: ${rawCompany || "general"}`);
-        const coverLetter = await generateCoverLetter(jobPosting, rawCompany);
+
+        console.log(`📝 Cover letter requested for: ${rawCompany || "general"} | role: ${rawRole || "none"}`);
+
+        // ── RAG: find most relevant projects for this role + job posting ──────
+        let relevantProjects = [];
+        try {
+            const activeRoles = translateParam(rawRole, ROLE_MAP);
+
+            // Pre-filter store by role if provided
+            let filteredStore = activeRoles.length > 0
+                ? preFilterStore(memoryStore, { roles: activeRoles })
+                : memoryStore;
+
+            // Exclude hidden pages from cover letter context
+            filteredStore = filteredStore.filter(item => item.metadata?.visible !== "No");
+
+            // Use job posting as query if available, otherwise use role label
+            const searchQuery = jobPosting
+                ? jobPosting.substring(0, 500)
+                : (rawRole || "learning architecture design leadership");
+
+            const queryVector = await embeddings.embedQuery(searchQuery);
+
+            const scored = filteredStore.map(item => ({
+                ...item,
+                score: dotProduct(queryVector, item.embedding)
+            }));
+
+            // Get top chunk per project, max 5 projects
+            const byProject = {};
+            scored.sort((a, b) => b.score - a.score).forEach(item => {
+                const title = item.metadata?.title;
+                if (title && !byProject[title]) byProject[title] = item;
+            });
+
+            relevantProjects = Object.values(byProject)
+                .slice(0, 5)
+                .map(item => ({
+                    title:  item.metadata.title,
+                    impact: item.metadata.impact || "Not specified",
+                    role:   (item.metadata.Role || []).join(", ") || "Not specified",
+                    tech:   item.metadata.tech   || "Not specified"
+                }));
+
+            console.log(`📌 Cover letter projects: ${relevantProjects.map(p => p.title).join(", ")}`);
+
+        } catch (ragError) {
+            console.warn("⚠️ RAG retrieval failed for cover letter, using fallback:", ragError.message);
+        }
+
+        const coverLetter = await generateCoverLetter(jobPosting, rawCompany, relevantProjects);
+
         if (!coverLetter) {
             return res.status(500).json({ error: "Failed to generate cover letter." });
         }
+
         console.log("✅ Cover letter generated.");
         res.json({ coverLetter });
+
     } catch (error) {
         console.error("❌ COVER LETTER ERROR:", error);
         res.status(500).json({ error: "Failed to generate cover letter." });
