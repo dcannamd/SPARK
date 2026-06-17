@@ -299,11 +299,9 @@ function isHiddenPageQuery(query) {
 // Returns true if the query is about Dana's personality, interests, or personal life.
 // Routes to hidden pages (Outside of Work, Dana's Expertise) rather than project search.
 function isPersonalQuery(query) {
-    return /outside of work|personal|hobbies|interests|guitar|music|paddle|swim|
-ocean|personality|what.*like|who is dana|what kind of person|managing style|
-values|coaching style|work with|working style|outside work|free time|
-what does dana do|dana like to|dana enjoy/i.test(query.trim());
+    return /outside of work|personal|hobbies|interests|guitar|music|paddle|swim|ocean|personality|what.*like|who is dana|what kind of person|managing style|values|coaching style|work with|working style|outside work|free time|what does dana do|dana like to|dana enjoy|skills|strengths|abilities|what can dana|what does dana bring|what dana offers/i.test(query.trim());
 }
+
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
