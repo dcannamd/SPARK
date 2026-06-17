@@ -40,7 +40,7 @@
            <span class="footer-divider">|</span>
            <a href="#" class="footer-link" onclick="shareConversation(); return false;">Share SPARK</a>
            <span class="footer-divider">|</span>
-           <a href="#" class="footer-link" onclick="startNewChat(); return false;">+ New Chat</a>
+           <a href="#" class="footer-link" onclick="startNewChat(); return false;">+ Start Fresh</a>
        </div>
    </div>
 
@@ -76,7 +76,7 @@
                const response = await fetch('/generate-cover-letter', {
                    method: 'POST',
                    headers: { 'Content-Type': 'application/json' },
-                   body: JSON.stringify({ company: activeFilters.company })
+                   body: JSON.stringify({ company: activeFilters.company, role: activeFilters.role })
                });
                const data = await response.json();
                removeMessage(loadingId);
@@ -244,24 +244,9 @@
                if (msgEl) msgEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
                if (lastSuggestionChip) {
-    renderFollowUpChips(lastSuggestionChip);
-    lastSuggestionChip = null;
-} else if (data.topProjectTitle && data.topProjectTitle !== 'NONE') {
-    // Show project list chip after any single project response
-    const chipRow = document.createElement('div');
-    chipRow.className = 'suggestion-chips follow-up-chips';
-    const chip = document.createElement('a');
-    chip.className = 'chip';
-    chip.textContent = 'View project list';
-    chip.onclick = () => {
-        userInput.value = 'View project list';
-        sendMessage();
-    };
-    chipRow.appendChild(chip);
-    chatHistory.appendChild(chipRow);
-    chatHistory.scrollTop = chatHistory.scrollHeight;
-}
-
+                   renderFollowUpChips(lastSuggestionChip);
+                   lastSuggestionChip = null;
+               }
 
                if (data.topProjectTitle) {
                    activeProjectTitle = data.topProjectTitle;
@@ -276,7 +261,7 @@
                }
 
                if (userInput.value === '') {
-                   userInput.value = 'Ask a question';
+                   userInput.value = 'Tell me more';
                }
 
                chatHistory.scrollTop = chatHistory.scrollHeight;
@@ -327,7 +312,7 @@
        });
 
        userInput.addEventListener('focus', () => {
-           if (userInput.value === 'Ask a question') {
+           if (userInput.value === 'Tell me more') {
                userInput.value = '';
            }
        });
