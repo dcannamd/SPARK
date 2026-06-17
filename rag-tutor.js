@@ -177,7 +177,8 @@ STRUCTURE — follow exactly:
 - One blank line
 - Paragraph 3: What Dana brings — Start with 1 transitional sentence, then format 2-3 project wins as bullet points. Each bullet must: name the project in bold, include a specific quantified result, and reference cross-functional collaboration or team leadership where available from the TEAM MANAGEMENT, CROSS-FUNCTIONAL ALIGNMENT, and ORGANIZATIONAL LEADERSHIP fields. End with one sentence anchoring global team leadership concretely.
 - One blank line
-- Paragraph 4: SPARK mention — weave naturally. Example: "You can explore [relevant project name] and the rest of my portfolio in depth at danas-digital-twin.onrender.com — an AI-powered experience I built to let hiring managers engage with my work conversationally rather than through a static page."
+- Paragraph 4: SPARK mention — weave naturally. Example: "You can explore [relevant project name] and the rest of my portfolio in depth at [danas-digital-twin.onrender.com](https://danas-digital-twin.onrender.com) — an AI-powered experience
+ I built to let hiring managers engage with my work conversationally rather than through a static page."
 - One blank line
 - Closing: "I welcome the opportunity to discuss how my experience can contribute to ${companyName}."
 - One blank line
@@ -185,7 +186,8 @@ STRUCTURE — follow exactly:
 - "Dana Cannam"
 - "danacannamdesign@gmail.com"
 - "+1 (250) 465 9578"
-- "danas-digital-twin.onrender.com"
+- "[danas-digital-twin.onrender.com](https://danas-digital-twin.onrender.com)"
+
 
 Write the cover letter now. No preamble, no explanation — just the letter.
     `.trim();
