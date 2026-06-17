@@ -81,15 +81,14 @@
                const data = await response.json();
                removeMessage(loadingId);
                if (data.coverLetter) {
-                   const div = document.createElement('div');
-                   div.className = 'message bot-message cover-letter';
-                   div.id = 'msg-' + Date.now();
-                   const pre = document.createElement('pre');
-                   pre.textContent = data.coverLetter;
-                   div.appendChild(pre);
-                   chatHistory.appendChild(div);
-                   div.scrollIntoView({ behavior: 'smooth', block: 'start' });
-               }
+    const div = document.createElement('div');
+    div.className = 'message bot-message cover-letter';
+    div.id = 'msg-' + Date.now();
+    div.innerHTML = marked.parse(data.coverLetter);
+    chatHistory.appendChild(div);
+    div.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
            } catch (error) {
                removeMessage(loadingId);
                addMessage("Error generating cover letter. Please try again.", 'bot-message error');
