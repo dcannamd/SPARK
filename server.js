@@ -229,12 +229,16 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
 
         if (topProjectTitle) console.log(`📌 Top vector result: "${topProjectTitle}"`);
 
+        // ── Inject all metadata including leadership fields ───────────────────
         const context = topResults.map(res => `
             PROJECT: ${res.metadata.title}
             ROLE: ${(res.metadata.Role || []).join(", ") || "Not specified"}
             BUSINESS IMPACT: ${res.metadata.impact || "Not specified"}
             CLIENT: ${res.metadata.client || "Not specified"}
             DATE: ${res.metadata.projectDate || "Not specified"}
+            ${res.metadata.teamManagement  ? `TEAM MANAGEMENT: ${res.metadata.teamManagement}` : ""}
+            ${res.metadata.crossFunctional ? `CROSS-FUNCTIONAL ALIGNMENT: ${res.metadata.crossFunctional}` : ""}
+            ${res.metadata.orgLeadership   ? `ORGANIZATIONAL LEADERSHIP: ${res.metadata.orgLeadership}` : ""}
             DETAILS: ${res.content || res.pageContent}
         `).join('\n\n---\n\n');
 
@@ -247,8 +251,6 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
 }
 
 // ── HIDDEN PAGE SEARCH ────────────────────────────────────────────────────────
-// Searches only Visible=No pages. Used for Dana's Expertise, Outside of Work,
-// and any future hidden pages.
 async function findContextForHiddenPage(query, topK = 15) {
     console.log("🔒 Searching hidden pages...");
     try {
@@ -280,7 +282,6 @@ async function findContextForHiddenPage(query, topK = 15) {
 }
 
 // ── HIDDEN PAGE DETECTION ─────────────────────────────────────────────────────
-// Returns true if the query directly references a hidden page title.
 function isHiddenPageQuery(query) {
     const normalize = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
     const normalizedQuery = normalize(query);
@@ -296,12 +297,9 @@ function isHiddenPageQuery(query) {
 }
 
 // ── PERSONAL QUERY DETECTION ──────────────────────────────────────────────────
-// Returns true if the query is about Dana's personality, interests, or personal life.
-// Routes to hidden pages (Outside of Work, Dana's Expertise) rather than project search.
 function isPersonalQuery(query) {
     return /outside of work|personal|hobbies|interests|guitar|music|paddle|swim|ocean|personality|what.*like|who is dana|what kind of person|managing style|values|coaching style|work with|working style|outside work|free time|what does dana do|dana like to|dana enjoy|skills|strengths|abilities|what can dana|what does dana bring|what dana offers/i.test(query.trim());
 }
-
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
@@ -318,6 +316,7 @@ app.get('/resume', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'dana-cannam-resume.html'));
 });
 
+// ── COVER LETTER ENDPOINT ─────────────────────────────────────────────────────
 app.post('/generate-cover-letter', async (req, res) => {
     try {
         const rawCompany = req.body.company || null;
@@ -326,24 +325,17 @@ app.post('/generate-cover-letter', async (req, res) => {
 
         console.log(`📝 Cover letter requested for: ${rawCompany || "general"} | role: ${rawRole || "none"}`);
 
-        // ── RAG: find most relevant projects for this role + job posting ──────
         let relevantProjects = [];
         try {
             const activeRoles = translateParam(rawRole, ROLE_MAP);
 
-            // Pre-filter store by role if provided
             let filteredStore = activeRoles.length > 0
                 ? preFilterStore(memoryStore, { roles: activeRoles })
                 : memoryStore;
 
-            // Exclude hidden pages from cover letter context
-// Include Dana's Expertise in cover letter context but exclude other hidden pages
-filteredStore = filteredStore.filter(item => 
-    item.metadata?.visible !== "No" || item.metadata?.title === "Dana's Expertise"
-);
+            // Exclude hidden pages
+            filteredStore = filteredStore.filter(item => item.metadata?.visible !== "No");
 
-
-            // Use job posting as query if available, otherwise use role label
             const searchQuery = jobPosting
                 ? jobPosting.substring(0, 500)
                 : (rawRole || "learning architecture design leadership");
@@ -355,7 +347,6 @@ filteredStore = filteredStore.filter(item =>
                 score: dotProduct(queryVector, item.embedding)
             }));
 
-            // Get top chunk per project, max 5 projects
             const byProject = {};
             scored.sort((a, b) => b.score - a.score).forEach(item => {
                 const title = item.metadata?.title;
@@ -365,10 +356,13 @@ filteredStore = filteredStore.filter(item =>
             relevantProjects = Object.values(byProject)
                 .slice(0, 5)
                 .map(item => ({
-                    title:  item.metadata.title,
-                    impact: item.metadata.impact || "Not specified",
-                    role:   (item.metadata.Role || []).join(", ") || "Not specified",
-                    tech:   item.metadata.tech   || "Not specified"
+                    title:           item.metadata.title,
+                    impact:          item.metadata.impact          || "Not specified",
+                    role:            (item.metadata.Role || []).join(", ") || "Not specified",
+                    tech:            item.metadata.tech            || "Not specified",
+                    teamManagement:  item.metadata.teamManagement  || null,
+                    crossFunctional: item.metadata.crossFunctional || null,
+                    orgLeadership:   item.metadata.orgLeadership   || null
                 }));
 
             console.log(`📌 Cover letter projects: ${relevantProjects.map(p => p.title).join(", ")}`);
@@ -409,7 +403,6 @@ app.post('/ask-buddy', async (req, res) => {
         const activeIndustries = translateParam(rawIndustry, INDUSTRY_MAP);
         const activeCategories = translateParam(rawCategory, CATEGORY_MAP);
 
-        // ── Route to hidden pages if query matches hidden page or personal topic ──
         const hiddenPageQuery = isHiddenPageQuery(userPrompt) || isPersonalQuery(userPrompt);
         const listQuery = isListQuery(userPrompt);
 
