@@ -68,11 +68,12 @@ async function runBuild() {
             const mediaUrl    = props["Media URL"]?.url || null;
             const projectDate = props["Date"]?.date?.start || null;
             const client      = props["Client"]?.rich_text?.map(t => t.plain_text).join("") || null;
+            const visible     = props["Visible"]?.select?.name || "Yes";
 
-            // ── VISIBLE: Controls whether project appears in general search ───
-            // "Yes" = shows in project list and general queries (default)
-            // "No"  = hidden from list, only surfaced when directly asked
-            const visible = props["Visible"]?.select?.name || "Yes";
+            // ── NEW: Leadership-specific columns ──────────────────────────────
+            const teamManagement      = props["Team Management"]?.rich_text?.map(t => t.plain_text).join("") || null;
+            const crossFunctional     = props["Cross-Functional Alignment"]?.rich_text?.map(t => t.plain_text).join("") || null;
+            const orgLeadership       = props["Organizational Leadership"]?.rich_text?.map(t => t.plain_text).join("") || null;
 
             roleArr.forEach(r => tagInventory.roles.add(r));
             catArr.forEach(c => tagInventory.categories.add(c));
@@ -83,6 +84,9 @@ async function runBuild() {
             console.log(`   Date: ${projectDate || "none"} | Client: ${client || "none"} | Visible: ${visible}`);
             console.log(`   Tech: ${tech} | Tools: ${tools}`);
             console.log(`   Impact: ${impact !== "N/A" ? impact.substring(0, 80) + "..." : "none"}`);
+            if (teamManagement)  console.log(`   Team Mgmt: ${teamManagement.substring(0, 60)}...`);
+            if (crossFunctional) console.log(`   Cross-Func: ${crossFunctional.substring(0, 60)}...`);
+            if (orgLeadership)   console.log(`   Org Leadership: ${orgLeadership.substring(0, 60)}...`);
 
             const deepContent = await getFullPageContent(page.id);
 
@@ -94,6 +98,9 @@ CATEGORY: ${catArr.join(", ") || "N/A"}
 INDUSTRY: ${industryArr.join(", ") || "N/A"}
 PROJECT DATE: ${projectDate || "Not specified"}
 BUSINESS IMPACT: ${impact}
+${teamManagement  ? `TEAM MANAGEMENT: ${teamManagement}` : ""}
+${crossFunctional ? `CROSS-FUNCTIONAL ALIGNMENT: ${crossFunctional}` : ""}
+${orgLeadership   ? `ORGANIZATIONAL LEADERSHIP: ${orgLeadership}` : ""}
 OFFICIAL TECH STACK FOR ${title.toUpperCase()}: ${tech}
 OFFICIAL TOOLS FOR ${title.toUpperCase()}: ${tools}
 STATUS: ${status}
@@ -105,6 +112,9 @@ ${deepContent}
 SUMMARY OF CLIENT: ${client || "Not specified"}
 SUMMARY OF ROLE: ${roleArr.join(", ") || "General"}
 SUMMARY OF BUSINESS IMPACT: ${impact}
+${teamManagement  ? `SUMMARY OF TEAM MANAGEMENT: ${teamManagement}` : ""}
+${crossFunctional ? `SUMMARY OF CROSS-FUNCTIONAL ALIGNMENT: ${crossFunctional}` : ""}
+${orgLeadership   ? `SUMMARY OF ORGANIZATIONAL LEADERSHIP: ${orgLeadership}` : ""}
 SUMMARY OF TECH STACK: ${tech}
 SUMMARY OF TOOLS: ${tools}
             `.trim();
@@ -121,17 +131,20 @@ SUMMARY OF TOOLS: ${tools}
                         title,
                         visible,
                         status, 
-                        source:      github,
-                        mediaUrl:    mediaUrl,
-                        projectDate: projectDate,
-                        client:      client,
-                        impact:      impact !== "N/A" ? impact : null,
-                        tech:        tech,
-                        tools:       tools,
-                        Role:        roleArr,
-                        Category:    catArr,
-                        Industry:    industryArr,
-                        isDana:      true 
+                        source:          github,
+                        mediaUrl:        mediaUrl,
+                        projectDate:     projectDate,
+                        client:          client,
+                        impact:          impact !== "N/A" ? impact : null,
+                        tech:            tech,
+                        tools:           tools,
+                        teamManagement:  teamManagement,
+                        crossFunctional: crossFunctional,
+                        orgLeadership:   orgLeadership,
+                        Role:            roleArr,
+                        Category:        catArr,
+                        Industry:        industryArr,
+                        isDana:          true 
                     }
                 });
             }
