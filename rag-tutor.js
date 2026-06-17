@@ -90,6 +90,8 @@ FORMAT every project EXACTLY like this — no exceptions:
 - **Impact:** [paste the BUSINESS IMPACT field content directly from context]
 - **Role:** [paste the ROLE field content directly from context]
 
+Every single project MUST have both an Impact and a Role line. The BUSINESS IMPACT and ROLE fields are always present for list queries — use them.
+
 PROJECT TRACKING — CRITICAL:
 14. At the very end of EVERY response, after all your content, append this exact tag:
 [[PROJECT: <exact project name or NONE if multiple projects>]]
@@ -101,31 +103,14 @@ IMMEDIATELY with the ## Summary header — do not write any introductory sentenc
 preamble before it. Do NOT summarize, reorganize, or invent new category headers. 
 Use the EXACT section headers and bullet points from the retrieved context, converting 
 first-person "I" to "Dana" or "He" only where needed. Preserve the original structure: 
-Summary, Strategic Leadership & Stakeholder Management, Learning Architecture & Design, 
-Creative Technology, What Dana Brings to a New Team, What Dana Is Looking For, and Why 
-Dana. Do not condense multiple sections into fewer categories. Do not omit specific 
+Summary, Core Expertise, What Dana Brings to a New Team, What Dana Is Looking For, and 
+Why Dana. Do not condense multiple sections into fewer categories. Do not omit specific 
 client names, tools, or frameworks listed in bullets — reproduce them as given.
-
-
-## Summary
-## Strategic Leadership & Stakeholder Management
-## Learning Architecture & Design
-## Creative Technology
-## What Dana Brings to a New Team
-## What Dana Is Looking For
-## Why Dana
-
-For each section, use the bullet points or paragraphs from the retrieved context 
-directly — convert "I" to "Dana" or "He" but do not rewrite, summarize, or condense 
-the content. Do not invent new section names like "AI Product Education" or 
-"Strategic Enablement" — only the 7 headers listed above are permitted for this page.
-
-
     `.trim();
 }
 
-function buildCoverLetterPrompt(jobPosting = null, companySlug = null) {
-    const companyName = companySlug 
+function buildCoverLetterPrompt(jobPosting = null, companySlug = null, relevantProjects = []) {
+    const companyName = companySlug
         ? companySlug.charAt(0).toUpperCase() + companySlug.slice(1)
         : "your organization";
 
@@ -133,26 +118,43 @@ function buildCoverLetterPrompt(jobPosting = null, companySlug = null) {
         ? `JOB POSTING:\n${jobPosting}`
         : "No job posting provided. Write a general cover letter based on Dana's experience.";
 
+    // ── Format top projects for injection into the prompt ─────────────────────
+    const projectBlock = relevantProjects.length > 0
+        ? `
+MOST RELEVANT PROJECTS FOR THIS ROLE (use these specifically in the letter):
+${relevantProjects.map((p, i) => `
+${i + 1}. ${p.title}
+   Impact: ${p.impact}
+   Role: ${p.role}
+   Tech/Tools: ${p.tech}
+`).join('')}
+`
+        : `
+DANA'S BACKGROUND (use these results):
+- Reduced privacy and security breaches by 75% at GroupHEALTH through redesigned compliance training
+- Improved Time to Value KPIs by 45% at ProtoPie through internal training strategy
+- Founded and sold Qmod (EdTech hardware company) to E.ON Agile after three years of growth
+- Led enterprise learning for clients including Mercedes, BMW, Microsoft, Ford, Airbus, and COMAC
+- Built SPARK — an AI-powered RAG portfolio experience using Node.js, Google Gemini, and Notion
+`;
+
     return `
 You are generating a professional cover letter for Dana Cannam.
 
 ABOUT DANA:
 Dana Cannam is a Learning Architect, Creative Technologist, and Human-Centered Designer 
-with over 15 years of experience. He has founded and sold a company (Qmod, acquired by 
-E.ON Agile), consulted for governments and militaries, and shipped enterprise learning 
-platforms to clients including Mercedes, BMW, Microsoft, and Ford. He reduced security 
-breaches by 75% at GroupHEALTH, improved Time to Value KPIs by 45% at ProtoPie, and 
-built an AI RAG knowledge assistant that became foundational to ProtoPie's enterprise 
-AI product. He is based in Courtenay, BC and is available remotely.
+with over 15 years of experience. He is based in Courtenay, BC and is available remotely.
+
+${projectBlock}
 
 ${jobBlock}
 
 COVER LETTER RULES:
 1. Write in FIRST PERSON as Dana — "I", "me", "my"
 2. ATS-FRIENDLY: plain professional language, no special characters, no tables, no bullet points
-3. Under 400 words total
+3. Target under 400 words total
 4. Traditional business letter format
-5. Use specific results and numbers from Dana's experience — never be vague
+5. Use specific project names and results from the MOST RELEVANT PROJECTS above — name them directly
 6. Mirror language from the job posting where relevant — this improves ATS scoring
 7. Do not fabricate experience or results not mentioned above
 8. Today's date is ${new Date().toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' })}
@@ -165,10 +167,10 @@ STRUCTURE — follow exactly:
 - Paragraph 1: Opening hook — 2 sentences connecting Dana's background to this specific role. Lead with a result or a bold statement, not "I am writing to apply."
 - One blank line
 - Paragraph 2: Why ${companyName} — 2-3 sentences using language from the job posting. Show genuine understanding of what they need.
-- One blank line  
-- Paragraph 3: What Dana brings — 3-4 sentences. Pull 2-3 specific quantified results most relevant to this role. Connect them directly to the role requirements.
 - One blank line
-- Paragraph 4: SPARK mention — exactly 2 sentences. Mention SPARK as an AI-powered interactive portfolio experience and invite them to explore it at danas-digital-twin.onrender.com
+- Paragraph 3: What Dana brings — 3-4 sentences. Reference 2-3 specific projects by name with their quantified results. Connect them directly to the role requirements.
+- One blank line
+- Paragraph 4: SPARK mention — weave naturally into the narrative. Example: "You can explore [relevant project name] and the rest of my portfolio in depth at danas-spark.onrender.com — an AI-powered experience I built to let hiring managers engage with my work conversationally rather than through a static page."
 - One blank line
 - Closing: "I welcome the opportunity to discuss how my experience can contribute to ${companyName}."
 - One blank line
@@ -176,7 +178,7 @@ STRUCTURE — follow exactly:
 - "Dana Cannam"
 - "danacannamdesign@gmail.com"
 - "+1 (250) 465 9578"
-- "danas-digital-twin.onrender.com"
+- "danas-spark.onrender.com"
 
 Write the cover letter now. No preamble, no explanation — just the letter.
     `.trim();
@@ -227,9 +229,9 @@ ${userQuery}
     }
 }
 
-async function generateCoverLetter(jobPosting = null, companySlug = null) {
+async function generateCoverLetter(jobPosting = null, companySlug = null, relevantProjects = []) {
     try {
-        const prompt = buildCoverLetterPrompt(jobPosting, companySlug);
+        const prompt = buildCoverLetterPrompt(jobPosting, companySlug, relevantProjects);
 
         const model = genAI.getGenerativeModel({ 
             model: "gemini-2.5-flash",
