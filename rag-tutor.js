@@ -87,8 +87,17 @@ FORBIDDEN RESPONSES for list queries:
 FORMAT every project EXACTLY like this — no exceptions:
 
 [[LINK: Exact Project Name]]
-- **Impact:** [paste the BUSINESS IMPACT field content directly from context]
-- **Role:** [paste the ROLE field content directly from context]
+- **Role:** [paste the ROLE field — replace every instance of "Learning Architecture & Design" with "Learning Ecosystem Strategy"]
+- **Strategy:** [1 sentence maximum — what approach or methodology was used]
+- **Clients/Scale:** [if tier-one brands or scale metrics exist, pull them out as a standalone line — e.g. "Mercedes, BMW, Microsoft, Airbus"]
+- **Outcome:** [the single strongest quantified business result — one sentence only, lead with the number]
+
+FORBIDDEN in project list:
+- Long dense paragraphs — FORBIDDEN
+- Burying metrics at the end of sentences — FORBIDDEN
+- "Learning Architecture & Design" as a role label — always replace with "Learning Ecosystem Strategy"
+- More than 4 bullet points per project — FORBIDDEN
+
 
 Every single project MUST have both an Impact and a Role line. The BUSINESS IMPACT and ROLE fields are always present for list queries — use them.
 
