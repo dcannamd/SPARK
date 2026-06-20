@@ -1,0 +1,63 @@
+Customer Education Lead
+Canada and US, Remote
+At CoLab, we help mechanical engineering teams bring life-changing products to market years sooner. Our product, CoLab, is the world’s first Design Engagement System (DES) - a category defining product that Engineering teams use to engage in meaningful, productive design conversations, catch preventable mistakes, and get to market faster. Our customers include the largest engineering organizations in the world such as Ford, Johnson Controls, Komatsu, and Polaris in the industrial equipment, consumer products, automotive, aerospace & defense, and shipbuilding industries.
+
+We’re building a world-class customer education program to help every customer adopt faster, achieve measurable outcomes, and renew with confidence. This is a foundational role of that function. 
+
+The Customer Education Lead will design and deliver scalable learning experiences that extend the reach of our Customer Success team, accelerate time-to-value, and create consistent, high-quality enablement across our customer base. You'll partner closely with Product (who owns in-product experience), Customer Success (who understand customer pain points and workflows), our Implementation Specialist (who delivers hands-on onboarding and sees firsthand where customers struggle), and Marketing (who own brand voice and external content) to build an education infrastructure that supports the entirety of our customer base from first login to advanced use cases.
+
+You'll also be standing up CoLab Academy, designing the certifications, learning paths, and resources that make our customers confident, self-sufficient users from day one.
+
+What You'll Do
+
+Understand your learners
+
+Map CoLab's distinct customer audiences and identify what each group needs to learn, when, and how
+Use product usage data, support ticket trends, and CSM feedback to pinpoint where customers get stuck and where education can have the highest impact
+Partner with Customer Success Managers, Solutions Engineers, and the Implementation Specialist to translate real-world customer friction into learning priorities
+Design & Build Scalable Learning Experiences
+
+Create customer-facing onboarding and enablement materials (videos, guides, templates, self-paced modules)
+Design interactive learning paths for end-users
+Translate complex product workflows into clear, actionable resources
+Build assessments to check comprehension and certification exams to validate mastery of knowledge and skills
+Develop CoLab Academy curriculum (certifications, learning paths, use case guides)
+Stand up the education infrastructure
+
+Evaluate, select, and implement a learning management system (LMS) or content hub that supports self-serve learning, progress tracking, and completion reporting
+Define repeatable content creation, review, and maintenance processes — including version control and a release-aligned update cadence so materials stay current as the product ships new features
+Build feedback loops between learners, CSMs, and Product so content improves continuously
+Identify opportunities to complement formal education with peer learning: how other companies use CoLab for design review, what configurations work for different industries, workflows for various teams
+Lay the groundwork for customer community and knowledge-sharing programs as the education function matures
+Partner with the Implementation Specialist to define what gets delivered 1:1 in live implementations vs. what gets built as self-serve education and evolve that over time as the content library matures
+Accelerate Time-to-Value
+
+Partner with CSMs, Product, and the Implementation Specialist to identify high-friction onboarding points and address them through education
+Measure the impact of content on customer health, user activation, feature adoption, and renewal outcomes and Iterate based on data
+Enable Customer Success & Go-to-Market Teams
+
+Equip CSMs and CSEs with ready-to-use materials to drive consistent messaging and reduce 1:1 training time
+Create internal enablement content on new features and use cases (if we're teaching customers, we should enable our teams too)
+Partner with Product Marketing on key feature launches, ensuring education content is ready at release
+What We're Looking For
+
+Must have:
+
+3+ years in instructional design, customer education, or enablement at a B2B SaaS company
+Experience creating customer-facing content that drives measurable adoption
+Demonstrated success linking education programs to business outcomes (adoption, time-to-value, renewals)
+Strong project management and collaboration skills across Customer Success, Product, and Marketing
+Excellent writing, organization, and presentation skills
+Nice to Have:
+
+Experience with technical B2B products, especially engineering tools (CAD, PLM, DevOps, etc.)
+Hands-on experience with LMS platforms (e.g., Skilljar, Docebo, Thought Industries) or course authoring tools (e.g., Articulate Rise, Camtasia, Adobe Creative Suite)
+Proven ability to design for scale, blending asynchronous and live learning formats
+Background in customer marketing, enablement, or customer community 
+You’ll Thrive at CoLab If You
+
+Are energized by building systems from scratch and bringing clarity to ambiguity
+Are passionate about helping people learn, adopt, and succeed
+See education as a strategic lever for customer and business outcomes
+Love partnering cross-functionally and connecting dots between Product, Success, and Marketing
+Are motivated by measurable impact: you care about activation, usage, and renewal metrics
