@@ -46,6 +46,15 @@
 
    <script>
        const chatHistory = document.getElementById('chat-history');
+      const header = document.querySelector('header');
+chatHistory.addEventListener('scroll', () => {
+    if (chatHistory.scrollTop > 10) {
+        header.classList.add('scrolled');
+    } else {
+        header.classList.remove('scrolled');
+    }
+});
+
        const userInput = document.getElementById('user-input');
 
        const urlParams = new URLSearchParams(window.location.search);
