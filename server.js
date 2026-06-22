@@ -89,8 +89,9 @@ function isTimelineQuery(query) {
 function detectRoleFromQuery(query) {
     if (/leadership|leader|manag|director|executive|strategy/i.test(query))
         return ["Leadership"];
-    if (/\bai\b|rag|technical|technology|creative tech|prototype|prototyping|node|code/i.test(query))
-        return ["Creative Technology & UX"];
+    if (/\bai\b|rag|creative tech|dana.*tech|tech.*project|node\.js|prototyp.*project|show.*prototyp/i.test(query))
+    return ["Creative Technology & UX"];
+
     if (/learning architect|lxd|instructional|curriculum|onboarding|training|education/i.test(query))
         return ["Learning Architecture & Design"];
     return [];
