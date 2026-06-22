@@ -289,12 +289,7 @@ if (!lastSuggestionChip && data.topProjectTitle && data.topProjectTitle !== 'NON
                    activeProjectTitle = data.topProjectTitle;
                }
 
-               if (data.mediaUrl) {
-                   const mediaEl = buildMediaElement(data.mediaUrl);
-                   if (mediaEl) {
-                       chatHistory.appendChild(mediaEl);
-                       chatHistory.scrollTop = chatHistory.scrollHeight;
-                   }
+               
                }
 
                if (userInput.value === '') {
