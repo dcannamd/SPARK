@@ -183,29 +183,57 @@ COVER LETTER RULES:
 3. Target under 400 words total
 4. Traditional business letter format
 5. Use specific project names and results from the MOST RELEVANT PROJECTS above — name them directly
-6. Mirror language from the job posting where relevant — this improves ATS scoring
+6. CRITICAL — MIRROR JOB POSTING LANGUAGE: Carefully read the job posting and extract
+the top 5-7 keywords and phrases the employer uses. Weave these exact terms naturally
+into the letter. For example if the posting says "readiness", "intake triage",
+"cycle time", "knowledge base" — use those exact phrases, not synonyms. This is
+essential for ATS scoring and shows the hiring manager you understand their world.
+Also extract the company's TONE — if the posting is casual and mission-driven (like
+a startup), match that energy. If formal, be formal. Never use generic corporate
+language that doesn't appear in the posting.
 7. Do not fabricate experience or results not mentioned above
 8. Today's date is ${new Date().toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' })}
 9. NEVER use the phrase "learning architecture" — use "learning ecosystem strategy" or "learning solutions design" instead
 10. Bullet points ARE allowed in paragraph 3 only — use them to list project wins for scannability
+11. CRITICAL — SPELL THE COMPANY NAME CORRECTLY. Read it exactly from the job posting
+and use it exactly as written throughout the letter including the closing line.
+Never misspell or abbreviate the company name.
 
 STRUCTURE — follow exactly:
 - City and date (Courtenay, BC — [date])
 - One blank line
 - "Dear Hiring Manager,"
 - One blank line
-- Paragraph 1: Opening hook — 2 punchy sentences. Lead with tenure and a bold result. Use "learning ecosystem strategy" not "learning architecture." Include a concrete reference to managing a Vancouver-based Creative Technology team while delivering enterprise learning programs to global clients across North America, EMEA, and Asia to immediately establish global leadership credibility. Never start with "I am writing to apply."
+- Paragraph 1: Opening hook — 2 punchy sentences. Lead with tenure and a bold result
+  that connects directly to THIS role's core function. Use the job posting's own
+  language to describe what Dana does. Use "learning ecosystem strategy" not "learning
+  architecture." Include a concrete reference to managing a Vancouver-based Creative
+  Technology team while delivering programs to global clients across North America,
+  EMEA, and Asia. Never start with "I am writing to apply."
 - One blank line
-- Paragraph 2: Why ${companyName} — 2-3 sentences using language from the job posting. Show genuine understanding of what they need.
+- Paragraph 2: Why [company name — spelled correctly] — 2-3 sentences using the
+  company's own language from the job posting. Reference their specific mission,
+  team name, or stated goals directly. Show you read the posting carefully.
 - One blank line
-- Paragraph 3: What Dana brings — Start with 1 transitional sentence, then format 2-3 project wins as bullet points. Each bullet must: name the project in bold, include a specific quantified result, and reference cross-functional collaboration or team leadership where available from the TEAM MANAGEMENT, CROSS-FUNCTIONAL ALIGNMENT, and ORGANIZATIONAL LEADERSHIP fields. End with one sentence anchoring global team leadership concretely.
+- Paragraph 3: What Dana brings — Start with 1 transitional sentence using job
+  posting language, then format 2-3 project wins as bullet points. Each bullet must:
+  name the project in bold, include a specific quantified result, and reference
+  cross-functional collaboration or team leadership. Frame each win using the
+  job posting's terminology where possible. End with one sentence anchoring
+  global team leadership concretely.
 - One blank line
-- Paragraph 4: SPARK mention — weave naturally. Example: "You can explore [relevant project name] and the rest of my portfolio in depth at [danas-digital-twin.onrender.com](https://danas-digital-twin.onrender.com) — an AI-powered experience I built to let hiring managers engage with my work conversationally rather than through a static page."
+- Paragraph 4: SPARK mention — weave naturally using job posting language. Example:
+  "You can explore [relevant project] and the rest of my portfolio in depth at
+  [danas-digital-twin.onrender.com](https://danas-digital-twin.onrender.com) —
+  an AI-powered experience I built to let hiring managers engage with my work
+  conversationally rather than through a static page."
 - One blank line
-- Closing: "I welcome the opportunity to discuss how my experience can contribute to ${companyName}."
+- Closing: "I welcome the opportunity to discuss how my experience can contribute to [company name — spelled correctly]."
 - One blank line
 - "Sincerely,"
+- One blank line
 - "Dana Cannam"
+- One blank line
 - "danacannamdesign@gmail.com"
 - "+1 (250) 465 9578"
 - "[danas-digital-twin.onrender.com](https://danas-digital-twin.onrender.com)"
