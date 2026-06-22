@@ -82,6 +82,10 @@ function isListQuery(query) {
     return /list|all projects|all of your projects|your projects|provide a list|view project/i.test(query.trim());
 }
 
+function isTimelineQuery(query) {
+    return /timeline|chronolog|work history|career history|experience.*order|ordered.*experience|earliest|most recent|by date|by year/i.test(query.trim());
+}
+
 function detectRoleFromQuery(query) {
     if (/leadership|leader|manag|director|executive|strategy/i.test(query))
         return ["Leadership"];
@@ -186,7 +190,7 @@ function dotProduct(vecA, vecB) {
     return vecA.reduce((sum, val, i) => sum + val * vecB[i], 0);
 }
 
-async function findRelevantContext(query, filteredStore, topK = 5) {
+async function findRelevantContext(query, filteredStore, topK = 5, sortByDate = false) {
     const store = filteredStore || memoryStore;
     if (store.length === 0) return { context: "", mediaUrl: null, topProjectTitle: null };
 
@@ -218,6 +222,16 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
                 .slice(0, topK);
         }
 
+        // ── Sort by date for timeline queries ─────────────────────────────────
+        if (sortByDate) {
+            topResults.sort((a, b) => {
+                const dateA = a.metadata?.projectDate || "0000-00-00";
+                const dateB = b.metadata?.projectDate || "0000-00-00";
+                return dateA.localeCompare(dateB);
+            });
+            console.log(`📅 Results sorted chronologically`);
+        }
+
         console.log(`📚 Found ${topResults.length} relevant matches.`);
 
         const topProjectTitle = topResults[0]?.metadata?.title    || null;
@@ -229,13 +243,12 @@ async function findRelevantContext(query, filteredStore, topK = 5) {
 
         if (topProjectTitle) console.log(`📌 Top vector result: "${topProjectTitle}"`);
 
-        // ── Inject all metadata including leadership fields ───────────────────
         const context = topResults.map(res => `
             PROJECT: ${res.metadata.title}
+            DATE: ${res.metadata.projectDate || "Not specified"}
             ROLE: ${(res.metadata.Role || []).join(", ") || "Not specified"}
             BUSINESS IMPACT: ${res.metadata.impact || "Not specified"}
             CLIENT: ${res.metadata.client || "Not specified"}
-            DATE: ${res.metadata.projectDate || "Not specified"}
             ${res.metadata.teamManagement  ? `TEAM MANAGEMENT: ${res.metadata.teamManagement}` : ""}
             ${res.metadata.crossFunctional ? `CROSS-FUNCTIONAL ALIGNMENT: ${res.metadata.crossFunctional}` : ""}
             ${res.metadata.orgLeadership   ? `ORGANIZATIONAL LEADERSHIP: ${res.metadata.orgLeadership}` : ""}
@@ -333,7 +346,6 @@ app.post('/generate-cover-letter', async (req, res) => {
                 ? preFilterStore(memoryStore, { roles: activeRoles })
                 : memoryStore;
 
-            // Exclude hidden pages
             filteredStore = filteredStore.filter(item => item.metadata?.visible !== "No");
 
             const searchQuery = jobPosting
@@ -404,7 +416,10 @@ app.post('/ask-buddy', async (req, res) => {
         const activeCategories = translateParam(rawCategory, CATEGORY_MAP);
 
         const hiddenPageQuery = isHiddenPageQuery(userPrompt) || isPersonalQuery(userPrompt);
-        const listQuery = isListQuery(userPrompt);
+        const listQuery       = isListQuery(userPrompt);
+        const timelineQuery   = isTimelineQuery(userPrompt);
+
+        if (timelineQuery) console.log(`📅 Timeline query detected`);
 
         let contextResult;
 
@@ -438,12 +453,12 @@ app.post('/ask-buddy', async (req, res) => {
             }
 
             const roleQuery = (detectRoleFromQuery(userPrompt).length > 0 || detectCategoryFromQuery(userPrompt).length > 0) && activeRoles.length === 0;
-            const topK = listQuery ? 20 : roleQuery ? 10 : 5;
+            const topK = listQuery || timelineQuery ? 20 : roleQuery ? 10 : 5;
 
-            if (listQuery) console.log(`📋 List query detected — using topK: ${topK}`);
-            if (roleQuery) console.log(`🏷️ Role/category query detected — using topK: ${topK}`);
+            if (listQuery)     console.log(`📋 List query detected — using topK: ${topK}`);
+            if (roleQuery)     console.log(`🏷️ Role/category query detected — using topK: ${topK}`);
 
-            contextResult = await findRelevantContext(userPrompt, filteredStore, topK);
+            contextResult = await findRelevantContext(userPrompt, filteredStore, topK, timelineQuery);
         }
 
         const { context, mediaUrl, topProjectTitle } = contextResult;
