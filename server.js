@@ -107,8 +107,9 @@ function detectCategoryFromQuery(query) {
         return ["Architecture"];
     if (/enablement|training program|champion|certification/i.test(query))
         return ["Enablement"];
-    if (/prototype|prototyping/i.test(query))
-        return ["Prototyping"];
+    if (/show.*prototyp|prototyp.*project|dana.*prototyp|prototyp.*work/i.test(query))
+    return ["Prototyping"];
+
     return [];
 }
 
