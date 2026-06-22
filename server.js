@@ -480,15 +480,28 @@ app.post('/ask-buddy', async (req, res) => {
             : null;
 
         let finalMediaUrl = null;
-        if (confirmedProject && mediaUrl) {
-            if (topProjectTitle === confirmedProject) {
-                if (!shownMediaTitles.has(confirmedProject)) {
-                    shownMediaTitles.add(confirmedProject);
-                    finalMediaUrl = mediaUrl;
-                    console.log(`🎬 Media confirmed for: "${confirmedProject}"`);
-                }
-            }
+if (confirmedProject) {
+    const effectiveTitle = (topProjectTitle === confirmedProject) ? topProjectTitle : confirmedProject;
+    
+    if (!shownMediaTitles.has(effectiveTitle)) {
+        // Use mediaUrl from vector search if available, otherwise look it up directly
+        let resolvedMediaUrl = (topProjectTitle === confirmedProject) ? mediaUrl : null;
+        
+        if (!resolvedMediaUrl) {
+            const projectChunk = memoryStore.find(
+                item => item.metadata?.title === confirmedProject && item.metadata?.mediaUrl
+            );
+            resolvedMediaUrl = projectChunk?.metadata?.mediaUrl || null;
         }
+        
+        if (resolvedMediaUrl) {
+            shownMediaTitles.add(effectiveTitle);
+            finalMediaUrl = resolvedMediaUrl;
+            console.log(`🎬 Media confirmed for: "${effectiveTitle}"`);
+        }
+    }
+}
+
 
         console.log(`✅ Response sent. Detected project: "${confirmedProject || "multiple/none"}"`);
 
