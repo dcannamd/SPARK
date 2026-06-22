@@ -46,14 +46,15 @@
 
    <script>
        const chatHistory = document.getElementById('chat-history');
-      const header = document.querySelector('header');
-chatHistory.addEventListener('scroll', () => {
-    if (chatHistory.scrollTop > 10) {
-        header.classList.add('scrolled');
-    } else {
-        header.classList.remove('scrolled');
-    }
-});
+       const header = document.querySelector('header');
+
+       chatHistory.addEventListener('scroll', () => {
+           if (chatHistory.scrollTop > 10) {
+               header.classList.add('scrolled');
+           } else {
+               header.classList.remove('scrolled');
+           }
+       });
 
        const userInput = document.getElementById('user-input');
 
@@ -90,14 +91,13 @@ chatHistory.addEventListener('scroll', () => {
                const data = await response.json();
                removeMessage(loadingId);
                if (data.coverLetter) {
-    const div = document.createElement('div');
-    div.className = 'message bot-message cover-letter';
-    div.id = 'msg-' + Date.now();
-    div.innerHTML = marked.parse(data.coverLetter);
-    chatHistory.appendChild(div);
-    div.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
+                   const div = document.createElement('div');
+                   div.className = 'message bot-message cover-letter';
+                   div.id = 'msg-' + Date.now();
+                   div.innerHTML = marked.parse(data.coverLetter);
+                   chatHistory.appendChild(div);
+                   div.scrollIntoView({ behavior: 'smooth', block: 'start' });
+               }
            } catch (error) {
                removeMessage(loadingId);
                addMessage("Error generating cover letter. Please try again.", 'bot-message error');
@@ -252,50 +252,38 @@ chatHistory.addEventListener('scroll', () => {
                if (msgEl) msgEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
                if (lastSuggestionChip) {
-    renderFollowUpChips(lastSuggestionChip);
-    lastSuggestionChip = null;
-}
-
-if (data.topProjectTitle) {
-    activeProjectTitle = data.topProjectTitle;
-}
-
-if (data.mediaUrl) {
-    const mediaEl = buildMediaElement(data.mediaUrl);
-    if (mediaEl) {
-        chatHistory.appendChild(mediaEl);
-        chatHistory.scrollTop = chatHistory.scrollHeight;
-    }
-}
-
-if (!lastSuggestionChip && data.topProjectTitle && data.topProjectTitle !== 'NONE') {
-    const chipRow = document.createElement('div');
-    chipRow.className = 'suggestion-chips follow-up-chips';
-    const chip = document.createElement('a');
-    chip.className = 'chip';
-    chip.textContent = 'View project list';
-    chip.onclick = () => {
-        userInput.value = 'View project list';
-        sendMessage();
-    };
-    chipRow.appendChild(chip);
-    chatHistory.appendChild(chipRow);
-    chatHistory.scrollTop = chatHistory.scrollHeight;
-}
-
+                   renderFollowUpChips(lastSuggestionChip);
+                   lastSuggestionChip = null;
+               }
 
                if (data.topProjectTitle) {
-
                    activeProjectTitle = data.topProjectTitle;
                }
 
-               
+               if (data.mediaUrl) {
+                   const mediaEl = buildMediaElement(data.mediaUrl);
+                   if (mediaEl) {
+                       chatHistory.appendChild(mediaEl);
+                       chatHistory.scrollTop = chatHistory.scrollHeight;
+                   }
                }
 
-               if (userInput.value === '') {
-                   userInput.value = 'Tell me more';
+               if (!lastSuggestionChip && data.topProjectTitle && data.topProjectTitle !== 'NONE') {
+                   const chipRow = document.createElement('div');
+                   chipRow.className = 'suggestion-chips follow-up-chips';
+                   const chip = document.createElement('a');
+                   chip.className = 'chip';
+                   chip.textContent = 'View project list';
+                   chip.onclick = () => {
+                       userInput.value = 'View project list';
+                       sendMessage();
+                   };
+                   chipRow.appendChild(chip);
+                   chatHistory.appendChild(chipRow);
+                   chatHistory.scrollTop = chatHistory.scrollHeight;
                }
 
+               userInput.value = 'Tell me more';
                chatHistory.scrollTop = chatHistory.scrollHeight;
 
            } catch (error) {
