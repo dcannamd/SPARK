@@ -227,10 +227,11 @@ async function findRelevantContext(query, filteredStore, topK = 5, sortByDate = 
         // ── Sort by date for timeline queries ─────────────────────────────────
         if (sortByDate) {
             topResults.sort((a, b) => {
-                const dateA = a.metadata?.projectDate || "0000-00-00";
-                const dateB = b.metadata?.projectDate || "0000-00-00";
-                return dateA.localeCompare(dateB);
-            });
+    const dateA = a.metadata?.projectDate || "0000-00-00";
+    const dateB = b.metadata?.projectDate || "0000-00-00";
+    return dateB.localeCompare(dateA);
+});
+            
             console.log(`📅 Results sorted chronologically`);
         }
 
