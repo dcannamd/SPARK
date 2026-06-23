@@ -463,7 +463,7 @@ const sortByDate = listQuery || timelineQuery;
             if (listQuery)     console.log(`📋 List query detected — using topK: ${topK}`);
             if (roleQuery)     console.log(`🏷️ Role/category query detected — using topK: ${topK}`);
 
-            contextResult = await findRelevantContext(userPrompt, filteredStore, topK, timelineQuery);
+contextResult = await findRelevantContext(userPrompt, filteredStore, topK, sortByDate);
         }
 
         const { context, mediaUrl, topProjectTitle } = contextResult;
