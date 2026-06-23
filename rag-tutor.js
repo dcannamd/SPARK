@@ -86,7 +86,7 @@ FORBIDDEN RESPONSES for list queries:
 
 FORMAT every project EXACTLY like this — no exceptions:
 
-[[LINK: Exact Project Name]]
+[[LINK: Exact Project Name]] — [Year extracted from DATE field]
 - **Role:** [paste the ROLE field — replace every instance of "Learning Architecture & Design" with "Learning Ecosystem Strategy"]
 - **Strategy:** [1 sentence maximum — what approach or methodology was used]
 - **Clients/Scale:** [if tier-one brands or scale metrics exist, pull them out as a standalone line — e.g. "Mercedes, BMW, Microsoft, Airbus"]
