@@ -314,7 +314,8 @@ function isHiddenPageQuery(query) {
 
 // ── PERSONAL QUERY DETECTION ──────────────────────────────────────────────────
 function isPersonalQuery(query) {
-    return /outside of work|personal|hobbies|interests|guitar|music|paddle|swim|ocean|personality|what.*like|who is dana|what kind of person|managing style|values|coaching style|work with|working style|outside work|free time|what does dana do|dana like to|dana enjoy|skills|strengths|abilities|what can dana|what does dana bring|what dana offers|school|university|degree|education|studied|graduate|thesis|eindhoven|alberta|emily carr|teach|taught|instructor/i.test(query.trim());
+return /outside of work|personal|hobbies|interests|guitar|music|paddle|swim|ocean|personality|what.*like|who is dana|what kind of person|managing style|values|coaching style|work with|working style|outside work|free time|what does dana do|dana like to|dana enjoy|skills|strengths|abilities|what can dana|what does dana bring|what dana offers|school|university|degree|education|studied|graduate|thesis|eindhoven|alberta|emily carr|teach|taught|instructor|most effective|best at|excels|where.*dana|what.*environment|thrive|passionate|motivated|driven/i.test(query.trim());
+
 }
 
 
