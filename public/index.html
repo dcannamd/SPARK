@@ -46,16 +46,6 @@
 
    <script>
        const chatHistory = document.getElementById('chat-history');
-       const header = document.querySelector('header');
-
-       chatHistory.addEventListener('scroll', () => {
-           if (chatHistory.scrollTop > 10) {
-               header.classList.add('scrolled');
-           } else {
-               header.classList.remove('scrolled');
-           }
-       });
-
        const userInput = document.getElementById('user-input');
 
        const urlParams = new URLSearchParams(window.location.search);
@@ -94,7 +84,9 @@
                    const div = document.createElement('div');
                    div.className = 'message bot-message cover-letter';
                    div.id = 'msg-' + Date.now();
-                   div.innerHTML = marked.parse(data.coverLetter);
+                   const pre = document.createElement('pre');
+                   pre.textContent = data.coverLetter;
+                   div.appendChild(pre);
                    chatHistory.appendChild(div);
                    div.scrollIntoView({ behavior: 'smooth', block: 'start' });
                }
@@ -148,6 +140,17 @@
            });
            chatHistory.appendChild(chipRow);
            chatHistory.scrollTop = chatHistory.scrollHeight;
+       }
+
+       function renderImageTags(html) {
+           return html.replace(/\[\[IMAGE:\s*(https?:\/\/[^\]]+)\]\]/g, (match, url) => {
+               const trimmedUrl = url.trim();
+               return `<div class="inline-image-wrapper">
+                   <img src="${trimmedUrl}" 
+                        alt="Product design" 
+                        style="width:100%; border-radius:10px; display:block; margin:12px 0;">
+               </div>`;
+           });
        }
 
        function renderProjectLinks(html) {
@@ -268,22 +271,10 @@
                    }
                }
 
-               if (!lastSuggestionChip && data.topProjectTitle && data.topProjectTitle !== 'NONE') {
-                   const chipRow = document.createElement('div');
-                   chipRow.className = 'suggestion-chips follow-up-chips';
-                   const chip = document.createElement('a');
-                   chip.className = 'chip';
-                   chip.textContent = 'View project list';
-                   chip.onclick = () => {
-                       userInput.value = 'View project list';
-                       sendMessage();
-                   };
-                   chipRow.appendChild(chip);
-                   chatHistory.appendChild(chipRow);
-                   chatHistory.scrollTop = chatHistory.scrollHeight;
+               if (userInput.value === '') {
+                   userInput.value = 'Tell me more';
                }
 
-               userInput.value = 'Tell me more';
                chatHistory.scrollTop = chatHistory.scrollHeight;
 
            } catch (error) {
@@ -298,7 +289,8 @@
            div.id = 'msg-' + Date.now();
            if (isMarkdown) {
                const rawHtml = marked.parse(text);
-               div.innerHTML = renderProjectLinks(rawHtml);
+               const withLinks = renderProjectLinks(rawHtml);
+               div.innerHTML = renderImageTags(withLinks);
            } else {
                div.textContent = text;
            }
