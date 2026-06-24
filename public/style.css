@@ -332,6 +332,15 @@ button#send-btn {
     align-items: flex-start;
 }
 
+/* ── INLINE IMAGES ───────────────────────────────────────────────────────── */
+.inline-image-wrapper {
+    margin: 12px 0;
+    border-radius: 10px;
+    overflow: hidden;
+    max-width: 100%;
+}
+
+
 
 
 
