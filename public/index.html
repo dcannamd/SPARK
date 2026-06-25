@@ -47,6 +47,19 @@
    <script>
        const chatHistory = document.getElementById('chat-history');
        const userInput = document.getElementById('user-input');
+       const header = document.querySelector('header');
+
+       let scrollTimeout;
+       chatHistory.addEventListener('scroll', () => {
+           clearTimeout(scrollTimeout);
+           scrollTimeout = setTimeout(() => {
+               if (chatHistory.scrollTop > 10) {
+                   header.classList.add('scrolled');
+               } else {
+                   header.classList.remove('scrolled');
+               }
+           }, 10);
+       });
 
        const urlParams = new URLSearchParams(window.location.search);
        const activeFilters = {
@@ -84,9 +97,7 @@
                    const div = document.createElement('div');
                    div.className = 'message bot-message cover-letter';
                    div.id = 'msg-' + Date.now();
-                   const pre = document.createElement('pre');
-                   pre.textContent = data.coverLetter;
-                   div.appendChild(pre);
+                   div.innerHTML = marked.parse(data.coverLetter);
                    chatHistory.appendChild(div);
                    div.scrollIntoView({ behavior: 'smooth', block: 'start' });
                }
@@ -269,6 +280,51 @@
                        chatHistory.appendChild(mediaEl);
                        chatHistory.scrollTop = chatHistory.scrollHeight;
                    }
+               }
+
+               if (!lastSuggestionChip && data.topProjectTitle && data.topProjectTitle !== 'NONE') {
+                   const chipRow = document.createElement('div');
+                   chipRow.className = 'suggestion-chips follow-up-chips';
+                   const chip = document.createElement('a');
+                   chip.className = 'chip';
+                   chip.textContent = 'View project list';
+                   chip.onclick = () => {
+                       userInput.value = 'View project list';
+                       sendMessage();
+                   };
+                   chipRow.appendChild(chip);
+                   chatHistory.appendChild(chipRow);
+                   chatHistory.scrollTop = chatHistory.scrollHeight;
+               } else if (!lastSuggestionChip && (!data.topProjectTitle || data.topProjectTitle === 'NONE')) {
+                   const fallbackChipRow = document.createElement('div');
+                   fallbackChipRow.className = 'suggestion-chips follow-up-chips';
+                   const chips = [
+                       { label: "View project list", query: "View project list" },
+                       { label: "Dana's expertise", action: "expertise" },
+                       { label: "Contact Dana", action: "contact" }
+                   ];
+                   chips.forEach(item => {
+                       const chip = document.createElement('a');
+                       chip.className = 'chip';
+                       chip.textContent = item.label;
+                       if (item.action === 'contact') {
+                           chip.href = 'mailto:danacannamdesign@gmail.com';
+                       } else if (item.action === 'expertise') {
+                           chip.onclick = () => {
+                               lastSuggestionChip = "Dana's expertise";
+                               userInput.value = "Tell me about Dana's expertise";
+                               sendMessage();
+                           };
+                       } else {
+                           chip.onclick = () => {
+                               userInput.value = item.query;
+                               sendMessage();
+                           };
+                       }
+                       fallbackChipRow.appendChild(chip);
+                   });
+                   chatHistory.appendChild(fallbackChipRow);
+                   chatHistory.scrollTop = chatHistory.scrollHeight;
                }
 
                if (userInput.value === '') {
