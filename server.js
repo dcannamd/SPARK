@@ -89,9 +89,8 @@ function isTimelineQuery(query) {
 function detectRoleFromQuery(query) {
     if (/leadership|leader|manag|director|executive|strategy/i.test(query))
         return ["Leadership"];
-    if (/\bai\b|rag|creative tech|dana.*tech|tech.*project|node\.js|prototyp.*project|show.*prototyp/i.test(query))
-    return ["Creative Technology & UX"];
-
+    if (/\bai\b|rag|technical|technology|creative tech|prototype|prototyping|node|code/i.test(query))
+        return ["Creative Technology & UX"];
     if (/learning architect|lxd|instructional|curriculum|onboarding|training|education/i.test(query))
         return ["Learning Architecture & Design"];
     return [];
@@ -108,9 +107,8 @@ function detectCategoryFromQuery(query) {
         return ["Architecture"];
     if (/enablement|training program|champion|certification/i.test(query))
         return ["Enablement"];
-    if (/show.*prototyp|prototyp.*project|dana.*prototyp|prototyp.*work/i.test(query))
-    return ["Prototyping"];
-
+    if (/prototype|prototyping/i.test(query))
+        return ["Prototyping"];
     return [];
 }
 
@@ -227,11 +225,10 @@ async function findRelevantContext(query, filteredStore, topK = 5, sortByDate = 
         // ── Sort by date for timeline queries ─────────────────────────────────
         if (sortByDate) {
             topResults.sort((a, b) => {
-    const dateA = a.metadata?.projectDate || "0000-00-00";
-    const dateB = b.metadata?.projectDate || "0000-00-00";
-    return dateB.localeCompare(dateA);
-});
-            
+                const dateA = a.metadata?.projectDate || "0000-00-00";
+                const dateB = b.metadata?.projectDate || "0000-00-00";
+                return dateA.localeCompare(dateB);
+            });
             console.log(`📅 Results sorted chronologically`);
         }
 
@@ -314,10 +311,8 @@ function isHiddenPageQuery(query) {
 
 // ── PERSONAL QUERY DETECTION ──────────────────────────────────────────────────
 function isPersonalQuery(query) {
-return /outside of work|personal|hobbies|interests|guitar|music|paddle|swim|ocean|personality|what.*like|who is dana|what kind of person|managing style|values|coaching style|work with|working style|outside work|free time|what does dana do|dana like to|dana enjoy|skills|strengths|abilities|what can dana|what does dana bring|what dana offers|school|university|degree|education|studied|graduate|thesis|eindhoven|alberta|emily carr|teach|taught|instructor|most effective|best at|excels|where.*dana|what.*environment|thrive|passionate|motivated|driven/i.test(query.trim());
-
+    return /outside of work|personal|hobbies|interests|guitar|music|paddle|swim|ocean|personality|what.*like|who is dana|what kind of person|managing style|values|coaching style|work with|working style|outside work|free time|what does dana do|dana like to|dana enjoy|skills|strengths|abilities|what can dana|what does dana bring|what dana offers/i.test(query.trim());
 }
-
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
@@ -438,7 +433,9 @@ app.post('/ask-buddy', async (req, res) => {
                 categories: activeCategories
             });
 
-            if (activeRoles.length === 0) {
+            const isDirectProjectQuery = /^tell me about /i.test(userPrompt.trim());
+
+            if (activeRoles.length === 0 && !isDirectProjectQuery) {
                 const detectedRoles      = detectRoleFromQuery(userPrompt);
                 const detectedCategories = detectCategoryFromQuery(userPrompt);
 
@@ -458,14 +455,12 @@ app.post('/ask-buddy', async (req, res) => {
             }
 
             const roleQuery = (detectRoleFromQuery(userPrompt).length > 0 || detectCategoryFromQuery(userPrompt).length > 0) && activeRoles.length === 0;
-const topK = listQuery || timelineQuery ? 20 : roleQuery ? 10 : 5;
-const sortByDate = listQuery || timelineQuery;
-
+            const topK = listQuery || timelineQuery ? 20 : roleQuery ? 10 : 5;
 
             if (listQuery)     console.log(`📋 List query detected — using topK: ${topK}`);
             if (roleQuery)     console.log(`🏷️ Role/category query detected — using topK: ${topK}`);
 
-contextResult = await findRelevantContext(userPrompt, filteredStore, topK, sortByDate);
+            contextResult = await findRelevantContext(userPrompt, filteredStore, topK, timelineQuery);
         }
 
         const { context, mediaUrl, topProjectTitle } = contextResult;
@@ -487,28 +482,15 @@ contextResult = await findRelevantContext(userPrompt, filteredStore, topK, sortB
             : null;
 
         let finalMediaUrl = null;
-if (confirmedProject) {
-    const effectiveTitle = (topProjectTitle === confirmedProject) ? topProjectTitle : confirmedProject;
-    
-    if (!shownMediaTitles.has(effectiveTitle)) {
-        // Use mediaUrl from vector search if available, otherwise look it up directly
-        let resolvedMediaUrl = (topProjectTitle === confirmedProject) ? mediaUrl : null;
-        
-        if (!resolvedMediaUrl) {
-            const projectChunk = memoryStore.find(
-                item => item.metadata?.title === confirmedProject && item.metadata?.mediaUrl
-            );
-            resolvedMediaUrl = projectChunk?.metadata?.mediaUrl || null;
+        if (confirmedProject && mediaUrl) {
+            if (topProjectTitle === confirmedProject) {
+                if (!shownMediaTitles.has(confirmedProject)) {
+                    shownMediaTitles.add(confirmedProject);
+                    finalMediaUrl = mediaUrl;
+                    console.log(`🎬 Media confirmed for: "${confirmedProject}"`);
+                }
+            }
         }
-        
-        if (resolvedMediaUrl) {
-            shownMediaTitles.add(effectiveTitle);
-            finalMediaUrl = resolvedMediaUrl;
-            console.log(`🎬 Media confirmed for: "${effectiveTitle}"`);
-        }
-    }
-}
-
 
         console.log(`✅ Response sent. Detected project: "${confirmedProject || "multiple/none"}"`);
 
