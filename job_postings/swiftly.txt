@@ -1,0 +1,153 @@
+# Customer Training & Adoption Specialist
+**Swiftly, Inc. — British Columbia, Canada (Remote)**
+
+---
+
+## About the Company
+
+Swiftly is on a mission to help cities move more efficiently. We are the leading transit data platform for agencies to share real-time passenger information, manage day-to-day operations, and improve service performance. Today, over 200 transit agencies in 12 countries — including LA Metro, MARTA, SEPTA, and MBTA — rely on Swiftly to improve on-time performance by up to 40% and increase passenger information accuracy by up to 50%. The result is better service reliability, increased ridership, and more efficient transit operations.
+
+> Even though Swiftly's HQ office is located in San Francisco, CA, we are open to candidates in most locations across the U.S. as well as Ontario and British Columbia, Canada. At this time we are unable to provide Visa sponsorship.
+
+---
+
+## About the Professional Services Team
+
+The Professional Services team is part of the broader Customer Success department at Swiftly, working to ensure customers are happy and finding immense value in the tools that Swiftly provides.
+
+The Customer Success department comprises Implementation Managers, Account Managers, and Technical Support Representatives. This department is on the front line — the first point of contact for customers who have questions, are encountering issues, or need support during the implementation phase of our relationship. When problems arise, we ensure that individual customers are heard and that their issues are cared for, and we apply a keen analytical eye to spot trends and communicate problems proactively with the product team. We are passionate about improving mobility in the communities we serve, and we work side by side with transit agencies and operators to ensure their projects are impactful. We love the human aspect of our work and thrive on getting creative to solve problems or boost network performance. The Customer Success org is responsible for everything post-sale, and the Implementations team is a critical part of starting our customers on the right foot.
+
+---
+
+## About the Role
+
+Reporting to Stan Parkford, the Customer Training and Adoption Specialist will be responsible for designing, delivering, and evolving customer training programs to enhance adoption and proficiency across our customer agencies. You'll create dynamic, role-based learning experiences, provide personalized training sessions, and develop scalable educational resources to support users at every stage of their journey — from pre-sales through implementation to ongoing education. Central to this work is structured change management: helping agencies reorient their teams around optimized workflows and realize the full value of Swiftly as a core part of how they do their jobs.
+
+This role will work closely with Implementation Managers, Account Managers, Solutions Engineers, and Product Managers.
+
+**This is a remote position that will require frequent travel — 8 to 14 trips per year are expected.**
+
+---
+
+## What You'll Do
+
+### Create a Dynamic Training Curriculum and Change Management Program
+- Develop and refine a dynamic training curriculum tailored to customers' technical aptitude (beginner, moderate, advanced), department, role, persona, and agency size
+- Design and execute structured change management programs grounded in best practices, helping agencies move beyond onboarding to genuinely reorienting their workflows around Swiftly — so staff adopt it as a core tool for their job functions, not just a new system to learn
+
+### Deliver Personalized Training Across the Customer Journey
+- Lead remote and on-site training for transit agencies during implementation (new customers and upsells) in coordination with Swiftly's Implementation Managers
+- Support post-implementation training for existing customers in collaboration with Account Managers
+- Training sessions include creating and presenting materials, guiding users through Swiftly's solutions via live demonstrations, and answering product-related questions ranging from basic to technical — including how underlying data sources and integrations affect what customers see in the platform
+
+### Lead Internal Enablement on New Products and Features
+- Develop and deliver comprehensive training sessions for internal teams — including Implementation Managers, Customer Success Managers, and Account Managers — to ensure deep understanding of new products and features
+- Collaborate with Product, Marketing, and Sales teams to gather insights and align on key messaging, feature benefits, and use cases
+- Act as a subject matter expert (SME) for new products and features, providing ongoing support and clarification to internal teams as needed
+
+### Develop and Maintain Product Education and Knowledge Base Resources
+- Create resources including (but not limited to): training videos (product-, feature-, or persona-specific), knowledge base articles, and written workflow and standard operating procedure guidance
+- Maintain an up-to-date product education library, ensuring content aligns with evolving Swiftly features and workflows
+- Leverage AI tools to accelerate content development — drafting, refining, and maintaining training materials, knowledge base articles, and video scripts at scale without sacrificing quality
+
+### Design and Lead 1:Many Product Education Opportunities
+- Design and facilitate live webinars and workshops to drive adoption of new features and best practices
+- Identify trends in customer challenges and proactively create educational opportunities for broader audiences
+
+---
+
+## Success Metrics
+
+You will be measured by the impact of training in two key areas:
+
+### Product Adoption
+- Active user rate: % of unique active users engaging with the platform post-training
+- Feature adoption rate: % of trained users actively using key features
+- Time to adoption: average time for customers to start utilizing core functionalities
+
+### Training Satisfaction
+- CSAT scores from post-training and post-webinar surveys
+- Qualitative feedback from customers to refine and improve training programs
+
+---
+
+## About You
+
+- 3+ years of experience in customer training, learning & development, customer success, or a related role
+- Quick learner — our product is ever-evolving and changes fast
+- Comfortable going a layer beneath the UI: understanding how data sources like GTFS feeds, AVL systems, and integrations power the product features you're training on. You don't need to be an engineer, but you're willing to learn enough to diagnose basic issues and speak credibly to technically diverse audiences
+- Strong instructional design and curriculum development skills, with the ability to tailor training to diverse customer needs
+- Strong content writing skills for product knowledge bases
+- Comfortable being recorded for customer education resources
+- Familiarity with change management frameworks and how to apply them in a SaaS customer context — particularly in driving behavioral change, not just feature awareness
+- Tech-savvy and experienced with AI tools; comfortable adopting new tools and eager to develop repeatable, AI-assisted workflows for content creation, training delivery, and curriculum development
+- Experience conducting in-person and virtual training sessions for technical software platforms
+- Ability to translate complex workflows into digestible, engaging educational content
+- Excellent communication and presentation skills with a customer-centric mindset
+- Familiarity with transit technology or public sector software is a plus
+
+---
+
+## Interested?
+
+Don't just hit apply. We want to hear more about you. Tell us:
+
+- Why are you passionate about mobility?
+- What interests you about Swiftly?
+
+---
+
+## Pay Range
+
+Actual salaries will vary and are based on a multitude of non-discriminatory factors including final role leveling decisions, a candidate's relevant work experiences/skills, and geographic location. Salary is one component of Swiftly's total compensation package, which also includes stock options, competitive benefits, 401(k)/RRSP matching, a fantastic team and culture, opportunity to have a huge impact, emphasis on professional growth and holistic wellness, and other perks.
+
+- **US Salary Range:** $105,400 – $124,000 USD
+- **Canadian Salary Range:** $109,880 – $129,270 CAD
+
+---
+
+## Beyond the Skills
+
+We are looking for candidates who are passionate about mobility, sustainability, or mission-oriented projects that have a significant real-world impact. Ideal candidates encompass the core values of our company:
+
+- **Team.** Together, we are more effective and better supported
+- **Impact.** Drive impact for our customers, our company, and all of our teams
+- **Diversity.** See differing perspectives as ways to address our weaknesses and find new strengths
+- **Communication.** Assume others internally and externally have good intentions
+- **Feedback.** We share feedback because we want each other to grow professionally and personally
+- **Growth.** Foster personal, professional, and company growth
+
+---
+
+## Benefits
+
+- Competitive salary
+- Equity compensation for every employee
+- Medical, Dental, and Vision
+- Retirement with Employer Match
+- Flexible Spending Account (FSA)
+- Home office setup reimbursement
+- Monthly cell/internet reimbursement
+- Monthly "Be Well" stipend
+- Flexible PTO with a recommended minimum
+- Flexible work environment
+- 16 paid holidays, including holidays in months without US national holidays
+- 12 fully paid weeks of leave for child birth/adoption
+
+---
+
+## Travel Note
+
+Swiftly employees can generally expect to travel 1–2 times a year for in-person company or team offsites. As a fully distributed company, we consider these offsites important for cultivating strong relationships across our teams. Attending these in-person events is expected and encouraged, although we understand everyone has different personal circumstances and we will consider requests for exceptions. Customer-facing team members and other specific roles may be expected to travel more frequently.
+
+---
+
+## Additional Information
+
+We are a truly mission-driven culture that is set to change the world of transit.
+
+**We are an equal opportunity employer — we are committed to a workplace that is as dynamic, diverse, and passionate as the communities we serve.**
+
+Because we work with public agencies, we participate in E-Verify.
+
+We may use artificial intelligence (AI) tools to support parts of the hiring process, such as reviewing applications, analyzing resumes, or assessing responses. These tools assist our recruitment team but do not replace human judgment. Final hiring decisions are ultimately made by humans.
