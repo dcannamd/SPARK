@@ -28,6 +28,7 @@ const ROLE_MAP = {
     "instructional-design":  "Instructional Design",
     "ai-integration":        "AI Integration",
     "general":               "General"
+    "design":                "Design"
 };
 
 const INDUSTRY_MAP = {
@@ -93,6 +94,8 @@ function detectRoleFromQuery(query) {
         return ["Creative Technology & UX"];
     if (/learning architect|lxd|instructional|curriculum|onboarding|training|education/i.test(query))
         return ["Learning Architecture & Design"];
+    if (/industrial design|lighting|product design|clamp|bowery|first light|all of a piece|pablo|article lamp|another country/i.test(query))
+    return ["Design"];
     return [];
 }
 
