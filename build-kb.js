@@ -22,10 +22,16 @@ async function getFullPageContent(blockId) {
         const { results } = await notion.blocks.children.list({ block_id: blockId });
         for (const block of results) {
             const type = block.type;
-            const richText = block[type]?.rich_text;
-            if (richText) {
-                const content = richText.map(t => t.plain_text).join("");
-                if (content) text += content + "\n";
+            // Handle code blocks separately — content is at block.code.rich_text
+            if (type === 'code') {
+                const codeText = block.code?.rich_text?.map(t => t.plain_text).join("") || "";
+                if (codeText) text += codeText + "\n";
+            } else {
+                const richText = block[type]?.rich_text;
+                if (richText) {
+                    const content = richText.map(t => t.plain_text).join("");
+                    if (content) text += content + "\n";
+                }
             }
             if (block.has_children) {
                 text += await getFullPageContent(block.id);
