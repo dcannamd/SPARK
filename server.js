@@ -475,8 +475,28 @@ const isIndustrialDesignQuery = /industrial design|clamp|bowery|first light|all 
 
             const roleQuery = (detectRoleFromQuery(userPrompt).length > 0 || detectCategoryFromQuery(userPrompt).length > 0) && activeRoles.length === 0;
 const topK = listQuery || timelineQuery ? 20 : isIndustrialDesignQuery ? 15 : roleQuery ? 10 : 5;
-
 const sortByDate = listQuery || timelineQuery;
+
+// ── Inject design sub-pages for industrial design queries ─────────────────
+if (isIndustrialDesignQuery) {
+    const designSubPageTitles = [
+        "Clamp Lamp — Pablo Designs",
+        "Bowery Table Lamp — Article",
+        "First Light — Another Country",
+        "All of a Piece — Circuit Design Collection"
+    ];
+    const designChunks = memoryStore.filter(item => 
+        designSubPageTitles.includes(item.metadata?.title)
+    );
+    const existingTitles = new Set(filteredStore.map(i => i.metadata?.title));
+    designChunks.forEach(chunk => {
+        if (!existingTitles.has(chunk.metadata?.title)) {
+            filteredStore.push(chunk);
+        }
+    });
+    console.log(`🎨 Design sub-pages injected: ${designChunks.length} chunks added`);
+}
+
 
             if (listQuery)          console.log(`📋 List query detected — using topK: ${topK}`);
 if (roleQuery)          console.log(`🏷️ Role/category query detected — using topK: ${topK}`);
