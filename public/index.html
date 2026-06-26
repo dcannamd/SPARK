@@ -154,8 +154,9 @@
        }
 
        function renderImageTags(html) {
-           return html.replace(/\[\[IMAGE:\s*(https?:\/\/[^\]]+)\]\]/g, (match, url) => {
-               const trimmedUrl = url.trim();
+           return html.replace(/\[\[IMAGE:\s*<?([^>\]]+?)>?\]\]/g, (match, url) => {
+    const trimmedUrl = url.trim();
+
                return `<div class="inline-image-wrapper">
                    <img src="${trimmedUrl}" 
                         alt="Product design" 
