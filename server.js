@@ -208,16 +208,24 @@ async function findRelevantContext(query, filteredStore, topK = 5, sortByDate = 
         }));
 
         let topResults;
-        if (topK > 10) {
-            const byProject = {};
-            scored.sort((a, b) => b.score - a.score).forEach(item => {
-                const title   = item.metadata?.title;
-                const visible = item.metadata?.visible;
-                if (title && !byProject[title] && visible !== "No") {
-                    byProject[title] = item;
-                }
-            });
-            topResults = Object.values(byProject);
+        const designSubPages = [
+    "Clamp Lamp — Pablo Designs",
+    "Bowery Table Lamp — Article",
+    "First Light — Another Country",
+    "All of a Piece — Circuit Design Collection"
+];
+
+if (topK > 10) {
+    const byProject = {};
+    scored.sort((a, b) => b.score - a.score).forEach(item => {
+        const title   = item.metadata?.title;
+        const visible = item.metadata?.visible;
+        if (title && !byProject[title] && (visible !== "No" || designSubPages.includes(title))) {
+            byProject[title] = item;
+        }
+    });
+    topResults = Object.values(byProject);
+
         } else {
             topResults = scored
     .filter(item => item.metadata?.visible !== "No" || 
@@ -235,7 +243,7 @@ async function findRelevantContext(query, filteredStore, topK = 5, sortByDate = 
             topResults.sort((a, b) => {
                 const dateA = a.metadata?.projectDate || "0000-00-00";
                 const dateB = b.metadata?.projectDate || "0000-00-00";
-                return dateA.localeCompare(dateB);
+                return dateB.localeCompare(dateA);
             });
             console.log(`📅 Results sorted chronologically`);
         }
@@ -466,7 +474,7 @@ const isIndustrialDesignQuery = /industrial design|clamp|bowery|first light|all 
             }
 
             const roleQuery = (detectRoleFromQuery(userPrompt).length > 0 || detectCategoryFromQuery(userPrompt).length > 0) && activeRoles.length === 0;
-const topK = listQuery || timelineQuery ? 20 : roleQuery ? 10 : isIndustrialDesignQuery ? 15 : 5;
+const topK = listQuery || timelineQuery ? 20 : isIndustrialDesignQuery ? 15 : roleQuery ? 10 : 5;
 
 const sortByDate = listQuery || timelineQuery;
 
