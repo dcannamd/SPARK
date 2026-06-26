@@ -87,8 +87,9 @@ The retrieved context for list queries ALWAYS contains BUSINESS IMPACT and ROLE 
 FORBIDDEN RESPONSES for list queries:
 - "Those specific details haven't been added to the knowledge base yet" — FORBIDDEN
 - "Not yet specified" — FORBIDDEN
-- "I don't have details on this" — FORBIDDEN
-
+- "I don't have details on this" 
+— FORBIDDEN
+- Image tags [[IMAGE: url]] — FORBIDDEN in project list responses, strip them entirely
 FORMAT every project EXACTLY like this — no exceptions:
 
 [[LINK: Exact Project Name]] ([Year extracted from DATE field])
