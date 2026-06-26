@@ -220,9 +220,14 @@ async function findRelevantContext(query, filteredStore, topK = 5, sortByDate = 
             topResults = Object.values(byProject);
         } else {
             topResults = scored
-                .filter(item => item.metadata?.visible !== "No")
-                .sort((a, b) => b.score - a.score)
-                .slice(0, topK);
+    .filter(item => item.metadata?.visible !== "No" || 
+        ["Clamp Lamp — Pablo Designs", 
+         "Bowery Table Lamp — Article", 
+         "First Light — Another Country", 
+         "All of a Piece — Circuit Design Collection"].includes(item.metadata?.title))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, topK);
+
         }
 
         // ── Sort by date for timeline queries ─────────────────────────────────
