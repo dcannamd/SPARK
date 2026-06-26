@@ -94,7 +94,7 @@ function detectRoleFromQuery(query) {
         return ["Creative Technology & UX"];
     if (/learning architect|lxd|instructional|curriculum|onboarding|training|education/i.test(query))
         return ["Learning Architecture & Design"];
-    if (/industrial design|lighting|product design|clamp|bowery|first light|all of a piece|pablo|article lamp|another country/i.test(query))
+    if (/\blighting design\b|product design showcase|dana.*design work|show.*design|design.*portfolio/i.test(query))
     return ["Design"];
     return [];
 }
@@ -235,7 +235,7 @@ async function findRelevantContext(query, filteredStore, topK = 5, sortByDate = 
             topResults.sort((a, b) => {
                 const dateA = a.metadata?.projectDate || "0000-00-00";
                 const dateB = b.metadata?.projectDate || "0000-00-00";
-                return dateB.localeCompare(dateA);
+                return dateA.localeCompare(dateB);
             });
             console.log(`📅 Results sorted chronologically`);
         }
