@@ -27,7 +27,7 @@ const ROLE_MAP = {
     "leadership":            "Leadership",
     "instructional-design":  "Instructional Design",
     "ai-integration":        "AI Integration",
-    "general":               "General"
+    "general":               "General",
     "design":                "Design"
 };
 
