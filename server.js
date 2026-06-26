@@ -435,6 +435,8 @@ app.post('/ask-buddy', async (req, res) => {
             });
 
             const isDirectProjectQuery = /^tell me about /i.test(userPrompt.trim());
+const isIndustrialDesignQuery = /industrial design|clamp|bowery|first light|all of a piece|pablo designs|article lamp|another country/i.test(userPrompt.trim());
+
 
             if (activeRoles.length === 0 && !isDirectProjectQuery) {
                 const detectedRoles      = detectRoleFromQuery(userPrompt);
@@ -456,7 +458,8 @@ app.post('/ask-buddy', async (req, res) => {
             }
 
             const roleQuery = (detectRoleFromQuery(userPrompt).length > 0 || detectCategoryFromQuery(userPrompt).length > 0) && activeRoles.length === 0;
-            const topK = listQuery || timelineQuery ? 20 : roleQuery ? 10 : 5;
+const topK = listQuery || timelineQuery ? 20 : roleQuery ? 10 : isIndustrialDesignQuery ? 15 : 5;
+
 const sortByDate = listQuery || timelineQuery;
 
             if (listQuery)     console.log(`📋 List query detected — using topK: ${topK}`);
