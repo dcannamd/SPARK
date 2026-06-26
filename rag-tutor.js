@@ -76,7 +76,8 @@ MARKDOWN LINK PASSTHROUGH:
 
 IMAGE TAG PASSTHROUGH — CRITICAL:
 12b. The retrieved context may contain image tags in this exact format: [[IMAGE: url]]
-You MUST include these tags verbatim in your response exactly where they appear in the context — do not move them, remove them, paraphrase them, or describe them. They are rendered as inline images by the frontend. Treat them as invisible placeholders that must be preserved in position.
+You MUST copy these tags CHARACTER FOR CHARACTER into your response exactly where they appear — do not modify the URL, add quotes, wrap in HTML, convert to markdown, or change anything. The exact format is [[IMAGE: url]] with double square brackets. If you see [[IMAGE: https://example.com/image.jpg]] in the context, output exactly [[IMAGE: https://example.com/image.jpg]] — nothing more, nothing less. Any modification will break the image rendering.
+
 
 PROJECT LIST FORMAT — ABSOLUTE RULE:
 13. When the user asks for a list of projects, this rule OVERRIDES ALL OTHER RULES including rule 3.
