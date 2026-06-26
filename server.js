@@ -209,11 +209,12 @@ async function findRelevantContext(query, filteredStore, topK = 5, sortByDate = 
 
         let topResults;
         const designSubPages = [
-    "Clamp Lamp — Pablo Designs",
-    "Bowery Table Lamp — Article",
-    "First Light — Another Country",
-    "All of a Piece — Circuit Design Collection"
+    "Clamp Lighting Product Line",
+    "Bowery Table Lamp",
+    "All of A Piece Modular Design",
+    "First Light Lighting Design"
 ];
+
 
 if (topK > 10) {
     const byProject = {};
@@ -229,10 +230,11 @@ if (topK > 10) {
         } else {
             topResults = scored
     .filter(item => item.metadata?.visible !== "No" || 
-        ["Clamp Lamp — Pablo Designs", 
-         "Bowery Table Lamp — Article", 
-         "First Light — Another Country", 
-         "All of a Piece — Circuit Design Collection"].includes(item.metadata?.title))
+    ["Clamp Lighting Product Line", 
+     "Bowery Table Lamp", 
+     "All of A Piece Modular Design", 
+     "First Light Lighting Design"].includes(item.metadata?.title))
+
     .sort((a, b) => b.score - a.score)
     .slice(0, topK);
 
@@ -451,7 +453,8 @@ app.post('/ask-buddy', async (req, res) => {
             });
 
             const isDirectProjectQuery = /^tell me about /i.test(userPrompt.trim());
-const isIndustrialDesignQuery = /industrial design|clamp|bowery|first light|all of a piece|pablo designs|article lamp|another country/i.test(userPrompt.trim());
+const isIndustrialDesignQuery = /industrial design|clamp|bowery|first light|all of a piece|pablo|article lamp|another country|lighting product|modular design/i.test(userPrompt.trim());
+
 
 
             if (activeRoles.length === 0 && !isDirectProjectQuery) {
@@ -480,11 +483,12 @@ const sortByDate = listQuery || timelineQuery;
 // ── Inject design sub-pages for industrial design queries ─────────────────
 if (isIndustrialDesignQuery) {
     const designSubPageTitles = [
-        "Clamp Lamp — Pablo Designs",
-        "Bowery Table Lamp — Article",
-        "First Light — Another Country",
-        "All of a Piece — Circuit Design Collection"
-    ];
+    "Clamp Lighting Product Line",
+    "Bowery Table Lamp",
+    "All of A Piece Modular Design",
+    "First Light Lighting Design"
+];
+
     const designChunks = memoryStore.filter(item => 
         designSubPageTitles.includes(item.metadata?.title)
     );
