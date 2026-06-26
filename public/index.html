@@ -344,11 +344,13 @@
            const div = document.createElement('div');
            div.className = `message ${className}`;
            div.id = 'msg-' + Date.now();
-           if (isMarkdown) {
-               const rawHtml = marked.parse(text);
-               const withLinks = renderProjectLinks(rawHtml);
-               div.innerHTML = renderImageTags(withLinks);
-           } else {
+          if (isMarkdown) {
+    const withImages = renderImageTags(text);
+    const rawHtml = marked.parse(withImages);
+    div.innerHTML = renderProjectLinks(rawHtml);
+}
+  
+            else {
                div.textContent = text;
            }
            chatHistory.appendChild(div);
