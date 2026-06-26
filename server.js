@@ -434,7 +434,17 @@ app.post('/ask-buddy', async (req, res) => {
         const activeIndustries = translateParam(rawIndustry, INDUSTRY_MAP);
         const activeCategories = translateParam(rawCategory, CATEGORY_MAP);
 
-        const hiddenPageQuery = isHiddenPageQuery(userPrompt) || isPersonalQuery(userPrompt);
+        const designSubPageNames = [
+    "Clamp Lighting Product Line",
+    "Bowery Table Lamp",
+    "All of A Piece Modular Design",
+    "First Light Lighting Design"
+];
+const isDesignSubPageQuery = designSubPageNames.some(name =>
+    userPrompt.toLowerCase().includes(name.toLowerCase())
+);
+const hiddenPageQuery = !isDesignSubPageQuery && (isHiddenPageQuery(userPrompt) || isPersonalQuery(userPrompt));
+
         const listQuery       = isListQuery(userPrompt);
         const timelineQuery   = isTimelineQuery(userPrompt);
 
@@ -493,12 +503,10 @@ if (isIndustrialDesignQuery) {
         designSubPageTitles.includes(item.metadata?.title)
     );
     const existingTitles = new Set(filteredStore.map(i => i.metadata?.title));
-    designChunks.forEach(chunk => {
-        if (!existingTitles.has(chunk.metadata?.title)) {
-            filteredStore.push(chunk);
-        }
-    });
-    console.log(`🎨 Design sub-pages injected: ${designChunks.length} chunks added`);
+        const newChunks = designChunks.filter(chunk => !existingTitles.has(chunk.metadata?.title));
+    filteredStore = [...filteredStore, ...newChunks];
+    console.log(`🎨 Design sub-pages injected: ${newChunks.length} chunks added`);
+
 }
 
 
@@ -530,15 +538,24 @@ if (isIndustrialDesignQuery) console.log(`🎨 Industrial design query detected 
             : null;
 
         let finalMediaUrl = null;
-        if (confirmedProject && mediaUrl) {
-            if (topProjectTitle === confirmedProject) {
-                if (!shownMediaTitles.has(confirmedProject)) {
-                    shownMediaTitles.add(confirmedProject);
-                    finalMediaUrl = mediaUrl;
-                    console.log(`🎬 Media confirmed for: "${confirmedProject}"`);
+        if (confirmedProject) {
+            const effectiveTitle = (topProjectTitle === confirmedProject) ? topProjectTitle : confirmedProject;
+            if (!shownMediaTitles.has(effectiveTitle)) {
+                let resolvedMediaUrl = (topProjectTitle === confirmedProject) ? mediaUrl : null;
+                if (!resolvedMediaUrl) {
+                    const projectChunk = memoryStore.find(
+                        item => item.metadata?.title === confirmedProject && item.metadata?.mediaUrl
+                    );
+                    resolvedMediaUrl = projectChunk?.metadata?.mediaUrl || null;
+                }
+                if (resolvedMediaUrl) {
+                    shownMediaTitles.add(effectiveTitle);
+                    finalMediaUrl = resolvedMediaUrl;
+                    console.log(`🎬 Media confirmed for: "${effectiveTitle}"`);
                 }
             }
         }
+
 
         console.log(`✅ Response sent. Detected project: "${confirmedProject || "multiple/none"}"`);
 
