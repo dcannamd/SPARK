@@ -478,8 +478,10 @@ const topK = listQuery || timelineQuery ? 20 : isIndustrialDesignQuery ? 15 : ro
 
 const sortByDate = listQuery || timelineQuery;
 
-            if (listQuery)     console.log(`📋 List query detected — using topK: ${topK}`);
-            if (roleQuery)     console.log(`🏷️ Role/category query detected — using topK: ${topK}`);
+            if (listQuery)          console.log(`📋 List query detected — using topK: ${topK}`);
+if (roleQuery)          console.log(`🏷️ Role/category query detected — using topK: ${topK}`);
+if (isIndustrialDesignQuery) console.log(`🎨 Industrial design query detected — using topK: ${topK}`);
+
 
             contextResult = await findRelevantContext(userPrompt, filteredStore, topK, sortByDate);
 
