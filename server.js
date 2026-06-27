@@ -90,12 +90,12 @@ function isTimelineQuery(query) {
 function detectRoleFromQuery(query) {
     if (/leadership|leader|manag|director|executive|strategy/i.test(query))
         return ["Leadership"];
-    if (/\bai\b|rag|technical|technology|creative tech|prototype|prototyping|node|code/i.test(query))
+    if (/\bai\b|rag|creative tech|dana.*tech|tech.*project|node\.js|prototyp.*project|show.*prototyp/i.test(query))
         return ["Creative Technology & UX"];
     if (/learning architect|lxd|instructional|curriculum|onboarding|training|education/i.test(query))
         return ["Learning Architecture & Design"];
     if (/\blighting design\b|product design showcase|dana.*design work|show.*design|design.*portfolio/i.test(query))
-    return ["Design"];
+        return ["Design"];
     return [];
 }
 
@@ -110,7 +110,7 @@ function detectCategoryFromQuery(query) {
         return ["Architecture"];
     if (/enablement|training program|champion|certification/i.test(query))
         return ["Enablement"];
-    if (/prototype|prototyping/i.test(query))
+    if (/show.*prototyp|prototyp.*project|dana.*prototyp|prototyp.*work/i.test(query))
         return ["Prototyping"];
     return [];
 }
@@ -208,39 +208,24 @@ async function findRelevantContext(query, filteredStore, topK = 5, sortByDate = 
         }));
 
         let topResults;
-        const designSubPages = [
-    "Clamp Lighting Product Line",
-    "Bowery Table Lamp",
-    "All of A Piece Modular Design",
-    "First Light Lighting Design"
-];
-
-
-if (topK > 10) {
-    const byProject = {};
-    scored.sort((a, b) => b.score - a.score).forEach(item => {
-        const title   = item.metadata?.title;
-        const visible = item.metadata?.visible;
-        if (title && !byProject[title] && (visible !== "No" || designSubPages.includes(title))) {
-            byProject[title] = item;
-        }
-    });
-    topResults = Object.values(byProject);
-
+        if (topK > 10) {
+            const byProject = {};
+            scored.sort((a, b) => b.score - a.score).forEach(item => {
+                const title   = item.metadata?.title;
+                const visible = item.metadata?.visible;
+                if (title && !byProject[title] && visible !== "No") {
+                    byProject[title] = item;
+                }
+            });
+            topResults = Object.values(byProject);
         } else {
             topResults = scored
-    .filter(item => item.metadata?.visible !== "No" || 
-    ["Clamp Lighting Product Line", 
-     "Bowery Table Lamp", 
-     "All of A Piece Modular Design", 
-     "First Light Lighting Design"].includes(item.metadata?.title))
-
-    .sort((a, b) => b.score - a.score)
-    .slice(0, topK);
-
+                .filter(item => item.metadata?.visible !== "No")
+                .sort((a, b) => b.score - a.score)
+                .slice(0, topK);
         }
 
-        // ── Sort by date for timeline queries ─────────────────────────────────
+        // ── Sort by date for list/timeline queries ────────────────────────────
         if (sortByDate) {
             topResults.sort((a, b) => {
                 const dateA = a.metadata?.projectDate || "0000-00-00";
@@ -329,7 +314,7 @@ function isHiddenPageQuery(query) {
 
 // ── PERSONAL QUERY DETECTION ──────────────────────────────────────────────────
 function isPersonalQuery(query) {
-    return /outside of work|personal|hobbies|interests|guitar|music|paddle|swim|ocean|personality|what.*like|who is dana|what kind of person|managing style|values|coaching style|work with|working style|outside work|free time|what does dana do|dana like to|dana enjoy|skills|strengths|abilities|what can dana|what does dana bring|what dana offers/i.test(query.trim());
+    return /outside of work|personal|hobbies|interests|guitar|music|paddle|swim|ocean|personality|what.*like|who is dana|what kind of person|managing style|values|coaching style|work with|working style|outside work|free time|what does dana do|dana like to|dana enjoy|skills|strengths|abilities|what can dana|what does dana bring|what dana offers|school|university|degree|education|studied|graduate|thesis|eindhoven|alberta|emily carr|teach|taught|instructor|most effective|best at|excels|where.*dana|what.*environment|thrive|passionate|motivated|driven/i.test(query.trim());
 }
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -338,7 +323,6 @@ app.use(express.json());
 app.use((req, res, next) => {
     res.setHeader(
         "Content-Security-Policy",
-         
         "default-src 'self'; img-src 'self' https://img.youtube.com https://raw.githubusercontent.com data:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; connect-src 'self'; frame-src https://www.youtube.com; object-src 'self';"
     );
     next();
@@ -434,17 +418,7 @@ app.post('/ask-buddy', async (req, res) => {
         const activeIndustries = translateParam(rawIndustry, INDUSTRY_MAP);
         const activeCategories = translateParam(rawCategory, CATEGORY_MAP);
 
-        const designSubPageNames = [
-    "Clamp Lighting Product Line",
-    "Bowery Table Lamp",
-    "All of A Piece Modular Design",
-    "First Light Lighting Design"
-];
-const isDesignSubPageQuery = designSubPageNames.some(name =>
-    userPrompt.toLowerCase().includes(name.toLowerCase())
-);
-const hiddenPageQuery = !isDesignSubPageQuery && (isHiddenPageQuery(userPrompt) || isPersonalQuery(userPrompt));
-
+        const hiddenPageQuery = isHiddenPageQuery(userPrompt) || isPersonalQuery(userPrompt);
         const listQuery       = isListQuery(userPrompt);
         const timelineQuery   = isTimelineQuery(userPrompt);
 
@@ -463,9 +437,6 @@ const hiddenPageQuery = !isDesignSubPageQuery && (isHiddenPageQuery(userPrompt) 
             });
 
             const isDirectProjectQuery = /^tell me about /i.test(userPrompt.trim());
-const isIndustrialDesignQuery = /industrial design|clamp|bowery|first light|all of a piece|pablo|article lamp|another country|lighting product|modular design/i.test(userPrompt.trim());
-
-
 
             if (activeRoles.length === 0 && !isDirectProjectQuery) {
                 const detectedRoles      = detectRoleFromQuery(userPrompt);
@@ -487,36 +458,13 @@ const isIndustrialDesignQuery = /industrial design|clamp|bowery|first light|all 
             }
 
             const roleQuery = (detectRoleFromQuery(userPrompt).length > 0 || detectCategoryFromQuery(userPrompt).length > 0) && activeRoles.length === 0;
-const topK = listQuery || timelineQuery ? 20 : isIndustrialDesignQuery ? 15 : roleQuery ? 10 : 5;
-const sortByDate = listQuery || timelineQuery;
+            const topK = listQuery || timelineQuery ? 20 : roleQuery ? 10 : 5;
+            const sortByDate = listQuery || timelineQuery;
 
-// ── Inject design sub-pages for industrial design queries ─────────────────
-if (isIndustrialDesignQuery) {
-    const designSubPageTitles = [
-    "Clamp Lighting Product Line",
-    "Bowery Table Lamp",
-    "All of A Piece Modular Design",
-    "First Light Lighting Design"
-];
-
-    const designChunks = memoryStore.filter(item => 
-        designSubPageTitles.includes(item.metadata?.title)
-    );
-    const existingTitles = new Set(filteredStore.map(i => i.metadata?.title));
-        const newChunks = designChunks.filter(chunk => !existingTitles.has(chunk.metadata?.title));
-    filteredStore = [...filteredStore, ...newChunks];
-    console.log(`🎨 Design sub-pages injected: ${newChunks.length} chunks added`);
-
-}
-
-
-            if (listQuery)          console.log(`📋 List query detected — using topK: ${topK}`);
-if (roleQuery)          console.log(`🏷️ Role/category query detected — using topK: ${topK}`);
-if (isIndustrialDesignQuery) console.log(`🎨 Industrial design query detected — using topK: ${topK}`);
-
+            if (listQuery) console.log(`📋 List query detected — using topK: ${topK}`);
+            if (roleQuery) console.log(`🏷️ Role/category query detected — using topK: ${topK}`);
 
             contextResult = await findRelevantContext(userPrompt, filteredStore, topK, sortByDate);
-
         }
 
         const { context, mediaUrl, topProjectTitle } = contextResult;
@@ -555,7 +503,6 @@ if (isIndustrialDesignQuery) console.log(`🎨 Industrial design query detected 
                 }
             }
         }
-
 
         console.log(`✅ Response sent. Detected project: "${confirmedProject || "multiple/none"}"`);
 
