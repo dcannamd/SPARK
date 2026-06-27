@@ -209,15 +209,20 @@ async function findRelevantContext(query, filteredStore, topK = 5, sortByDate = 
 
         let topResults;
         if (topK > 10) {
-            const byProject = {};
-            scored.sort((a, b) => b.score - a.score).forEach(item => {
-                const title   = item.metadata?.title;
-                const visible = item.metadata?.visible;
-                if (title && !byProject[title] && visible !== "No") {
-                    byProject[title] = item;
-                }
-            });
-            topResults = Object.values(byProject);
+    const byProject = {};
+    const industrialDesignChunks = [];
+    scored.sort((a, b) => b.score - a.score).forEach(item => {
+        const title   = item.metadata?.title;
+        const visible = item.metadata?.visible;
+        if (!title || visible === "No") return;
+        if (title === "Industrial Design & Product Development") {
+            if (industrialDesignChunks.length < 8) industrialDesignChunks.push(item);
+        } else if (!byProject[title]) {
+            byProject[title] = item;
+        }
+    });
+    topResults = [...industrialDesignChunks, ...Object.values(byProject)];
+
         } else {
             topResults = scored
                 .filter(item => item.metadata?.visible !== "No")
