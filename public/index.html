@@ -5,7 +5,15 @@
    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
    <title>Dana | Learning Architect Twin</title>
    <link rel="stylesheet" href="style.css">
+      <script>
+       !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]);t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+" (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys getNextSurveyStep onSessionId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+       posthog.init('YOUR_POSTHOG_API_KEY', {
+           api_host: 'https://us.i.posthog.com',
+           person_profiles: 'identified_only'
+       });
+   </script>
    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
 </head>
 <body>
@@ -41,10 +49,18 @@
            <a href="#" class="footer-link" onclick="shareConversation(); return false;">Share SPARK</a>
            <span class="footer-divider">|</span>
            <a href="#" class="footer-link" onclick="startNewChat(); return false;">+ Start Fresh</a>
-       </div>
+       
+             </div>
+
+   </div>
+
+   <div class="lightbox-overlay" id="lightbox" onclick="closeLightbox()">
+       <img id="lightbox-img" src="" alt="Full screen image">
    </div>
 
    <script>
+
+      
        const chatHistory = document.getElementById('chat-history');
        const userInput = document.getElementById('user-input');
        const header = document.querySelector('header');
@@ -93,13 +109,18 @@
                });
                const data = await response.json();
                removeMessage(loadingId);
-               if (data.coverLetter) {
+                              if (data.coverLetter) {
+                   posthog.capture('cover_letter_generated', {
+                       company: activeFilters.company,
+                       role: activeFilters.role
+                   });
                    const div = document.createElement('div');
                    div.className = 'message bot-message cover-letter';
                    div.id = 'msg-' + Date.now();
                    div.innerHTML = marked.parse(data.coverLetter);
                    chatHistory.appendChild(div);
                    div.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
                }
            } catch (error) {
                removeMessage(loadingId);
@@ -107,11 +128,13 @@
            }
        }
 
-       function askSuggestion(el) {
+              function askSuggestion(el) {
            lastSuggestionChip = el.textContent.trim();
            userInput.value = el.textContent;
+           posthog.capture('chip_clicked', { chip: el.textContent.trim() });
            sendMessage();
        }
+
 
        function askAboutProject(projectName) {
            userInput.value = `Tell me about ${projectName}`;
@@ -157,11 +180,13 @@
            return html.replace(/\[\[IMAGE:\s*<?([^>\]]+?)>?\]\]/g, (match, url) => {
     const trimmedUrl = url.trim();
 
-               return `<div class="inline-image-wrapper">
+                              return `<div class="inline-image-wrapper">
                    <img src="${trimmedUrl}" 
                         alt="Product design" 
-                        style="width:100%; border-radius:10px; display:block; margin:12px 0;">
+                        style="width:100%; border-radius:10px; display:block; margin:12px 0; cursor:pointer;"
+                        onclick="openLightbox('${trimmedUrl}')">
                </div>`;
+
            });
        }
 
@@ -237,9 +262,11 @@
            const prompt = userInput.value.trim();
            if (!prompt) return;
 
-           addMessage(prompt, 'user-message');
+                      addMessage(prompt, 'user-message');
+           posthog.capture('message_sent', { query: prompt });
            userInput.value = '';
            chatHistory.scrollTop = chatHistory.scrollHeight;
+
 
            const typingId = addTypingIndicator();
            const typingEl = document.getElementById(typingId);
@@ -271,8 +298,11 @@
                    lastSuggestionChip = null;
                }
 
-               if (data.topProjectTitle) {
+                              if (data.topProjectTitle) {
                    activeProjectTitle = data.topProjectTitle;
+                   if (data.topProjectTitle !== 'NONE') {
+                       posthog.capture('project_viewed', { project: data.topProjectTitle });
+                   }
                }
 
                if (data.mediaUrl) {
@@ -363,13 +393,25 @@
            if (el) el.remove();
        }
 
-       function startNewChat() {
+              function startNewChat() {
+           posthog.capture('new_chat_started');
            activeProjectTitle = null;
            fetch('/reset-chat', { method: 'POST' })
                .finally(() => location.reload());
        }
 
+       function openLightbox(src) {
+           document.getElementById('lightbox-img').src = src;
+           document.getElementById('lightbox').classList.add('active');
+       }
+
+       function closeLightbox() {
+           document.getElementById('lightbox').classList.remove('active');
+       }
+
        function shareConversation() {
+
+      
            navigator.clipboard.writeText(window.location.href).then(() => {
                alert('Link copied to clipboard!');
            });
