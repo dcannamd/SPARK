@@ -1,0 +1,67 @@
+# Lead, Learning Architecture & AI Enablement
+
+**Location:** Remote, Canada; Remote, US
+
+GitLab is the intelligent orchestration platform for DevSecOps. GitLab enables organizations to increase developer productivity, improve operational efficiency, reduce security and compliance risk, and accelerate digital transformation. More than 50 million registered users and more than 50% of the Fortune 100* trust GitLab to ship better, more secure software faster.
+
+The same principles built into our products are reflected in how our team works: we embrace AI as a core productivity multiplier, with all team members expected to incorporate AI into their daily workflows to drive efficiency, innovation, and impact. GitLab is where careers accelerate, innovation flourishes, and every voice is valued. Our high-performance culture is driven by our values and continuous knowledge exchange, enabling our team members to reach their full potential while collaborating with industry leaders to solve complex problems. Co-create the future with us as we build technology that transforms how the world develops software.
+
+*Fortune 500® is a registered trademark of Fortune Media IP Limited, used under license. Claim based on GitLab data. Fortune 100 refers to the top 20% ranked companies in the 2025 Fortune 500 list, published in June 2025. Fortune and Fortune Media IP Limited are not affiliated with, and do not endorse products or services of GitLab.*
+
+## An overview of this role
+
+GitLab is looking for an innovative leader to shape how our team members learn and grow. As Lead, Learning Architecture & AI Enablement, you'll own the strategy and systems behind GitLab's global learning ecosystem. You'll set the learning platform roadmap, design AI-powered learning experiences, and lead our enterprise AI fluency program from strategy through delivery.
+
+You'll combine hands-on experience with AI agents, intelligent workflows, and AI-native platform design with strong program management and cross-functional partnership. Your work will move GitLab beyond traditional learning management system infrastructure and build a scalable learning ecosystem that supports capability growth, measures impact, and connects with our broader enterprise technology stack.
+
+## What you'll do
+
+- Architect GitLab's AI-native learning ecosystem, including adaptive learning paths, coaching agents, bots, intelligent recommendations, and automated content workflows.
+- Lead GitLab's company-wide AI fluency and enablement strategy in partnership with the Enterprise AI team, from baseline literacy through builder capability.
+- Embed AI fluency into onboarding, leadership development, and role-specific learning pathways.
+- Own the multi-year learning platform strategy and roadmap, including platform evaluations, migrations, integrations, and capability expansions.
+- Drive operational excellence across the Talent Management & Development team by managing the product roadmap, release schedule, intake processes, documentation, automations, and cross-functional coordination.
+- Partner with People Technology as the technical lead for Talent Development, translating learner and business needs into architecture briefs and co-building agents, workflows, and platform integrations.
+- Partner with People Analytics to define measurement infrastructure and dashboards for learning engagement, AI adoption, behavior change, capability growth, and program return on investment.
+- Lead global compliance training and vendor management, including audit readiness, negotiations, renewals, quarterly business reviews, budgets, adoption targets, and investment cases.
+
+## What you'll bring
+
+- Experience leading enterprise-scale AI enablement or AI fluency programs at technology companies, with evidence of workforce adoption and capability growth.
+- Hands-on experience designing and deploying AI agents, building intelligent workflows, working with large language model application programming interfaces, and integrating AI capabilities into enterprise platforms.
+- Experience designing learning ecosystems that use AI for adaptive learning, intelligent recommendations, coaching, or automated content workflows.
+- Experience building and owning multi-year technology and program roadmaps, communicating tradeoffs, and making investment decisions based on outcomes.
+- Deep knowledge of learning technology ecosystems, including learning management system administration, platform evaluations, migrations, integrations, and vendor management.
+- Ability to translate talent and learner needs into clear technical requirements and work with engineers on application programming interfaces, data structures, and integration patterns.
+- Strong program management skills, including roadmaps, intake, release schedules, triage, documentation, and automation.
+- Experience with instructional design, adult learning principles, analytics, executive communication, and global compliance training.
+
+## About the team
+
+The Talent Management & Development team builds the systems, programs, and learning experiences that help GitLab team members grow and contribute. This role will serve as an operational and technical lead across the team's work, partnering with Enterprise AI, People Technology, People Analytics, Legal, Security, and external vendors to create a scalable, measurable, and AI-native learning ecosystem.
+
+## Compensation
+
+The base salary range for this role's listed level is currently for residents of the United States only. This range is intended to reflect the role's base salary rate in locations throughout the US. Grade level and salary ranges are determined through interviews and a review of education, experience, knowledge, skills, abilities of the applicant, equity with other team members, alignment with market data, and geographic location. The base salary range does not include any bonuses, equity, or benefits. See more information on our benefits and equity. Sales roles are also eligible for incentive pay targeted at up to 100% of the offered base salary.
+
+**United States Salary Range:** $1 - $1 USD
+
+## How GitLab Supports Full-Time Employees
+
+Benefits to support your health, finances, and well-being:
+
+- Flexible Paid Time Off
+- Team Member Resource Groups
+- Equity Compensation & Employee Stock Purchase Plan
+- Growth and Development Fund
+- Parental Leave
+
+---
+
+Please note that we welcome interest from candidates with varying levels of experience; many successful candidates do not meet every single requirement. Additionally, studies have shown that people from underrepresented groups are less likely to apply to a job unless they meet every single qualification. If you're excited about this role, please apply and allow our recruiters to assess your application.
+
+**Country Hiring Guidelines:** GitLab hires new team members in countries around the world. All of our roles are remote, however some roles may carry specific location-based eligibility requirements. Our Talent Acquisition team can help answer any questions about location after starting the recruiting process.
+
+**Privacy Policy:** Please review our Recruitment Privacy Policy. Your privacy is important to us.
+
+GitLab is proud to be an equal opportunity workplace and is an affirmative action employer. GitLab's policies and practices relating to recruitment, employment, career development and advancement, promotion, and retirement are based solely on merit, regardless of race, color, religion, ancestry, sex (including pregnancy, lactation, sexual orientation, gender identity, or gender expression), national origin, age, citizenship, marital status, mental or physical disability, genetic information (including family medical history), discharge status from the military, protected veteran status (which includes disabled veterans, recently separated veterans, active duty wartime or campaign badge veterans, and Armed Forces service medal veterans), or any other basis protected by law. GitLab will not tolerate discrimination or harassment based on any of these characteristics. See also GitLab's EEO Policy and EEO is the Law. If you have a disability or special need that requires accommodation, please let us know during the recruiting process.
