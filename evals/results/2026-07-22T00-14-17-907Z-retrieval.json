@@ -1,0 +1,321 @@
+{
+  "mode": "retrieval",
+  "hitRate": 97,
+  "results": [
+    {
+      "id": "R01",
+      "route": "standard",
+      "query": "Tell me about Advanced Prototyping Consultation — Airbus",
+      "expectTop": "Advanced Prototyping Consultation — Airbus",
+      "why": "Direct select from project list. Regression guard: 'prototyping' role/category regex once pre-filtered Airbus out of its own results.",
+      "status": "PASS",
+      "detail": "#1 = \"Advanced Prototyping Consultation — Airbus\""
+    },
+    {
+      "id": "R02",
+      "route": "standard",
+      "query": "What did Dana do at Airbus?",
+      "expectTop": "Advanced Prototyping Consultation — Airbus",
+      "why": "Client-name semantic lookup.",
+      "status": "PASS",
+      "detail": "#1 = \"Advanced Prototyping Consultation — Airbus\""
+    },
+    {
+      "id": "R03",
+      "route": "standard",
+      "query": "Tell me about SPARK AI-Powered Portfolio",
+      "expectTop": "SPARK AI-Powered Portfolio",
+      "why": "Direct select. Regression guard: SPARK was once unreachable under role filters due to missing tags.",
+      "status": "PASS",
+      "detail": "#1 = \"SPARK AI-Powered Portfolio\""
+    },
+    {
+      "id": "R04",
+      "route": "standard",
+      "query": "How does SPARK work?",
+      "expectTop": "SPARK AI-Powered Portfolio",
+      "why": "Starter chip query — must always resolve.",
+      "status": "PASS",
+      "detail": "#1 = \"SPARK AI-Powered Portfolio\""
+    },
+    {
+      "id": "R05",
+      "route": "standard",
+      "query": "Tell me about Qmod Educational Platform",
+      "expectTop": "Qmod Educational Platform",
+      "why": "Direct select.",
+      "status": "PASS",
+      "detail": "#1 = \"Qmod Educational Platform\""
+    },
+    {
+      "id": "R06",
+      "route": "standard",
+      "query": "Which company did Dana found and sell?",
+      "expectTop": "Qmod Educational Platform",
+      "why": "Semantic — acquisition story.",
+      "status": "PARTIAL",
+      "detail": "expected at rank 2; #1 = \"Industrial Design & Product Development\""
+    },
+    {
+      "id": "R07",
+      "route": "standard",
+      "query": "What did Dana build for COMAC?",
+      "expectTop": "Advanced Prototyping Consultation — COMAC",
+      "why": "Client-name lookup.",
+      "status": "PASS",
+      "detail": "#1 = \"Advanced Prototyping Consultation — COMAC\""
+    },
+    {
+      "id": "R08",
+      "route": "standard",
+      "query": "Tell me about the flight simulator project",
+      "expectTop": "Advanced Prototyping Consultation — COMAC",
+      "why": "Semantic — page-body content, no title words.",
+      "status": "PASS",
+      "detail": "#1 = \"Advanced Prototyping Consultation — COMAC\""
+    },
+    {
+      "id": "R09",
+      "route": "standard",
+      "query": "Clamp",
+      "expectTop": "Industrial Design & Product Development",
+      "why": "Single-word product lookup. Regression guard: multi-product page retrieval.",
+      "status": "PASS",
+      "detail": "#1 = \"Industrial Design & Product Development\""
+    },
+    {
+      "id": "R10",
+      "route": "standard",
+      "query": "Bowery",
+      "expectTop": "Industrial Design & Product Development",
+      "why": "Single-word product lookup.",
+      "status": "PASS",
+      "detail": "#1 = \"Industrial Design & Product Development\""
+    },
+    {
+      "id": "R11",
+      "route": "standard",
+      "query": "All of a piece",
+      "expectTop": "Industrial Design & Product Development",
+      "why": "Product-section lookup — chunk deep in the page body.",
+      "status": "PASS",
+      "detail": "#1 = \"Industrial Design & Product Development\""
+    },
+    {
+      "id": "R12",
+      "route": "standard",
+      "query": "Tell me about Industrial Design & Product Development",
+      "expectTop": "Industrial Design & Product Development",
+      "why": "Direct select of the multi-product page.",
+      "status": "PASS",
+      "detail": "#1 = \"Industrial Design & Product Development\""
+    },
+    {
+      "id": "R13",
+      "route": "standard",
+      "query": "Which project reduced privacy and security breaches?",
+      "expectTop": "Corporate Privacy and Security Training",
+      "why": "Semantic — quantified-result lookup (75%).",
+      "status": "PASS",
+      "detail": "#1 = \"Corporate Privacy and Security Training\""
+    },
+    {
+      "id": "R14",
+      "route": "standard",
+      "query": "Which project avoided a $20,000 platform upgrade?",
+      "expectTop": "External Online Learning Strategy",
+      "why": "Semantic — exact-figure lookup.",
+      "status": "PASS",
+      "detail": "#1 = \"External Online Learning Strategy\""
+    },
+    {
+      "id": "R15",
+      "route": "standard",
+      "query": "Tell me about Bridge Buddy",
+      "expectAny": [
+        "AI-Powered Learning Ecosystem & Corporate Enablement Strategy"
+      ],
+      "why": "Internal product name spanning two related projects.",
+      "status": "PASS",
+      "detail": "#1 = \"AI-Powered Learning Ecosystem & Corporate Enablement Strategy\""
+    },
+    {
+      "id": "R16",
+      "route": "standard",
+      "query": "Tell me about the Champions Community",
+      "expectAny": [
+        "AI-Powered Learning Ecosystem & Corporate Enablement Strategy"
+      ],
+      "why": "Concept appearing in multiple projects.",
+      "status": "PASS",
+      "detail": "#1 = \"AI-Powered Learning Ecosystem & Corporate Enablement Strategy\""
+    },
+    {
+      "id": "R17",
+      "route": "standard",
+      "query": "What work has Dana done for the military?",
+      "expectTop": "Scalable Learning Solutions & LXD Integration for Defense",
+      "why": "Semantic — domain lookup.",
+      "status": "PASS",
+      "detail": "#1 = \"Scalable Learning Solutions & LXD Integration for Defense\""
+    },
+    {
+      "id": "R18",
+      "route": "standard",
+      "query": "Tell me about the SharePoint intranet project",
+      "expectTop": "Corporate Intranet Design, Deployment and Governance",
+      "why": "Platform-name lookup; governance/CTO content.",
+      "status": "PASS",
+      "detail": "#1 = \"Corporate Intranet Design, Deployment and Governance\""
+    },
+    {
+      "id": "R19",
+      "route": "standard",
+      "query": "Which enterprise clients used Dana's learning portals?",
+      "expectTop": "Enterprise Learning Portals",
+      "why": "Semantic — client-roster content.",
+      "status": "PASS",
+      "detail": "#1 = \"Enterprise Learning Portals\""
+    },
+    {
+      "id": "R20",
+      "route": "standard",
+      "query": "Tell me about the partner certification program",
+      "expectTop": "Corporate Partner Program",
+      "why": "Semantic — $35K revenue program.",
+      "status": "PASS",
+      "detail": "#1 = \"Corporate Partner Program\""
+    },
+    {
+      "id": "R21",
+      "route": "standard",
+      "query": "Which project used a gamified WordPress onboarding experience?",
+      "expectTop": "New Employee Onboarding",
+      "why": "Semantic — WebVR-to-gamification pivot story.",
+      "status": "PASS",
+      "detail": "#1 = \"New Employee Onboarding\""
+    },
+    {
+      "id": "R22",
+      "route": "standard",
+      "query": "Tell me about the AI Assistant & User Testing Feature Launch",
+      "expectTop": "AI Assistant & User Testing Feature Launch",
+      "why": "Direct select.",
+      "status": "PASS",
+      "detail": "#1 = \"AI Assistant & User Testing Feature Launch\""
+    },
+    {
+      "id": "R23",
+      "route": "standard",
+      "query": "Has Dana won any design awards?",
+      "expectTop": "Industrial Design & Product Development",
+      "why": "Red Dot Award lookup.",
+      "status": "PASS",
+      "detail": "#1 = \"Industrial Design & Product Development\""
+    },
+    {
+      "id": "H01",
+      "route": "hidden",
+      "query": "Where did Dana go to school?",
+      "expectTop": "Dana's Expertise",
+      "why": "Regression guard: education queries once returned the blunt fallback.",
+      "status": "PASS",
+      "detail": "#1 = \"Dana’s Expertise\""
+    },
+    {
+      "id": "H02",
+      "route": "hidden",
+      "query": "What are Dana's skills?",
+      "expectTop": "Dana's Expertise",
+      "why": "Regression guard: generic skills query once missed the hidden page.",
+      "status": "PASS",
+      "detail": "#1 = \"Dana’s Expertise\""
+    },
+    {
+      "id": "H03",
+      "route": "hidden",
+      "query": "Where does Dana feel he is most effective?",
+      "expectTop": "Dana's Expertise",
+      "why": "Regression guard: effectiveness keywords.",
+      "status": "PASS",
+      "detail": "#1 = \"Dana’s Expertise\""
+    },
+    {
+      "id": "H04",
+      "route": "hidden",
+      "query": "Tell me about Dana's expertise",
+      "expectTop": "Dana's Expertise",
+      "why": "Starter chip — hidden-title match.",
+      "status": "PASS",
+      "detail": "#1 = \"Dana’s Expertise\""
+    },
+    {
+      "id": "H05",
+      "route": "hidden",
+      "query": "What is Dana's master's thesis about?",
+      "expectTop": "Dana's Expertise",
+      "why": "Education detail — Eindhoven AR thesis.",
+      "status": "PASS",
+      "detail": "#1 = \"Dana’s Expertise\""
+    },
+    {
+      "id": "H06",
+      "route": "hidden",
+      "query": "Did Dana teach at a university?",
+      "expectTop": "Dana's Expertise",
+      "why": "Emily Carr instructor content.",
+      "status": "PASS",
+      "detail": "#1 = \"Dana’s Expertise\""
+    },
+    {
+      "id": "H07",
+      "route": "hidden",
+      "query": "What does Dana do outside of work?",
+      "expectTop": "Outside of Work",
+      "why": "Second hidden page must win over the expertise page.",
+      "status": "PASS",
+      "detail": "#1 = \"Outside of Work\""
+    },
+    {
+      "id": "L01",
+      "route": "list",
+      "query": "View Dana's project list",
+      "expectContains": [
+        "SPARK AI-Powered Portfolio",
+        "Qmod Educational Platform",
+        "Industrial Design & Product Development",
+        "Enterprise Learning Portals",
+        "Advanced Prototyping Consultation — Airbus"
+      ],
+      "expectExcludes": [
+        "Untitled Project",
+        "Clamp Lighting Product Line",
+        "Bowery Table Lamp",
+        "All of A Piece Modular Design",
+        "First Light Lighting Design",
+        "Dana's Expertise",
+        "Outside of Work"
+      ],
+      "expectYears": true,
+      "why": "List integrity: key projects present; hidden pages, design sub-pages, and untitled rows excluded; years rendered (live mode).",
+      "status": "PASS",
+      "detail": "14 projects returned"
+    },
+    {
+      "id": "L02",
+      "route": "list",
+      "query": "Give me a timeline of Dana's work experience",
+      "expectContains": [
+        "Qmod Educational Platform",
+        "SPARK AI-Powered Portfolio"
+      ],
+      "expectExcludes": [
+        "Untitled Project"
+      ],
+      "expectYears": true,
+      "why": "Timeline uses the same dedupe path; years must never be omitted (live mode checks).",
+      "status": "PASS",
+      "detail": "14 projects returned"
+    }
+  ]
+}
