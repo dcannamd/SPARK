@@ -319,6 +319,20 @@ function isHiddenPageQuery(query) {
     );
 }
 
+// ── STORE TITLE INVENTORY (feeds the LLM router) ──────────────────────────────
+function getStoreTitles() {
+    const visible = new Set();
+    const hidden  = new Set();
+    for (const item of memoryStore) {
+        const t = item.metadata?.title;
+        if (!t || t === "Untitled Project") continue;
+        (item.metadata?.visible === "No" ? hidden : visible).add(t);
+    }
+    return { projectTitles: [...visible], hiddenTitles: [...hidden] };
+}
+
+
+
 // ── PERSONAL QUERY DETECTION ──────────────────────────────────────────────────
 function isPersonalQuery(query) {
     return /outside of work|personal|hobbies|interests|guitar|music|paddle|swim|ocean|personality|what.*like|who is dana|what kind of person|managing style|values|coaching style|work with|working style|outside work|free time|what does dana do|dana like to|dana enjoy|skills|strengths|abilities|what can dana|what does dana bring|what dana offers|school|university|degree|education|studied|graduate|thesis|eindhoven|alberta|emily carr|teach|taught|instructor|most effective|best at|excels|where.*dana|what.*environment|thrive|passionate|motivated|driven/i.test(query.trim());
