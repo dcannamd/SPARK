@@ -158,6 +158,11 @@ SUMMARY OF TOOLS: ${tools}
             console.log(`   ✅ ${chunks.length} chunks embedded.\n`);
         }
 
+        if (finalVectors.length === 0) {
+            console.error("❌ BUILD PRODUCED 0 CHUNKS — refusing to write an empty store.");
+            process.exit(1);
+        }
+
         if (!fs.existsSync(path.dirname(STORE_PATH))) {
             fs.mkdirSync(path.dirname(STORE_PATH), { recursive: true });
         }
@@ -174,8 +179,9 @@ SUMMARY OF TOOLS: ${tools}
         console.log("─────────────────────────────────────────────");
 
     } catch (error) {
-        console.error("❌ FATAL ERROR DURING BUILD:", error);
-    }
+       console.error("❌ FATAL ERROR DURING BUILD:", error);
+        process.exit(1);
+    } 
 }
 
 runBuild();
