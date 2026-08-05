@@ -505,9 +505,12 @@ app.post('/ask-buddy', async (req, res) => {
                 filteredStore = filterByProject(filteredStore, frontendProjectTitle);
             }
 
-            const roleQuery = (detectRoleFromQuery(userPrompt).length > 0 || detectCategoryFromQuery(userPrompt).length > 0) && activeRoles.length === 0;
-            const topK = listQuery || timelineQuery ? 20 : isIndustrialDesignQuery ? 15 : roleQuery ? 10 : 5;
+                        const regexRoleQuery = detectRoleFromQuery(userPrompt).length > 0 || detectCategoryFromQuery(userPrompt).length > 0;
+            const roleQuery = (routedRoles.length > 0 || (!route && regexRoleQuery)) && activeRoles.length === 0;
+            const multiProductPage = routedProject === "Industrial Design & Product Development" || (!route && isIndustrialDesignQuery);
+            const topK = listQuery || timelineQuery ? 20 : multiProductPage ? 15 : roleQuery ? 10 : 5;
 
+            
             const sortByDate = listQuery || timelineQuery;
 
             if (listQuery) console.log(`📋 List query detected — using topK: ${topK}`);
