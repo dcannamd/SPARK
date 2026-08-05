@@ -5,6 +5,8 @@ const { GoogleGenerativeAIEmbeddings } = require("@langchain/google-genai");
 require('dotenv').config();
 
 const { callBridgeBuddy, generateCoverLetter, resetHistory } = require('./rag-tutor.js');
+const { routeQuery } = require('./query-router.js');
+
 
 const STORE_PATH = path.join(__dirname, 'vector_store', 'memory_store.json');
 
