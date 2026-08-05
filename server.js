@@ -477,7 +477,16 @@ app.post('/ask-buddy', async (req, res) => {
             const isIndustrialDesignQuery = /industrial design|clamp|bowery|first light|all of a piece|pablo|another country/i.test(userPrompt.trim());
 
 
-            if (activeRoles.length === 0 && !isDirectProjectQuery) {
+                        if (routedProject) {
+                console.log(`🧭 Router anchored project: "${routedProject}"`);
+                filteredStore = filterByProject(filteredStore, routedProject);
+            } else if (route && routedRoles.length > 0 && activeRoles.length === 0) {
+                console.log(`🧭 Router roles: [${routedRoles.join(", ")}]`);
+                filteredStore = preFilterStore(memoryStore, { roles: routedRoles });
+            }
+
+            if (!route && activeRoles.length === 0 && !isDirectProjectQuery) {
+
                 const detectedRoles      = detectRoleFromQuery(userPrompt);
                 const detectedCategories = detectCategoryFromQuery(userPrompt);
 
