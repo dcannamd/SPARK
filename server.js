@@ -439,9 +439,25 @@ app.post('/ask-buddy', async (req, res) => {
         const activeIndustries = translateParam(rawIndustry, INDUSTRY_MAP);
         const activeCategories = translateParam(rawCategory, CATEGORY_MAP);
 
-        const hiddenPageQuery = isHiddenPageQuery(userPrompt) || isPersonalQuery(userPrompt);
-        const listQuery       = isListQuery(userPrompt);
-        const timelineQuery   = isTimelineQuery(userPrompt);
+                let hiddenPageQuery = isHiddenPageQuery(userPrompt) || isPersonalQuery(userPrompt);
+        let listQuery       = isListQuery(userPrompt);
+        let timelineQuery   = isTimelineQuery(userPrompt);
+
+        // ── Phase 2: LLM query router (USE_LLM_ROUTER=true; null = regex path) ──
+        let routedProject = null;
+        let routedRoles   = [];
+        const { projectTitles, hiddenTitles } = getStoreTitles();
+        const route = await routeQuery(userPrompt, projectTitles, hiddenTitles);
+        if (route) {
+            console.log(`🧭 Router: intent=${route.intent} | project=${route.project || "none"} | roles=[${route.roles.join(", ") || "none"}]`);
+            const routedHidden = !!route.project && hiddenTitles.includes(route.project);
+            hiddenPageQuery = route.intent === "personal" || routedHidden;
+            listQuery       = route.intent === "list";
+            timelineQuery   = route.intent === "timeline";
+            routedProject   = routedHidden ? null : route.project;
+            routedRoles     = route.roles;
+        }
+
 
         if (timelineQuery) console.log(`📅 Timeline query detected`);
 
