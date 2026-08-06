@@ -6,7 +6,7 @@ require('dotenv').config();
 
 const { callBridgeBuddy, generateCoverLetter, resetHistory } = require('./rag-tutor.js');
 const { routeQuery } = require('./query-router.js');
-
+const { applyHybrid } = require('./hybrid-search.js');
 
 const STORE_PATH = path.join(__dirname, 'vector_store', 'memory_store.json');
 
@@ -204,10 +204,11 @@ async function findRelevantContext(query, filteredStore, topK = 5, sortByDate = 
     try {
         const queryVector = await embeddings.embedQuery(query);
 
-        const scored = store.map(item => ({
-            ...item,
-            score: dotProduct(queryVector, item.embedding)
-        }));
+       const useHybrid = process.env.USE_HYBRID_SEARCH === "true";
+        if (useHybrid) console.log(`🔀 Hybrid search active (BM25 + vectors, RRF)`);
+        const scored = useHybrid
+            ? applyHybrid(query, store, queryVector, dotProduct)
+            : store.map(item => ({ ...item, score: dotProduct(queryVector, item.embedding) })); 
 
         let topResults;
         if (topK > 10) {
