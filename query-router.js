@@ -47,6 +47,9 @@ Intent definitions:
 - "personal": about Dana as a person — education, school, degrees, thesis,
   teaching, skills, strengths, working style, values, hobbies, life outside
   work, what he's like, where he's most effective.
+  NOT career achievements — companies founded or sold, awards won, clients
+  served, or results delivered. Those live on project pages: use "project"
+  when one project clearly owns the achievement, or "general" when unsure.
 - "project": about one specific project. Set "project" to the EXACT matching
   title (copy it verbatim, including dashes) from either list below. This
   includes questions naming a product, client, or artifact that clearly
