@@ -4,6 +4,7 @@ const { RecursiveCharacterTextSplitter } = require("@langchain/textsplitters");
 const fs = require("fs");
 const path = require("path");
 require("dotenv").config();
+const { generateChunkPreface } = require('./contextual-preface.js');
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
@@ -127,11 +128,15 @@ SUMMARY OF TOOLS: ${tools}
 
             const chunks = await splitter.splitText(combinedText);
             
+            let prefaceCount = 0;
             for (const chunk of chunks) {
-                const vector = await embeddings.embedQuery(chunk);
+                const preface = await generateChunkPreface(title, impact, chunk);
+                if (preface) prefaceCount++;
+                const enriched = preface ? `${preface}\n\n${chunk}` : chunk;
+                const vector = await embeddings.embedQuery(enriched);
                 
                 finalVectors.push({
-                    content: chunk,
+                    content: enriched,
                     embedding: vector,
                     metadata: { 
                         title,
@@ -155,7 +160,7 @@ SUMMARY OF TOOLS: ${tools}
                 });
             }
 
-            console.log(`   ✅ ${chunks.length} chunks embedded.\n`);
+            console.log(`   ✅ ${chunks.length} chunks embedded${prefaceCount ? ` (${prefaceCount} with prefaces)` : ""}.\n`);
         }
 
         if (finalVectors.length === 0) {
