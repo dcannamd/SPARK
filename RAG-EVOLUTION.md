@@ -138,6 +138,15 @@ And a few lines below, change what gets stored so retrieval returns the enriched
 
 **Validate:** `USE_CONTEXTUAL_RETRIEVAL=true node build-kb.js` (slower — one extra flash call per chunk), then re-run evals. **This phase changes chunk content, so re-baseline**: compare Phase-4-on vs Phase-4-off rebuilds, not against pre-Phase-4 result files.
 
+
+**Status: NOT SHIPPED (2026-09-15).** Scored 100% on the eval suite but broke
+multi-section pages in manual testing: the Industrial Design page lost its
+Recognition section and rendered stray empty bullets. Prefaces appear to shift
+content across chunk boundaries. Module and wiring remain in place, flag-gated
+off. Revisit with chunking changes — and add eval coverage for section
+completeness before trying again, since the current suite could not detect this.
+
+
 ---
 
 ## Render / production
