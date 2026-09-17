@@ -28,10 +28,11 @@ async function getFullPageContent(blockId) {
                 const codeText = block.code?.rich_text?.map(t => t.plain_text).join("") || "";
                 if (codeText) text += codeText + "\n";
             } else {
-                const richText = block[type]?.rich_text;
+const richText = block[type]?.rich_text;
                 if (richText) {
-                    const content = richText.map(t => t.plain_text).join("");
-                    if (content) text += content + "\n";
+                    const content = richText.map(t => t.href ? `[${t.plain_text}](${t.href})` : t.plain_text).join("");
+                    const marker = type === 'bulleted_list_item' ? '- ' : type === 'numbered_list_item' ? '1. ' : type === 'heading_1' ? '# ' : type === 'heading_2' ? '## ' : type === 'heading_3' ? '### ' : '';
+                    if (content) text += marker + content + "\n";
                 }
             }
             if (block.has_children) {

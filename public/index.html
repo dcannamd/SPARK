@@ -180,14 +180,8 @@
            return html.replace(/\[\[IMAGE:\s*<?([^>\]]+?)>?\]\]/g, (match, url) => {
     const trimmedUrl = url.trim();
 
-                              return `<div class="inline-image-wrapper">
-                   <img src="${trimmedUrl}" 
-                        alt="Product design" 
-                        style="width:100%; border-radius:10px; display:block; margin:12px 0; cursor:pointer;"
-                        onclick="openLightbox('${trimmedUrl}')">
-               </div>`;
-
-           });
+                                                            return `\n\n<div class="inline-image-wrapper"><img src="${trimmedUrl}" alt="Product design" style="width:100%; border-radius:10px; display:block; margin:12px 0; cursor:pointer;" onclick="openLightbox('${trimmedUrl}')"></div>\n`;
+          });
        }
 
        function renderProjectLinks(html) {
@@ -376,8 +370,9 @@
            div.id = 'msg-' + Date.now();
           if (isMarkdown) {
     const withImages = renderImageTags(text);
-    const rawHtml = marked.parse(withImages);
-    div.innerHTML = renderProjectLinks(rawHtml);
+    const rawHtml = marked.parse(withImages.replace(/^ {4,}/gm, '  '));
+    const withTargets = rawHtml.replace(/<a href="(https?:\/\/[^"]+)"/g, '<a href="$1" target="_blank" rel="noopener noreferrer"');
+    div.innerHTML = renderProjectLinks(withTargets);
 }
   
             else {

@@ -42,7 +42,10 @@ Schema:
 }
 
 Intent definitions:
-- "list": user wants an overview/list of all projects.
+- "list": user wants an overview of the portfolio as a whole — a list of
+  projects, but also broader asks like "Dana's professional experience", "his
+  career", "his background", "what has Dana worked on", "what kind of work does
+  he do". If the answer should span many projects rather than one, it's "list".
 - "timeline": user wants work history in chronological order.
 - "personal": about Dana as a person — education, school, degrees, thesis,
   teaching, skills, strengths, working style, values, hobbies, life outside
@@ -55,8 +58,10 @@ Intent definitions:
   includes questions naming a product, client, or artifact that clearly
   belongs to one project (e.g. "Clamp", "Bowery", "flight simulator", a
   client name).
-- "general": everything else (multi-project comparisons, capabilities,
-  greetings). Leave "project" null.
+- "general": only genuine one-offs — greetings, questions about SPARK itself,
+  comparisons between two named projects, or anything that fits none of the
+  above. Do NOT use "general" for portfolio-wide questions; those are "list".
+  Leave "project" null.
 
 Rules:
 - "project" must be null OR an exact string from the lists. Never invent titles.

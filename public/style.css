@@ -334,7 +334,7 @@ button#send-btn {
 
 /* ── INLINE IMAGES ───────────────────────────────────────────────────────── */
 .inline-image-wrapper {
-    margin: 12px 0;
+    margin: 32px 0 12px 0;
     border-radius: 10px;
     overflow: hidden;
     max-width: 100%;
