@@ -14,7 +14,15 @@ const ROLE_PERSONAS = {
     },
     "Leadership": {
         emphasis: "cross-functional team leadership, strategic program management, stakeholder alignment, and organizational impact",
-        deprioritize: "low-level technical implementation details unrelated to strategic delivery"
+                deprioritize: "low-level technical implementation details unrelated to strategic delivery"
+    },
+    "Enablement": {
+        emphasis: "training programs, champion and certification programs, partner and customer enablement, adoption strategy, and measurable business outcomes",
+        deprioritize: "low-level technical implementation details unrelated to adoption or learner outcomes"
+    },
+    "Instructional Design": {
+        emphasis: "learning objectives, curriculum and course design, assessment strategy, learner experience, and content development workflows",
+        deprioritize: "infrastructure configuration or technical details not tied to learning outcomes"
     }
 };
 

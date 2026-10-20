@@ -77,6 +77,7 @@ async function runBuild() {
             const projectDate = props["Date"]?.date?.start || null;
             const client      = props["Client"]?.rich_text?.map(t => t.plain_text).join("") || null;
             const visible     = props["Visible"]?.select?.name || "Yes";
+            const multiProduct = props["Multi-Product Page"]?.checkbox === true;
 
             // ── NEW: Leadership-specific columns ──────────────────────────────
             const teamManagement      = props["Team Management"]?.rich_text?.map(t => t.plain_text).join("") || null;
@@ -142,6 +143,7 @@ SUMMARY OF TOOLS: ${tools}
                     metadata: { 
                         title,
                         visible,
+                        multiProduct,
                         status, 
                         source:          github,
                         mediaUrl:        mediaUrl,

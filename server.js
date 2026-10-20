@@ -30,7 +30,8 @@ const ROLE_MAP = {
     "instructional-design":  "Instructional Design",
     "ai-integration":        "AI Integration",
     "general":               "General",
-    "design":                "Design"
+    "design":                "Design",
+    "enablement":            "Enablement"
 };
 
 const INDUSTRY_MAP = {
@@ -218,7 +219,7 @@ async function findRelevantContext(query, filteredStore, topK = 5, sortByDate = 
         const title   = item.metadata?.title;
         const visible = item.metadata?.visible;
         if (!title || visible === "No") return;
-        if (title === "Industrial Design & Product Development") {
+                if (item.metadata?.multiProduct) {
             if (industrialDesignChunks.length < 8) industrialDesignChunks.push(item);
         } else if (!byProject[title]) {
             byProject[title] = item;
@@ -508,7 +509,7 @@ app.post('/ask-buddy', async (req, res) => {
 
                         const regexRoleQuery = detectRoleFromQuery(userPrompt).length > 0 || detectCategoryFromQuery(userPrompt).length > 0;
             const roleQuery = (routedRoles.length > 0 || (!route && regexRoleQuery)) && activeRoles.length === 0;
-            const multiProductPage = routedProject === "Industrial Design & Product Development" || (!route && isIndustrialDesignQuery);
+                        const multiProductPage = (routedProject && memoryStore.some(i => i.metadata?.title === routedProject && i.metadata?.multiProduct)) || (!route && isIndustrialDesignQuery);
             const topK = listQuery || timelineQuery ? 20 : multiProductPage ? 15 : roleQuery ? 10 : 5;
 
             

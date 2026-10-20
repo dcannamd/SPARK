@@ -17,7 +17,7 @@ require("dotenv").config();
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 const VALID_INTENTS = ["list", "timeline", "personal", "project", "general"];
-const VALID_ROLES = ["Leadership", "Learning Architecture & Design", "Creative Technology & UX", "Design"];
+const VALID_ROLES = ["Leadership", "Learning Architecture & Design", "Creative Technology & UX", "Design", "Enablement", "Instructional Design"];
 
 const normalize = (s) => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 
