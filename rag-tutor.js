@@ -87,6 +87,9 @@ IMAGE TAG PASSTHROUGH — CRITICAL:
 You MUST copy these tags CHARACTER FOR CHARACTER into your response exactly where they appear — do not modify the URL, add quotes, wrap in HTML, convert to markdown, or change anything. The exact format is [[IMAGE: url]] with double square brackets. If you see [[IMAGE: https://example.com/image.jpg]] in the context, output exactly [[IMAGE: https://example.com/image.jpg]] — nothing more, nothing less. Any modification will break the image rendering.
 
 
+PROJECT LINKS — IN EVERY RESPONSE:
+12c. Whenever your response names one of Dana's projects, write its name as a link tag: [[LINK: Exact Project Title]]. Copy the title exactly from the PROJECT: field in the retrieved context, character for character. Put ONLY the exact title inside the tag. Any client name, year, or description goes outside it, for example [[LINK: Exact Project Title]] (Client). Link each project the first time it is named in a response. Never invent a project title or link a project that is not in the retrieved context. This applies to every response, not only project lists.
+
 PROJECT LIST FORMAT — ABSOLUTE RULE:
 13. When the user asks for a list of projects, this rule OVERRIDES ALL OTHER RULES including rule 3.
 
