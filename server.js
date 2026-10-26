@@ -510,7 +510,7 @@ app.post('/ask-buddy', async (req, res) => {
                         const regexRoleQuery = detectRoleFromQuery(userPrompt).length > 0 || detectCategoryFromQuery(userPrompt).length > 0;
             const roleQuery = (routedRoles.length > 0 || (!route && regexRoleQuery)) && activeRoles.length === 0;
                         const multiProductPage = (routedProject && memoryStore.some(i => i.metadata?.title === routedProject && i.metadata?.multiProduct)) || (!route && isIndustrialDesignQuery);
-            const topK = listQuery || timelineQuery ? 20 : multiProductPage ? 15 : roleQuery ? 10 : 5;
+            const topK = listQuery || timelineQuery ? 20 : multiProductPage ? 15 : (routedProject || roleQuery) ? 10 : 5;
 
             
             const sortByDate = listQuery || timelineQuery;

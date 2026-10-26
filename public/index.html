@@ -31,8 +31,7 @@
            <div class="suggestion-chips">
                <a class="chip" onclick="askSuggestion(this)">How does SPARK work?</a>
                <a class="chip" onclick="askSuggestion(this)">View Dana's project list</a>
-               <a class="chip" onclick="lastSuggestionChip=&quot;Dana's expertise&quot;; userInput.value=&quot;Tell me about Dana's expertise&quot;; sendMessage();">Dana's expertise</a>
-           </div>
+               <a class="chip" data-query="Tell me about Dana's expertise" onclick="askSuggestion(this)">Dana's expertise</a>           </div>
 
        </div>
 
@@ -130,7 +129,7 @@
 
               function askSuggestion(el) {
            lastSuggestionChip = el.textContent.trim();
-           userInput.value = el.textContent;
+           userInput.value = el.dataset.query || el.textContent;
            posthog.capture('chip_clicked', { chip: el.textContent.trim() });
            sendMessage();
        }
@@ -205,16 +204,18 @@
            const wrapper = document.createElement('div');
            wrapper.className = 'media-wrapper';
            if (type === "youtube") {
-               const match = mediaUrl.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+               const match = mediaUrl.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
                if (!match) return null;
                const videoId = match[1];
                const link = document.createElement('a');
                link.href = `https://www.youtube.com/watch?v=${videoId}`;
                link.target = "_blank";
                link.rel = "noopener noreferrer";
+           link.onclick = (e) => { e.preventDefault(); wrapper.innerHTML = `<div style="position:relative;padding-top:56.25%;border-radius:10px;overflow:hidden;"><iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1" style="position:absolute;inset:0;width:100%;height:100%;border:0;" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`; };
                link.style.cssText = "display:block; position:relative; background:transparent; line-height:0; font-size:0; border-radius:10px; overflow:hidden;";
                const thumb = document.createElement('img');
-               thumb.src = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+               thumb.src = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+               thumb.onerror = () => { thumb.onerror = null; thumb.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`; };
                thumb.alt = "Watch video";
                thumb.style.cssText = "width:100%; border-radius:10px; display:block;";
                const playBtn = document.createElement('div');
@@ -231,6 +232,24 @@
                wrapper.appendChild(img);
            }
            return wrapper;
+       }
+
+       function embedYouTubeLinks(container) {
+           container.querySelectorAll('a[href*="youtube.com"], a[href*="youtu.be"]').forEach(a => {
+               const m = a.href.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
+               if (!m) return;
+               a.addEventListener('click', (e) => {
+                   e.preventDefault();
+                   const next = a.nextElementSibling;
+                   if (next && next.classList.contains('inline-video')) { next.remove(); return; }
+                   const box = document.createElement('div');
+                   box.className = 'inline-video';
+                   box.style.cssText = 'position:relative;padding-top:56.25%;margin:10px 0;border-radius:10px;overflow:hidden;';
+                   box.innerHTML = `<iframe src="https://www.youtube.com/embed/${m[1]}?autoplay=1&rel=0&modestbranding=1&playsinline=1" style="position:absolute;inset:0;width:100%;height:100%;border:0;" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+                   a.insertAdjacentElement('afterend', box);
+                   box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+               });
+           });
        }
 
        function addTypingIndicator() {
@@ -373,6 +392,7 @@
     const rawHtml = marked.parse(withImages.replace(/^ {4,}/gm, '  '));
     const withTargets = rawHtml.replace(/<a href="(https?:\/\/[^"]+)"/g, '<a href="$1" target="_blank" rel="noopener noreferrer"');
     div.innerHTML = renderProjectLinks(withTargets);
+    embedYouTubeLinks(div);
 }
   
             else {
