@@ -4,6 +4,7 @@
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
    <title>Dana | Learning Architect Twin</title>
+   <meta name="referrer" content="strict-origin-when-cross-origin">
    <link rel="stylesheet" href="style.css">
       <script>
        !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]);t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+" (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys getNextSurveyStep onSessionId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
@@ -211,7 +212,7 @@
                link.href = `https://www.youtube.com/watch?v=${videoId}`;
                link.target = "_blank";
                link.rel = "noopener noreferrer";
-           link.onclick = (e) => { e.preventDefault(); wrapper.innerHTML = `<div style="position:relative;padding-top:56.25%;border-radius:10px;overflow:hidden;"><iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1" style="position:absolute;inset:0;width:100%;height:100%;border:0;" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`; };
+           link.onclick = (e) => { e.preventDefault(); wrapper.innerHTML = `<div style="position:relative;padding-top:56.25%;border-radius:10px;overflow:hidden;"><iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1" style="position:absolute;inset:0;width:100%;height:100%;border:0;" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>`; };
                link.style.cssText = "display:block; position:relative; background:transparent; line-height:0; font-size:0; border-radius:10px; overflow:hidden;";
                const thumb = document.createElement('img');
                thumb.src = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
@@ -245,7 +246,7 @@
                    const box = document.createElement('div');
                    box.className = 'inline-video';
                    box.style.cssText = 'position:relative;padding-top:56.25%;margin:10px 0;border-radius:10px;overflow:hidden;';
-                   box.innerHTML = `<iframe src="https://www.youtube.com/embed/${m[1]}?autoplay=1&rel=0&modestbranding=1&playsinline=1" style="position:absolute;inset:0;width:100%;height:100%;border:0;" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+                   box.innerHTML = `<iframe src="https://www.youtube.com/embed/${m[1]}?autoplay=1&rel=0&modestbranding=1&playsinline=1" style="position:absolute;inset:0;width:100%;height:100%;allow="autoplay; encrypted-media; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>border:0;" </iframe>`;
                    a.insertAdjacentElement('afterend', box);
                    box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                });
